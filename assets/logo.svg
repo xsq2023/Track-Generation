@@ -1,0 +1,13 @@
+<svg width="640" height="200" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Track-Generation logo placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#1f2937"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="200" fill="url(#bg)" rx="18"/>
+  <circle cx="88" cy="100" r="46" fill="#10b981" opacity="0.9"/>
+  <path d="M70 105 L88 82 L106 105 L88 128 Z" fill="#111827"/>
+  <text x="160" y="92" font-family="Arial, Helvetica, sans-serif" font-size="38" fill="#f9fafb" font-weight="700">Track-Generation</text>
+  <text x="160" y="126" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#9ca3af">Placeholder Logo · Replace with your brand asset</text>
+</svg>

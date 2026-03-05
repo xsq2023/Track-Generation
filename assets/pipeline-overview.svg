@@ -1,0 +1,36 @@
+<svg width="960" height="420" viewBox="0 0 960 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="pipeline overview placeholder">
+  <rect width="960" height="420" fill="#0f172a" rx="20"/>
+  <text x="40" y="58" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#e2e8f0" font-weight="700">Track Pipeline (Placeholder)</text>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="40" y="100" width="200" height="180" rx="14" fill="#1d4ed8"/>
+    <text x="60" y="145" font-size="28" fill="#eff6ff" font-weight="700">Step0</text>
+    <text x="60" y="180" font-size="18" fill="#dbeafe">Scene checks</text>
+
+    <rect x="280" y="100" width="200" height="180" rx="14" fill="#0ea5e9"/>
+    <text x="300" y="145" font-size="28" fill="#ecfeff" font-weight="700">Step1</text>
+    <text x="300" y="180" font-size="18" fill="#cffafe">Start pose</text>
+
+    <rect x="520" y="100" width="200" height="180" rx="14" fill="#14b8a6"/>
+    <text x="540" y="145" font-size="28" fill="#f0fdfa" font-weight="700">Step2</text>
+    <text x="540" y="180" font-size="18" fill="#ccfbf1">Floor estimate</text>
+
+    <rect x="760" y="100" width="160" height="180" rx="14" fill="#22c55e"/>
+    <text x="778" y="145" font-size="28" fill="#f0fdf4" font-weight="700">Step3</text>
+    <text x="778" y="180" font-size="18" fill="#dcfce7">Trajectory</text>
+  </g>
+
+  <g stroke="#cbd5e1" stroke-width="4" fill="none" marker-end="url(#arrow)">
+    <path d="M240 190 H275"/>
+    <path d="M480 190 H515"/>
+    <path d="M720 190 H755"/>
+  </g>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#cbd5e1"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="350" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#94a3b8">Replace this file with real screenshots or GIFs from your pipeline output.</text>
+</svg>

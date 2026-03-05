@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+
+# Outputs
+output/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
