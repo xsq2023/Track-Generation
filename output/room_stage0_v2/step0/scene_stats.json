@@ -1,0 +1,146 @@
+{
+  "source_root": "/Users/sota/code/3d_new/data/room",
+  "scene_count": 13,
+  "thresholds": {
+    "anomaly_max_dim_soft": 200.0,
+    "anomaly_max_dim_hard": 1000.0,
+    "anomaly_aabb_volume_hard": 10000000000.0
+  },
+  "max_dim": {
+    "min": 4.199599266052246,
+    "median": 15.323324203491211,
+    "p95": 3539.6355102538973
+  },
+  "aabb_volume": {
+    "min": 30.375636145766517,
+    "median": 582.3344356946661,
+    "p95": 31740721116.1998
+  },
+  "anomaly_scenes": [
+    "abandoned_classroom",
+    "barn_interior_and_exterior",
+    "modern_apartment_interior"
+  ],
+  "anomaly_soft_scenes": [
+    "abandoned_classroom",
+    "barn_interior_and_exterior",
+    "modern_apartment_interior"
+  ],
+  "anomaly_hard_scenes": [
+    "modern_apartment_interior"
+  ],
+  "scenes": [
+    {
+      "scene_id": "a_liminal_space",
+      "scene_path": "/Users/sota/code/3d_new/data/room/a_liminal_space.glb",
+      "max_dim": 11.60028076171875,
+      "aabb_volume": 352.232404472215,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "abandoned_classroom",
+      "scene_path": "/Users/sota/code/3d_new/data/room/abandoned_classroom.glb",
+      "max_dim": 432.3298645019531,
+      "aabb_volume": 11142712.162883565,
+      "anomaly_level": "soft",
+      "anomaly_reasons": [
+        "max_dim_gt_soft_threshold"
+      ]
+    },
+    {
+      "scene_id": "barn_interior_and_exterior",
+      "scene_path": "/Users/sota/code/3d_new/data/room/barn_interior_and_exterior.glb",
+      "max_dim": 999.9999389648438,
+      "aabb_volume": 201543886.22787136,
+      "anomaly_level": "soft",
+      "anomaly_reasons": [
+        "max_dim_gt_soft_threshold"
+      ]
+    },
+    {
+      "scene_id": "caspar_herman_storms_salong_-_ladegarden",
+      "scene_path": "/Users/sota/code/3d_new/data/room/caspar_herman_storms_salong_-_ladegarden.glb",
+      "max_dim": 15.59341812133789,
+      "aabb_volume": 1777.8920107311073,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "eloiza_e_ze_newton",
+      "scene_path": "/Users/sota/code/3d_new/data/room/eloiza_e_ze_newton.glb",
+      "max_dim": 5.835719108581543,
+      "aabb_volume": 73.10500875801827,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "modern_apartment_interior",
+      "scene_path": "/Users/sota/code/3d_new/data/room/modern_apartment_interior.glb",
+      "max_dim": 7349.0888671875,
+      "aabb_volume": 79049486961.15797,
+      "anomaly_level": "hard",
+      "anomaly_reasons": [
+        "max_dim_gt_soft_threshold",
+        "max_dim_gt_hard_threshold",
+        "aabb_volume_gt_hard_threshold"
+      ]
+    },
+    {
+      "scene_id": "modern_bathroom",
+      "scene_path": "/Users/sota/code/3d_new/data/room/modern_bathroom.glb",
+      "max_dim": 4.199599266052246,
+      "aabb_volume": 30.375636145766517,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "modern_office",
+      "scene_path": "/Users/sota/code/3d_new/data/room/modern_office.glb",
+      "max_dim": 5.975373268127441,
+      "aabb_volume": 81.70609033881473,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "office_of_a_crane_operator",
+      "scene_path": "/Users/sota/code/3d_new/data/room/office_of_a_crane_operator.glb",
+      "max_dim": 15.284159660339355,
+      "aabb_volume": 146.68164362255527,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "sci_fi_biolab_corridor",
+      "scene_path": "/Users/sota/code/3d_new/data/room/sci_fi_biolab_corridor.glb",
+      "max_dim": 15.323324203491211,
+      "aabb_volume": 364.0759611210519,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "stylized_locker_room",
+      "scene_path": "/Users/sota/code/3d_new/data/room/stylized_locker_room.glb",
+      "max_dim": 14.634857177734375,
+      "aabb_volume": 582.3344356946661,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "vintage_hotel_room_photoscan",
+      "scene_path": "/Users/sota/code/3d_new/data/room/vintage_hotel_room_photoscan.glb",
+      "max_dim": 34.14625549316406,
+      "aabb_volume": 15823.34848841885,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    },
+    {
+      "scene_id": "vr_gallery_house_baked",
+      "scene_path": "/Users/sota/code/3d_new/data/room/vr_gallery_house_baked.glb",
+      "max_dim": 85.56403350830078,
+      "aabb_volume": 275953.50383478205,
+      "anomaly_level": "normal",
+      "anomaly_reasons": []
+    }
+  ]
+}
