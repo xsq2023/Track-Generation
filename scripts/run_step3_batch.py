@@ -317,7 +317,7 @@ def percentile_or_default(values: np.ndarray, q: float, default: float) -> float
     return float(np.percentile(values, q))
 
 
-def depth_sector_values(depth: np.ndarray, valid: np.ndarray, y0: float, y1: float, x0: float, x1: float) -> np.ndarray:
+def depth_sector_values(depth: np.ndarray, valid: np.ndarray, y0: float, y1: float, x0: float, x1: float) -> Tuple[np.ndarray, float]:
     h, w = depth.shape
     ry0 = int(np.clip(round(h * y0), 0, h - 1))
     ry1 = int(np.clip(round(h * y1), ry0 + 1, h))
@@ -325,9 +325,11 @@ def depth_sector_values(depth: np.ndarray, valid: np.ndarray, y0: float, y1: flo
     rx1 = int(np.clip(round(w * x1), rx0 + 1, w))
     block = depth[ry0:ry1, rx0:rx1]
     block_valid = valid[ry0:ry1, rx0:rx1]
-    if not np.any(block_valid):
-        return np.zeros((0,), dtype=np.float32)
-    return block[block_valid]
+    total = int(block.size)
+    if total <= 0 or (not np.any(block_valid)):
+        return np.zeros((0,), dtype=np.float32), 0.0
+    vals = block[block_valid]
+    return vals, float(vals.size / total)
 
 
 def depth_proxy_stats(depth: np.ndarray, args) -> Dict:
@@ -336,10 +338,10 @@ def depth_proxy_stats(depth: np.ndarray, args) -> Dict:
         valid &= depth < float(args.depth_valid_max_m)
 
     valid_ratio = float(np.mean(valid))
-    center = depth_sector_values(depth, valid, 0.45, 0.90, 0.35, 0.65)
-    left = depth_sector_values(depth, valid, 0.45, 0.90, 0.00, 0.35)
-    right = depth_sector_values(depth, valid, 0.45, 0.90, 0.65, 1.00)
-    fwd_left = depth_sector_values(depth, valid, 0.45, 0.90, 0.20, 0.55)
+    center, center_valid_ratio = depth_sector_values(depth, valid, 0.45, 0.90, 0.35, 0.65)
+    left, left_valid_ratio = depth_sector_values(depth, valid, 0.45, 0.90, 0.00, 0.35)
+    right, right_valid_ratio = depth_sector_values(depth, valid, 0.45, 0.90, 0.65, 1.00)
+    fwd_left, fwd_left_valid_ratio = depth_sector_values(depth, valid, 0.45, 0.90, 0.20, 0.55)
 
     clearance_fwd = percentile_or_default(center, 30.0, 0.0)
     clearance_left = percentile_or_default(left, 30.0, 0.0)
@@ -351,14 +353,28 @@ def depth_proxy_stats(depth: np.ndarray, args) -> Dict:
     if center.size > 0:
         near_wall_ratio = float(np.mean(center < float(args.near_wall_depth_m)))
 
+    outside_proxy = bool(
+        valid_ratio < float(args.outside_valid_ratio_min)
+        or (
+            center_valid_ratio < float(args.outside_center_valid_ratio_max)
+            and left_valid_ratio < float(args.outside_side_valid_ratio_max)
+            and right_valid_ratio < float(args.outside_side_valid_ratio_max)
+        )
+    )
+
     return {
         "valid_ratio": valid_ratio,
+        "center_valid_ratio": center_valid_ratio,
+        "left_valid_ratio": left_valid_ratio,
+        "right_valid_ratio": right_valid_ratio,
+        "fwd_left_valid_ratio": fwd_left_valid_ratio,
         "clearance_fwd_m": clearance_fwd,
         "clearance_left_m": clearance_left,
         "clearance_right_m": clearance_right,
         "clearance_fwd_left_m": clearance_fwd_left,
         "min_depth_m": min_depth,
         "near_wall_ratio": near_wall_ratio,
+        "outside_proxy": outside_proxy,
         "blank_frame": bool(valid_ratio < float(args.blank_valid_ratio)),
     }
 
@@ -542,11 +558,21 @@ def encode_gif_from_frames(frames_dir: Path, out_path: Path, fps: int) -> Tuple[
 
 
 def compute_step_length(fwd: float, state: str, args) -> float:
-    step_nominal = float(args.step_nominal_m)
+    if state == "ROOM_CHECK_COMMIT":
+        step_nominal = float(args.step_nominal_commit_m)
+        step_scale = float(args.step_clearance_scale_commit)
+    elif state == "ESCAPE":
+        step_nominal = float(args.step_nominal_escape_m)
+        step_scale = float(args.step_clearance_scale_escape)
+    else:
+        step_nominal = float(args.step_nominal_wall_m)
+        step_scale = float(args.step_clearance_scale_wall)
     step_min = float(args.step_min_m)
-    step = clamp(step_nominal, step_min, float(args.step_clearance_scale) * max(fwd, 0.0))
+    step_max = float(args.step_max_m)
+    step_hi = max(step_min, min(step_max, step_scale * max(fwd, 0.0)))
+    step = clamp(step_nominal, step_min, step_hi)
     if fwd > float(args.anti_freeze_fwd_m):
-        step = max(step, float(args.anti_freeze_step_m))
+        step = min(step_max, max(step, float(args.anti_freeze_step_m)))
     if state == "TURN_IN_PLACE":
         return 0.0
     if fwd < float(args.step_block_fwd_m):
@@ -561,6 +587,8 @@ def scan_headings(
     yaw_ref: float,
     pitch_rad: float,
     visited: set,
+    forbid_yaw_rad: Optional[float],
+    forbid_half_angle_rad: float,
     args,
 ) -> Dict:
     bins = int(args.escape_scan_bins)
@@ -573,6 +601,10 @@ def scan_headings(
         score = float(stats["clearance_fwd_m"]) * (
             1.0 + float(args.lambda_novelty) * nov + float(args.lambda_frontier) * frontier
         )
+        forbidden = False
+        if forbid_yaw_rad is not None and abs(angle_diff_rad(yaw, float(forbid_yaw_rad))) <= float(forbid_half_angle_rad):
+            forbidden = True
+            score = score * float(args.no_back_forbid_score_scale)
         rows.append(
             {
                 "yaw_rad": yaw,
@@ -581,11 +613,14 @@ def scan_headings(
                 "clearance": float(stats["clearance_fwd_m"]),
                 "novelty": nov,
                 "frontier_hits_norm": frontier,
+                "forbidden": bool(forbidden),
             }
         )
 
     rows = sorted(rows, key=lambda x: x["score"], reverse=True)
-    top_k = rows[: max(1, int(args.escape_scan_top_k))]
+    usable = [r for r in rows if not bool(r.get("forbidden", False))]
+    ranked = usable if usable else rows
+    top_k = ranked[: max(1, int(args.escape_scan_top_k))]
     return {
         "top": top_k,
         "best": (top_k[0] if top_k else None),
@@ -812,7 +847,15 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
         "environment": env_meta,
         "params": {
             "target_frames": int(args.target_frames),
-            "path_target_m": float(args.path_target_m),
+            "path_min_m": float(args.path_min_done_m),
+            "path_max_m": float(args.path_max_m),
+            "plateau_window_path_m": float(args.plateau_window_path_m),
+            "plateau_new_cells_max": int(args.plateau_new_cells_max),
+            "startup_wall_frames": int(args.startup_wall_frames),
+            "startup_wall_path_m": float(args.startup_wall_path_m),
+            "opening_persist_frames": int(args.opening_persist_frames),
+            "black_soft_void_ratio": float(args.black_soft_void_ratio),
+            "black_soft_ratio": float(args.black_soft_ratio),
             "grid_res_m": float(args.grid_res_m),
             "state_priority": "safety>turn>escape>room_check>wall_follow",
         },
@@ -833,6 +876,15 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
     recovery_frames = 0
     collision_frames = 0
     blank_streak = 0
+    black_high_streak = 0
+    black_soft_streak = 0
+    max_black_soft_streak = 0
+    black_soft_alert_frames = 0
+    depth_low_streak = 0
+    outside_proxy_streak = 0
+    black_alert_frames = 0
+    outside_proxy_frames = 0
+    inside_reanchor_count = 0
     zero_move_streak = 0
     max_zero_move_streak = 0
     coverage_stall_streak = 0
@@ -860,7 +912,9 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
 
     history_l = deque(maxlen=10)
     history_f = deque(maxlen=10)
+    wall_lock_recent = deque(maxlen=8)
     window = deque(maxlen=int(args.stuck_window_frames))
+    plateau_window = deque()
     corner_lock_level = 0
 
     fail_reason_hist = Counter()
@@ -878,6 +932,21 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
     origin_yaw = float(start_yaw)
     origin_match_streak = 0
     coverage_gain_recent = 0
+    coverage_gain_last_path_m = 0
+    net_disp_last_path_m = 0.0
+    plateau_reason = None
+    sum_black_void_ratio = 0.0
+    wall_lock_frames = 0
+    startup_wall_guard_frames = 0
+    opening_persist_count = 0
+    max_opening_persist_count = 0
+    last_wall_lock = False
+    last_startup_wall_guard_active = False
+    last_effective_move_yaw = float(start_yaw)
+    no_back_yaw_rad = None
+    no_back_until_frame = -1
+    escape_blocked_streak = 0
+    max_escape_blocked_streak = 0
 
     terminal_record = {
         "last_fsm_state": fsm_state,
@@ -921,6 +990,43 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             min_depth = float(stats["min_depth_m"])
             near_wall_ratio = float(stats["near_wall_ratio"])
             valid_ratio = float(stats["valid_ratio"])
+            outside_proxy = bool(stats["outside_proxy"])
+            black_mask = np.all(rgb <= int(args.black_pixel_threshold), axis=2)
+            black_ratio = float(np.mean(black_mask))
+            depth_valid_mask = np.isfinite(depth) & (depth > float(args.depth_valid_min_m))
+            if bool(args.enforce_depth_valid_max):
+                depth_valid_mask &= depth < float(args.depth_valid_max_m)
+            black_void_ratio = float(np.mean(black_mask & (~depth_valid_mask)))
+            sum_black_void_ratio += black_void_ratio
+
+            black_alert = bool(black_ratio > float(args.black_ratio_recovery))
+            if black_alert:
+                black_high_streak += 1
+                black_alert_frames += 1
+            else:
+                black_high_streak = 0
+
+            black_soft_alert = bool(
+                black_void_ratio > float(args.black_soft_void_ratio)
+                or (black_ratio > float(args.black_soft_ratio) and valid_ratio < 0.75)
+            )
+            if black_soft_alert:
+                black_soft_streak += 1
+                black_soft_alert_frames += 1
+            else:
+                black_soft_streak = 0
+            max_black_soft_streak = max(max_black_soft_streak, int(black_soft_streak))
+
+            if valid_ratio < float(args.depth_valid_ratio_recovery_min):
+                depth_low_streak += 1
+            else:
+                depth_low_streak = 0
+
+            if outside_proxy:
+                outside_proxy_streak += 1
+                outside_proxy_frames += 1
+            else:
+                outside_proxy_streak = 0
 
             if bool(stats["blank_frame"]):
                 blank_streak += 1
@@ -940,6 +1046,83 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 )
                 break
 
+            if depth_low_streak >= int(args.depth_valid_ratio_fail_streak):
+                fail_reason = "outside_scene_or_invalid_depth"
+                fail_reason_detail = (
+                    f"valid_ratio={valid_ratio:.3f}, depth_low_streak={depth_low_streak} "
+                    f">= depth_valid_ratio_fail_streak={int(args.depth_valid_ratio_fail_streak)}"
+                )
+                if (
+                    path_length_m >= float(args.path_min_done_m)
+                    or path_length_m >= float(args.hazard_soft_timeout_path_m)
+                ):
+                    done_reason = "TIMEOUT"
+                    terminal_record.update(
+                        {
+                            "last_fsm_state": fsm_state,
+                            "gate_name": "depth_gate_soft_timeout",
+                            "fail_reason": fail_reason,
+                        }
+                    )
+                else:
+                    done_reason = "FAIL"
+                    terminal_record.update(
+                        {
+                            "last_fsm_state": fsm_state,
+                            "gate_name": "depth_gate_hard_fail",
+                            "fail_reason": fail_reason,
+                        }
+                    )
+                break
+
+            black_soft_recovery = bool(black_soft_streak >= 2)
+            hard_recovery_trigger = bool(
+                depth_low_streak >= int(args.depth_valid_ratio_recovery_streak)
+                or outside_proxy_streak >= int(args.outside_proxy_recovery_streak)
+            )
+            inside_recovery_trigger = bool(hard_recovery_trigger)
+            reanchor_recovery_trigger = bool(hard_recovery_trigger)
+            inside_force_reanchor = False
+            if (
+                reanchor_recovery_trigger
+                and bool(args.enable_inside_reanchor)
+                and outside_proxy_streak >= int(args.outside_proxy_reanchor_streak)
+                and inside_reanchor_count < int(args.inside_reanchor_max)
+            ):
+                inside_force_reanchor = True
+                inside_reanchor_count += 1
+
+            if outside_proxy_streak >= int(args.outside_proxy_fail_streak):
+                fail_reason = "outside_scene_or_blackframe"
+                fail_reason_detail = (
+                    f"outside_proxy_streak={outside_proxy_streak} >= outside_proxy_fail_streak={int(args.outside_proxy_fail_streak)}"
+                )
+                if (
+                    path_length_m >= float(args.path_min_done_m)
+                    or path_length_m >= float(args.hazard_soft_timeout_path_m)
+                ):
+                    done_reason = "TIMEOUT"
+                    terminal_record.update(
+                        {
+                            "last_fsm_state": fsm_state,
+                            "gate_name": "outside_proxy_soft_timeout",
+                            "fail_reason": fail_reason,
+                        }
+                    )
+                else:
+                    done_reason = "FAIL"
+                    terminal_record.update(
+                        {
+                            "last_fsm_state": fsm_state,
+                            "gate_name": "outside_proxy_guard",
+                            "fail_reason": fail_reason,
+                        }
+                    )
+                break
+
+            black_hazard = bool(black_soft_streak >= 6 and depth_low_streak >= 3)
+            force_escape_from_black = bool(black_hazard and frame_idx >= 5 and fsm_state != "ESCAPE")
+
             cur_cell = grid_cell(pos=pos, grid_res_m=float(args.grid_res_m))
             visited_before = len(visited)
             visited.add(cur_cell)
@@ -952,6 +1135,26 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             delta_l = float(left - l_base)
             delta_f = float(fwd - f_base)
             geom_event = classify_geom_event(stats=stats, delta_l=delta_l, delta_f=delta_f, args=args)
+
+            wall_lock_recent.append(1 if (0.25 <= left <= 1.2) else 0)
+            wall_lock = bool(len(wall_lock_recent) >= 8 and sum(wall_lock_recent) >= 6)
+            last_wall_lock = wall_lock
+            if wall_lock:
+                wall_lock_frames += 1
+
+            if geom_event == "OPENING_OUTER":
+                opening_persist_count += 1
+            else:
+                opening_persist_count = 0
+            max_opening_persist_count = max(max_opening_persist_count, int(opening_persist_count))
+
+            startup_wall_guard_active = bool(
+                frame_idx < int(args.startup_wall_frames)
+                and path_length_m < float(args.startup_wall_path_m)
+            )
+            last_startup_wall_guard_active = startup_wall_guard_active
+            if startup_wall_guard_active:
+                startup_wall_guard_frames += 1
 
             novelty_score, frontier_hits_norm = novelty_and_frontier(
                 visited=visited,
@@ -1009,15 +1212,27 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             scan_best_heading_deg = None
             turn_locked = False
 
-            safety_override = bool(min_depth > 0 and min_depth < float(args.safety_min_depth_m))
+            safety_override = bool(
+                (min_depth > 0 and min_depth < float(args.safety_min_depth_m))
+                or hard_recovery_trigger
+            )
 
-            if safety_override and fsm_state != "TURN_IN_PLACE":
+            if safety_override and fsm_state not in {"TURN_IN_PLACE", "ESCAPE"}:
                 fsm_state = "TURN_IN_PLACE"
                 fsm_state_frames = 0
                 corner_lock_level = 0
+            elif force_escape_from_black:
+                fsm_state = "ESCAPE"
+                fsm_state_frames = 0
+                heading_lock = None
             elif fsm_state == "WALL_FOLLOW":
+                allow_explore = not bool(startup_wall_guard_active)
                 if (
-                    (zero_move_streak >= int(args.zero_move_escape_streak) or coverage_stall_streak >= int(args.coverage_stall_escape_streak))
+                    allow_explore
+                    and (
+                        zero_move_streak >= int(args.zero_move_escape_streak)
+                        or coverage_stall_streak >= int(args.coverage_stall_escape_streak)
+                    )
                     and (frame_idx - last_escape_frame) >= int(args.escape_cooldown_frames)
                 ):
                     fsm_state = "ESCAPE"
@@ -1027,7 +1242,12 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state = "TURN_IN_PLACE"
                     fsm_state_frames = 0
                     corner_lock_level = 0
-                elif geom_event == "OPENING_OUTER":
+                elif (
+                    allow_explore
+                    and geom_event == "OPENING_OUTER"
+                    and opening_persist_count >= int(args.opening_persist_frames)
+                    and wall_lock
+                ):
                     fsm_state = "ROOM_CHECK_COMMIT"
                     fsm_state_frames = 0
                     room_check_trigger = True
@@ -1036,7 +1256,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     commit_dist_left_m = float(args.room_check_commit_dist_m)
                     commit_frames_left = int(args.commit_frames_max)
                     room_check_start_cells = visited_unique_cells
-                elif stuck and (frame_idx - last_escape_frame) >= int(args.escape_cooldown_frames):
+                elif allow_explore and stuck and (frame_idx - last_escape_frame) >= int(args.escape_cooldown_frames):
                     fsm_state = "ESCAPE"
                     fsm_state_frames = 0
                     heading_lock = None
@@ -1050,7 +1270,11 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state_frames = 0
                     corner_lock_level = 0
                 elif (
-                    (zero_move_streak >= int(args.zero_move_escape_streak) or coverage_stall_streak >= int(args.coverage_stall_escape_streak))
+                    (not bool(startup_wall_guard_active))
+                    and (
+                        zero_move_streak >= int(args.zero_move_escape_streak)
+                        or coverage_stall_streak >= int(args.coverage_stall_escape_streak)
+                    )
                     and (frame_idx - last_escape_frame) >= int(args.escape_cooldown_frames)
                 ):
                     fsm_state = "ESCAPE"
@@ -1058,7 +1282,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     heading_lock = None
                     corner_lock_level = 0
                 elif (
-                    turn_locked
+                    (not bool(startup_wall_guard_active))
+                    and turn_locked
                     and corner_lock_level >= 2
                     and (frame_idx - last_escape_frame) >= int(args.escape_cooldown_frames)
                 ):
@@ -1067,7 +1292,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     heading_lock = None
                     corner_lock_level = 0
                 elif (
-                    stuck
+                    (not bool(startup_wall_guard_active))
+                    and stuck
                     and fsm_state_frames >= int(args.turn_to_escape_frames)
                     and (frame_idx - last_escape_frame) >= int(args.escape_cooldown_frames)
                 ):
@@ -1094,6 +1320,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                         yaw_ref=yaw,
                         pitch_rad=pitch,
                         visited=visited,
+                        forbid_yaw_rad=(float(no_back_yaw_rad) if (no_back_yaw_rad is not None and frame_idx <= int(no_back_until_frame)) else None),
+                        forbid_half_angle_rad=math.radians(float(args.no_back_forbid_half_deg)),
                         args=args,
                     )
                     best = scan.get("best")
@@ -1148,6 +1376,10 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                         fsm_state_frames = 0
                         heading_lock = None
 
+            if fsm_state == "ESCAPE" and fsm_prev_state != "ESCAPE":
+                no_back_yaw_rad = float(last_effective_move_yaw)
+                no_back_until_frame = frame_idx + int(args.no_back_forbid_frames)
+
             recovery_used = "none"
             motion_policy = "wall_follow"
             yaw_cmd = 0.0
@@ -1157,19 +1389,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             if fsm_state == "TURN_IN_PLACE":
                 motion_policy = "turn_in_place"
                 turn_sign = -1.0 if left <= right else 1.0
-                if turn_locked and corner_lock_level == 0:
-                    recovery_used = "backoff"
-                    yaw_cmd = 0.0
-                    step_cmd = float(args.corner_backoff_m)
-                    move_mode = "backward"
-                elif turn_locked and corner_lock_level == 1:
-                    recovery_used = "sidestep"
-                    yaw_cmd = 0.0
-                    step_cmd = float(args.corner_sidestep_m)
-                    move_mode = "sidestep_right" if left <= right else "sidestep_left"
-                else:
-                    yaw_cmd = turn_sign * math.radians(float(args.turn_yaw_limit_deg))
-                    step_cmd = 0.0
+                yaw_cmd = turn_sign * math.radians(float(args.turn_yaw_limit_deg))
+                step_cmd = 0.0
             elif fsm_state == "ROOM_CHECK_COMMIT":
                 motion_policy = "room_check_commit"
                 target_yaw = yaw if heading_lock is None else float(heading_lock)
@@ -1188,6 +1409,15 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     math.radians(float(args.escape_commit_yaw_limit_deg)),
                 )
                 step_cmd = compute_step_length(fwd=fwd, state=fsm_state, args=args)
+                if heading_lock is not None and step_cmd <= 0.0:
+                    if max(left, right) > float(args.step_obstacle_margin_m) + 0.08:
+                        recovery_used = "sidestep"
+                        move_mode = "sidestep_left" if left >= right else "sidestep_right"
+                        step_cmd = max(float(args.step_min_m), float(args.corner_sidestep_m))
+                    else:
+                        recovery_used = "backoff"
+                        move_mode = "backward"
+                        step_cmd = min(float(args.inside_backoff_m), float(args.recovery_step_cap_m))
             else:
                 motion_policy = "wall_follow"
                 e = float(left - float(args.wall_target_dist_m))
@@ -1234,6 +1464,12 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 else:
                     pos_target[0] += math.cos(yaw_next) * step_final
                     pos_target[2] += math.sin(yaw_next) * step_final
+            if inside_force_reanchor:
+                recovery_used = "reanchor"
+                move_mode = "reanchor"
+                pos_target = origin_pos.copy()
+                yaw_next = float(origin_yaw)
+                step_final = 0.0
 
             ts_policy = time.time()
             obs_after = observe_pose(sim=sim, agent=agent, position=pos_target.astype(np.float32), yaw_rad=yaw_next, pitch_rad=pitch)
@@ -1250,6 +1486,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 recovery_used = "rotate_probe_big"
 
             path_length_m += delta_pos_m
+            if delta_pos_m >= float(args.last_move_min_delta_m):
+                last_effective_move_yaw = float(yaw_after)
             if delta_pos_m < float(args.zero_move_delta_pos_m):
                 zero_move_streak += 1
             else:
@@ -1258,13 +1496,49 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             if fsm_state in {"ROOM_CHECK_COMMIT", "ESCAPE"}:
                 commit_dist_left_m = max(0.0, commit_dist_left_m - delta_pos_m)
                 commit_frames_left -= 1
-            if fsm_state == "TURN_IN_PLACE" and recovery_used in {"backoff", "sidestep"}:
-                if delta_pos_m < float(args.blocked_delta_pos_m):
-                    corner_lock_level = min(2, corner_lock_level + 1)
-                else:
-                    corner_lock_level = 0
-            elif fsm_state != "TURN_IN_PLACE":
+            if fsm_state != "TURN_IN_PLACE":
                 corner_lock_level = 0
+
+            if fsm_state == "ESCAPE" and heading_lock is not None:
+                if delta_pos_m < float(args.zero_move_delta_pos_m):
+                    escape_blocked_streak += 1
+                else:
+                    escape_blocked_streak = 0
+                max_escape_blocked_streak = max(max_escape_blocked_streak, int(escape_blocked_streak))
+                if escape_blocked_streak >= int(args.escape_blocked_rescan_streak):
+                    no_back_yaw_rad = float(heading_lock)
+                    no_back_until_frame = frame_idx + int(args.no_back_forbid_frames)
+                    heading_lock = None
+                    commit_dist_left_m = 0.0
+                    commit_frames_left = 0
+                    escape_blocked_streak = 0
+            else:
+                escape_blocked_streak = 0
+
+            plateau_window.append(
+                {
+                    "path": float(path_length_m),
+                    "visited": int(visited_unique_cells),
+                    "pos": pos_after.copy(),
+                }
+            )
+            while len(plateau_window) >= 2 and (path_length_m - float(plateau_window[0]["path"])) > float(args.plateau_window_path_m):
+                plateau_window.popleft()
+            path_span_last_window = 0.0
+            coverage_gain_last_path_m = 0
+            net_disp_last_path_m = 0.0
+            coverage_plateau = False
+            if plateau_window:
+                base = plateau_window[0]
+                path_span_last_window = float(path_length_m - float(base["path"]))
+                coverage_gain_last_path_m = int(visited_unique_cells - int(base["visited"]))
+                net_disp_last_path_m = float(np.linalg.norm(pos_after - np.asarray(base["pos"], dtype=np.float64)))
+                coverage_plateau = bool(
+                    path_span_last_window >= float(args.plateau_window_path_m) * 0.8
+                    and coverage_gain_last_path_m <= int(args.plateau_new_cells_max)
+                    and net_disp_last_path_m >= float(args.plateau_min_net_disp_m)
+                    and escape_attempts_consecutive <= int(args.plateau_max_escape_attempts_consecutive)
+                )
 
             state_pos_limit = float(args.wall_delta_pos_max_m)
             state_yaw_limit = float(args.wall_delta_yaw_max_deg)
@@ -1274,6 +1548,9 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             elif fsm_state in {"ROOM_CHECK_COMMIT", "ESCAPE"}:
                 state_pos_limit = float(args.commit_delta_pos_max_m)
                 state_yaw_limit = float(args.commit_delta_yaw_max_deg)
+            if recovery_used == "reanchor":
+                state_pos_limit = max(state_pos_limit, float(args.reanchor_delta_pos_max_m))
+                state_yaw_limit = max(state_yaw_limit, float(args.reanchor_delta_yaw_max_deg))
 
             continuity_status = "OK"
             continuity_fail_reason = None
@@ -1351,6 +1628,17 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 "delta_pos_m": delta_pos_m,
                 "delta_yaw_deg": delta_yaw_deg,
                 "delta_h_m": delta_h_m,
+                "black_ratio": black_ratio,
+                "black_void_ratio": float(black_void_ratio),
+                "black_soft_alert": bool(black_soft_alert),
+                "black_soft_streak": int(black_soft_streak),
+                "depth_valid_ratio": valid_ratio,
+                "outside_proxy": bool(outside_proxy),
+                "wall_lock": bool(wall_lock),
+                "opening_persist_count": int(opening_persist_count),
+                "startup_wall_guard_active": bool(startup_wall_guard_active),
+                "no_back_active": bool(no_back_yaw_rad is not None and frame_idx <= int(no_back_until_frame)),
+                "no_back_yaw_deg": None if no_back_yaw_rad is None else float(math.degrees(float(no_back_yaw_rad))),
                 "zero_move_streak": int(zero_move_streak),
                 "coverage_stall_streak": int(coverage_stall_streak),
                 "clearance_fwd_m": fwd,
@@ -1384,6 +1672,9 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 "visited_unique_cells": int(visited_unique_cells),
                 "coverage_area_m2": coverage_area_m2,
                 "new_cell": int(new_cell),
+                "coverage_gain_last_window": int(coverage_gain_last_path_m),
+                "net_disp_last_window_m": float(net_disp_last_path_m),
+                "coverage_plateau": bool(coverage_plateau),
                 "progress_marker": "frame_done",
                 "stage_timing_sec": {
                     "t_step3_render": timings_render,
@@ -1409,22 +1700,25 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 if (
                     origin_dist < float(args.origin_finish_pos_m)
                     and origin_yaw_diff < float(args.origin_finish_yaw_deg)
-                    and path_length_m > float(args.path_target_m)
-                    and coverage_gain_recent <= int(args.coverage_gain_recent_max)
+                    and path_length_m >= float(args.path_min_done_m)
+                    and coverage_plateau
                 ):
                     origin_match_streak += 1
                 else:
                     origin_match_streak = 0
                 if origin_match_streak >= int(args.origin_finish_streak):
                     done_reason = "DONE"
+                    plateau_reason = "origin_finish"
                     break
 
             # regular finish
-            if path_length_m >= float(args.path_target_m):
+            if path_length_m >= float(args.path_max_m):
                 done_reason = "DONE"
+                plateau_reason = "path_max_reached"
                 break
-            if path_length_m >= float(args.path_coverage_done_min_m) and coverage_gain_recent <= int(args.coverage_gain_recent_max):
+            if path_length_m >= float(args.path_min_done_m) and coverage_plateau:
                 done_reason = "DONE"
+                plateau_reason = "coverage_plateau"
                 break
             if (frame_idx + 1) >= int(args.target_frames):
                 if path_length_m < float(args.path_min_done_m):
@@ -1445,8 +1739,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     done_reason = "TIMEOUT"
                     fail_reason = "target_frames_reached"
                     fail_reason_detail = (
-                        f"path_length_m={path_length_m:.3f}, path_target_m={float(args.path_target_m):.3f}, "
-                        f"coverage_gain_recent={int(coverage_gain_recent)}"
+                        f"path_length_m={path_length_m:.3f}, path_min_m={float(args.path_min_done_m):.3f}, "
+                        f"coverage_gain_last_window={int(coverage_gain_last_path_m)}, net_disp_last_window_m={net_disp_last_path_m:.3f}"
                     )
                     terminal_record.update(
                         {
@@ -1504,6 +1798,9 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
     collision_ratio = float(collision_frames / max(frames, 1))
     avg_step_m = float(path_length_m / max(frames, 1))
     net_displacement_m = float(np.linalg.norm(pos - origin_pos)) if frames > 0 else 0.0
+    black_void_ratio_avg = float(sum_black_void_ratio / max(frames, 1))
+    wall_lock_ratio = float(wall_lock_frames / max(frames, 1))
+    startup_wall_guard_ratio = float(startup_wall_guard_frames / max(frames, 1))
 
     room_check_success_ratio = float(room_check_success_total / max(room_check_triggers_total, 1))
     escape_success_ratio = float(escape_success_total / max(escape_attempts_total, 1))
@@ -1527,12 +1824,28 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
         "max_consecutive_recovery": int(max_consecutive_recovery),
         "max_zero_move_streak": int(max_zero_move_streak),
         "max_coverage_stall_streak": int(max_coverage_stall_streak),
+        "max_escape_blocked_streak": int(max_escape_blocked_streak),
+        "black_alert_frames": int(black_alert_frames),
+        "black_soft_alert_frames": int(black_soft_alert_frames),
+        "outside_proxy_frames": int(outside_proxy_frames),
+        "inside_reanchor_count": int(inside_reanchor_count),
+        "black_void_ratio": black_void_ratio_avg,
+        "black_soft_alert": bool(black_soft_alert_frames > 0),
+        "black_soft_streak": int(max_black_soft_streak),
+        "wall_lock": bool(last_wall_lock),
+        "wall_lock_ratio": wall_lock_ratio,
+        "opening_persist_count": int(max_opening_persist_count),
+        "startup_wall_guard_active": bool(last_startup_wall_guard_active),
+        "startup_wall_guard_ratio": startup_wall_guard_ratio,
         "path_length_m": float(path_length_m),
         "avg_step_m": avg_step_m,
         "net_displacement_m": net_displacement_m,
         "visited_unique_cells": visited_unique_cells,
         "coverage_area_m2": coverage_area_m2,
         "coverage_gain_recent": int(coverage_gain_recent),
+        "coverage_gain_last_window": int(coverage_gain_last_path_m),
+        "net_disp_last_window_m": float(net_disp_last_path_m),
+        "plateau_reason": plateau_reason,
         "room_check_triggers_total": int(room_check_triggers_total),
         "room_check_success_ratio": room_check_success_ratio,
         "escape_attempts_total": int(escape_attempts_total),
@@ -1550,8 +1863,13 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 "escape_attempts_total": int(escape_attempts_total),
                 "max_consecutive_recovery": int(max_consecutive_recovery),
                 "coverage_gain_recent": int(coverage_gain_recent),
+                "coverage_gain_last_window": int(coverage_gain_last_path_m),
+                "net_disp_last_window_m": float(net_disp_last_path_m),
                 "max_zero_move_streak": int(max_zero_move_streak),
                 "max_coverage_stall_streak": int(max_coverage_stall_streak),
+                "black_alert_frames": int(black_alert_frames),
+                "outside_proxy_frames": int(outside_proxy_frames),
+                "inside_reanchor_count": int(inside_reanchor_count),
             },
             "stuck_window": {
                 "net_disp_window": float(net_disp_window) if 'net_disp_window' in locals() else None,
@@ -1580,6 +1898,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
 
     if (not step3_ok) and debug_images:
         Image.fromarray(debug_images[-1]).save(scene_dir / "step3_fail_snapshot.png")
+    ok_video = True
+    video_msg = ""
     if bool(args.make_video):
         ok_video, video_msg = encode_video_from_frames(
             frames_dir=frames_dir,
@@ -1587,18 +1907,17 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             fps=int(args.video_fps),
         )
         if not ok_video:
-            if bool(args.video_fallback_gif):
-                ok_gif, gif_msg = encode_gif_from_frames(
-                    frames_dir=frames_dir,
-                    out_path=video_gif_path,
-                    fps=int(args.video_fps),
-                )
-                if ok_gif:
-                    warnings.append(f"{video_msg}; fallback_gif_ok")
-                else:
-                    warnings.append(f"{video_msg}; {gif_msg}")
-            else:
-                warnings.append(video_msg)
+            warnings.append(video_msg)
+    if bool(args.video_fallback_gif):
+        ok_gif, gif_msg = encode_gif_from_frames(
+            frames_dir=frames_dir,
+            out_path=video_gif_path,
+            fps=int(args.video_fps),
+        )
+        if not ok_gif:
+            warnings.append(gif_msg)
+        elif bool(args.make_video) and not ok_video:
+            warnings.append(f"{video_msg}; gif_ok")
 
     timings["t_total"] = float(time.time() - t0)
     traj_meta["stage_timing_sec"] = timings
@@ -1618,10 +1937,16 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             "recovery_ratio": recovery_ratio,
             "max_zero_move_streak": int(max_zero_move_streak),
             "max_coverage_stall_streak": int(max_coverage_stall_streak),
+            "black_alert_frames": int(black_alert_frames),
+            "outside_proxy_frames": int(outside_proxy_frames),
+            "inside_reanchor_count": int(inside_reanchor_count),
             "room_check_triggers_total": int(room_check_triggers_total),
             "escape_attempts_total": int(escape_attempts_total),
             "fail_reason": fail_reason,
             "fail_reason_detail": fail_reason_detail,
+            "coverage_gain_last_window": int(coverage_gain_last_path_m),
+            "net_disp_last_window_m": float(net_disp_last_path_m),
+            "plateau_reason": plateau_reason,
             "traj_meta_json": str(traj_meta_path),
             "poses_jsonl": str(poses_path),
             "frames_dir": str(frames_dir) if bool(args.export_frames) else None,
@@ -1778,6 +2103,8 @@ def build_worker_cmd(script_path: Path, step2_report_path: Path, args) -> List[s
         str(args.target_frames),
         "--path-target-m",
         str(args.path_target_m),
+        "--path-max-m",
+        str(args.path_max_m),
         "--grid-res-m",
         str(args.grid_res_m),
         "--novelty-cap-m",
@@ -1862,12 +2189,28 @@ def build_worker_cmd(script_path: Path, step2_report_path: Path, args) -> List[s
         str(args.opening_override_delta_l_m),
         "--opening-override-fwd-m",
         str(args.opening_override_fwd_m),
+        "--opening-persist-frames",
+        str(args.opening_persist_frames),
         "--step-nominal-m",
         str(args.step_nominal_m),
+        "--step-nominal-wall-m",
+        str(args.step_nominal_wall_m),
+        "--step-nominal-commit-m",
+        str(args.step_nominal_commit_m),
+        "--step-nominal-escape-m",
+        str(args.step_nominal_escape_m),
         "--step-min-m",
         str(args.step_min_m),
+        "--step-max-m",
+        str(args.step_max_m),
         "--step-clearance-scale",
         str(args.step_clearance_scale),
+        "--step-clearance-scale-wall",
+        str(args.step_clearance_scale_wall),
+        "--step-clearance-scale-commit",
+        str(args.step_clearance_scale_commit),
+        "--step-clearance-scale-escape",
+        str(args.step_clearance_scale_escape),
         "--step-obstacle-margin-m",
         str(args.step_obstacle_margin_m),
         "--anti-freeze-fwd-m",
@@ -1876,6 +2219,32 @@ def build_worker_cmd(script_path: Path, step2_report_path: Path, args) -> List[s
         str(args.anti_freeze_step_m),
         "--step-block-fwd-m",
         str(args.step_block_fwd_m),
+        "--last-move-min-delta-m",
+        str(args.last_move_min_delta_m),
+        "--black-backoff-step-m",
+        str(args.black_backoff_step_m),
+        "--black-backoff-steps-medium",
+        str(args.black_backoff_steps_medium),
+        "--black-backoff-steps-heavy",
+        str(args.black_backoff_steps_heavy),
+        "--black-recovery-commit-dist-m",
+        str(args.black_recovery_commit_dist_m),
+        "--black-recovery-commit-min-frames",
+        str(args.black_recovery_commit_min_frames),
+        "--black-lateral-primary-deg",
+        str(args.black_lateral_primary_deg),
+        "--black-lateral-secondary-deg",
+        str(args.black_lateral_secondary_deg),
+        "--black-lateral-secondary-when-tight-m",
+        str(args.black_lateral_secondary_when_tight_m),
+        "--no-back-forbid-half-deg",
+        str(args.no_back_forbid_half_deg),
+        "--no-back-forbid-frames",
+        str(args.no_back_forbid_frames),
+        "--no-back-forbid-score-scale",
+        str(args.no_back_forbid_score_scale),
+        "--escape-blocked-rescan-streak",
+        str(args.escape_blocked_rescan_streak),
         "--turn-enter-fwd-m",
         str(args.turn_enter_fwd_m),
         "--turn-exit-fwd-m",
@@ -1884,6 +2253,10 @@ def build_worker_cmd(script_path: Path, step2_report_path: Path, args) -> List[s
         str(args.turn_min_frames),
         "--turn-to-escape-frames",
         str(args.turn_to_escape_frames),
+        "--startup-wall-frames",
+        str(args.startup_wall_frames),
+        "--startup-wall-path-m",
+        str(args.startup_wall_path_m),
         "--delta-h-max-m",
         str(args.delta_h_max_m),
         "--wall-delta-pos-max-m",
@@ -1912,6 +2285,40 @@ def build_worker_cmd(script_path: Path, step2_report_path: Path, args) -> List[s
         str(args.blank_valid_ratio),
         "--blank-frame-streak-max",
         str(args.blank_frame_streak_max),
+        "--black-pixel-threshold",
+        str(args.black_pixel_threshold),
+        "--black-ratio-recovery",
+        str(args.black_ratio_recovery),
+        "--black-soft-void-ratio",
+        str(args.black_soft_void_ratio),
+        "--black-soft-ratio",
+        str(args.black_soft_ratio),
+        "--black-ratio-fail",
+        str(args.black_ratio_fail),
+        "--black-fail-streak",
+        str(args.black_fail_streak),
+        "--depth-valid-ratio-recovery-min",
+        str(args.depth_valid_ratio_recovery_min),
+        "--depth-valid-ratio-recovery-streak",
+        str(args.depth_valid_ratio_recovery_streak),
+        "--depth-valid-ratio-fail-streak",
+        str(args.depth_valid_ratio_fail_streak),
+        "--outside-valid-ratio-min",
+        str(args.outside_valid_ratio_min),
+        "--outside-center-valid-ratio-max",
+        str(args.outside_center_valid_ratio_max),
+        "--outside-side-valid-ratio-max",
+        str(args.outside_side_valid_ratio_max),
+        "--outside-proxy-recovery-streak",
+        str(args.outside_proxy_recovery_streak),
+        "--outside-proxy-reanchor-streak",
+        str(args.outside_proxy_reanchor_streak),
+        "--outside-proxy-fail-streak",
+        str(args.outside_proxy_fail_streak),
+        "--inside-backoff-m",
+        str(args.inside_backoff_m),
+        "--inside-reanchor-max",
+        str(args.inside_reanchor_max),
         "--safety-min-depth-m",
         str(args.safety_min_depth_m),
         "--collision-min-depth-m",
@@ -1924,12 +2331,26 @@ def build_worker_cmd(script_path: Path, step2_report_path: Path, args) -> List[s
         str(args.recovery_step_cap_m),
         "--escape-success-new-cells-min",
         str(args.escape_success_new_cells_min),
+        "--plateau-window-path-m",
+        str(args.plateau_window_path_m),
+        "--plateau-new-cells-max",
+        str(args.plateau_new_cells_max),
+        "--plateau-min-net-disp-m",
+        str(args.plateau_min_net_disp_m),
+        "--plateau-max-escape-attempts-consecutive",
+        str(args.plateau_max_escape_attempts_consecutive),
         "--coverage-gain-recent-max",
         str(args.coverage_gain_recent_max),
         "--path-min-done-m",
         str(args.path_min_done_m),
+        "--hazard-soft-timeout-path-m",
+        str(args.hazard_soft_timeout_path_m),
         "--path-coverage-done-min-m",
         str(args.path_coverage_done_min_m),
+        "--reanchor-delta-pos-max-m",
+        str(args.reanchor_delta_pos_max_m),
+        "--reanchor-delta-yaw-max-deg",
+        str(args.reanchor_delta_yaw_max_deg),
         "--turn-corner-lock-frames",
         str(args.turn_corner_lock_frames),
         "--corner-backoff-m",
@@ -1962,6 +2383,10 @@ def build_worker_cmd(script_path: Path, step2_report_path: Path, args) -> List[s
         cmd.append("--enable-origin-finish")
     else:
         cmd.append("--no-enable-origin-finish")
+    if args.enable_inside_reanchor:
+        cmd.append("--enable-inside-reanchor")
+    else:
+        cmd.append("--no-enable-inside-reanchor")
     if args.export_frames:
         cmd.append("--export-frames")
     else:
@@ -2162,8 +2587,9 @@ def main():
     parser.add_argument("--zfar", type=float, default=0.0)
     parser.add_argument("--disable-physics", action="store_true")
 
-    parser.add_argument("--target-frames", type=int, default=80)
-    parser.add_argument("--path-target-m", type=float, default=8.0)
+    parser.add_argument("--target-frames", type=int, default=220)
+    parser.add_argument("--path-target-m", type=float, default=55.0)
+    parser.add_argument("--path-max-m", type=float, default=55.0)
     parser.add_argument("--grid-res-m", type=float, default=0.35)
     parser.add_argument("--novelty-cap-m", type=float, default=4.0)
     parser.add_argument("--novelty-sample-step-m", type=float, default=0.35)
@@ -2172,10 +2598,10 @@ def main():
 
     parser.add_argument("--wall-target-dist-m", type=float, default=0.45)
     parser.add_argument("--wall-kp", type=float, default=1.0)
-    parser.add_argument("--wall-yaw-limit-deg", type=float, default=15.0)
-    parser.add_argument("--turn-yaw-limit-deg", type=float, default=22.0)
-    parser.add_argument("--commit-yaw-limit-deg", type=float, default=12.0)
-    parser.add_argument("--escape-commit-yaw-limit-deg", type=float, default=12.0)
+    parser.add_argument("--wall-yaw-limit-deg", type=float, default=14.0)
+    parser.add_argument("--turn-yaw-limit-deg", type=float, default=14.0)
+    parser.add_argument("--commit-yaw-limit-deg", type=float, default=9.0)
+    parser.add_argument("--escape-commit-yaw-limit-deg", type=float, default=9.0)
 
     parser.add_argument("--room-check-commit-dist-m", type=float, default=2.0)
     parser.add_argument("--escape-commit-dist-m", type=float, default=2.5)
@@ -2184,7 +2610,7 @@ def main():
 
     parser.add_argument("--escape-scan-bins", type=int, default=36)
     parser.add_argument("--escape-scan-top-k", type=int, default=3)
-    parser.add_argument("--max-escape-attempts", type=int, default=4)
+    parser.add_argument("--max-escape-attempts", type=int, default=6)
     parser.add_argument("--escape-cooldown-frames", type=int, default=20)
 
     parser.add_argument("--stuck-window-frames", type=int, default=30)
@@ -2207,30 +2633,53 @@ def main():
     parser.add_argument("--corner-backoff-m", type=float, default=0.20)
     parser.add_argument("--corner-sidestep-m", type=float, default=0.20)
 
-    parser.add_argument("--opening-delta-l-m", type=float, default=0.60)
-    parser.add_argument("--opening-left-m", type=float, default=1.20)
-    parser.add_argument("--opening-fwd-m", type=float, default=1.00)
-    parser.add_argument("--opening-votes-needed", type=int, default=2)
+    parser.add_argument("--opening-delta-l-m", type=float, default=0.40)
+    parser.add_argument("--opening-left-m", type=float, default=1.50)
+    parser.add_argument("--opening-fwd-m", type=float, default=1.20)
+    parser.add_argument("--opening-votes-needed", type=int, default=3)
     parser.add_argument("--opening-right-cap-m", type=float, default=1.20)
-    parser.add_argument("--opening-min-valid-ratio", type=float, default=0.50)
-    parser.add_argument("--opening-override-delta-l-m", type=float, default=0.60)
-    parser.add_argument("--opening-override-fwd-m", type=float, default=1.00)
+    parser.add_argument("--opening-min-valid-ratio", type=float, default=0.70)
+    parser.add_argument("--opening-override-delta-l-m", type=float, default=0.55)
+    parser.add_argument("--opening-override-fwd-m", type=float, default=0.90)
+    parser.add_argument("--opening-persist-frames", type=int, default=3)
     parser.add_argument("--opening-require-right-cap", dest="opening_require_right_cap", action="store_true", default=False)
     parser.add_argument("--no-opening-require-right-cap", dest="opening_require_right_cap", action="store_false")
 
-    parser.add_argument("--step-nominal-m", type=float, default=0.22)
-    parser.add_argument("--step-min-m", type=float, default=0.12)
+    parser.add_argument("--step-nominal-m", type=float, default=0.24)
+    parser.add_argument("--step-nominal-wall-m", type=float, default=0.24)
+    parser.add_argument("--step-nominal-commit-m", type=float, default=0.35)
+    parser.add_argument("--step-nominal-escape-m", type=float, default=0.30)
+    parser.add_argument("--step-min-m", type=float, default=0.14)
+    parser.add_argument("--step-max-m", type=float, default=0.45)
     parser.add_argument("--step-clearance-scale", type=float, default=0.40)
+    parser.add_argument("--step-clearance-scale-wall", type=float, default=0.40)
+    parser.add_argument("--step-clearance-scale-commit", type=float, default=0.50)
+    parser.add_argument("--step-clearance-scale-escape", type=float, default=0.50)
     parser.add_argument("--step-obstacle-margin-m", type=float, default=0.15)
-    parser.add_argument("--anti-freeze-fwd-m", type=float, default=0.80)
-    parser.add_argument("--anti-freeze-step-m", type=float, default=0.18)
+    parser.add_argument("--anti-freeze-fwd-m", type=float, default=1.00)
+    parser.add_argument("--anti-freeze-step-m", type=float, default=0.25)
     parser.add_argument("--step-block-fwd-m", type=float, default=0.30)
+    parser.add_argument("--last-move-min-delta-m", type=float, default=0.05)
+    parser.add_argument("--black-backoff-step-m", type=float, default=0.25)
+    parser.add_argument("--black-backoff-steps-medium", type=int, default=1)
+    parser.add_argument("--black-backoff-steps-heavy", type=int, default=2)
+    parser.add_argument("--black-recovery-commit-dist-m", type=float, default=2.0)
+    parser.add_argument("--black-recovery-commit-min-frames", type=int, default=8)
+    parser.add_argument("--black-lateral-primary-deg", type=float, default=90.0)
+    parser.add_argument("--black-lateral-secondary-deg", type=float, default=60.0)
+    parser.add_argument("--black-lateral-secondary-when-tight-m", type=float, default=0.90)
+    parser.add_argument("--no-back-forbid-half-deg", type=float, default=35.0)
+    parser.add_argument("--no-back-forbid-frames", type=int, default=40)
+    parser.add_argument("--no-back-forbid-score-scale", type=float, default=0.0)
+    parser.add_argument("--escape-blocked-rescan-streak", type=int, default=8)
 
     parser.add_argument("--turn-enter-fwd-m", type=float, default=0.55)
-    parser.add_argument("--turn-exit-fwd-m", type=float, default=0.90)
+    parser.add_argument("--turn-exit-fwd-m", type=float, default=0.70)
     parser.add_argument("--turn-min-frames", type=int, default=3)
-    parser.add_argument("--turn-to-escape-frames", type=int, default=10)
+    parser.add_argument("--turn-to-escape-frames", type=int, default=16)
 
+    parser.add_argument("--startup-wall-frames", type=int, default=15)
+    parser.add_argument("--startup-wall-path-m", type=float, default=2.0)
     parser.add_argument("--delta-h-max-m", type=float, default=0.08)
     parser.add_argument("--wall-delta-pos-max-m", type=float, default=0.30)
     parser.add_argument("--commit-delta-pos-max-m", type=float, default=0.40)
@@ -2248,16 +2697,42 @@ def main():
     parser.add_argument("--near-wall-ratio-high", type=float, default=0.35)
     parser.add_argument("--blank-valid-ratio", type=float, default=0.05)
     parser.add_argument("--blank-frame-streak-max", type=int, default=8)
-    parser.add_argument("--safety-min-depth-m", type=float, default=0.20)
+    parser.add_argument("--black-pixel-threshold", type=int, default=5)
+    parser.add_argument("--black-ratio-recovery", type=float, default=0.35)
+    parser.add_argument("--black-soft-void-ratio", type=float, default=0.30)
+    parser.add_argument("--black-soft-ratio", type=float, default=0.35)
+    parser.add_argument("--black-ratio-fail", type=float, default=0.25)
+    parser.add_argument("--black-fail-streak", type=int, default=2)
+    parser.add_argument("--depth-valid-ratio-recovery-min", type=float, default=0.60)
+    parser.add_argument("--depth-valid-ratio-recovery-streak", type=int, default=2)
+    parser.add_argument("--depth-valid-ratio-fail-streak", type=int, default=8)
+    parser.add_argument("--outside-valid-ratio-min", type=float, default=0.50)
+    parser.add_argument("--outside-center-valid-ratio-max", type=float, default=0.08)
+    parser.add_argument("--outside-side-valid-ratio-max", type=float, default=0.08)
+    parser.add_argument("--outside-proxy-recovery-streak", type=int, default=2)
+    parser.add_argument("--outside-proxy-reanchor-streak", type=int, default=3)
+    parser.add_argument("--outside-proxy-fail-streak", type=int, default=8)
+    parser.add_argument("--inside-backoff-m", type=float, default=0.25)
+    parser.add_argument("--enable-inside-reanchor", dest="enable_inside_reanchor", action="store_true", default=True)
+    parser.add_argument("--no-enable-inside-reanchor", dest="enable_inside_reanchor", action="store_false")
+    parser.add_argument("--inside-reanchor-max", type=int, default=4)
+    parser.add_argument("--safety-min-depth-m", type=float, default=0.12)
     parser.add_argument("--collision-min-depth-m", type=float, default=0.25)
     parser.add_argument("--blocked-step-min-m", type=float, default=0.12)
     parser.add_argument("--blocked-delta-pos-m", type=float, default=0.03)
     parser.add_argument("--recovery-step-cap-m", type=float, default=0.25)
 
     parser.add_argument("--escape-success-new-cells-min", type=int, default=1)
+    parser.add_argument("--plateau-window-path-m", type=float, default=8.0)
+    parser.add_argument("--plateau-new-cells-max", type=int, default=8)
+    parser.add_argument("--plateau-min-net-disp-m", type=float, default=1.0)
+    parser.add_argument("--plateau-max-escape-attempts-consecutive", type=int, default=2)
     parser.add_argument("--coverage-gain-recent-max", type=int, default=1)
-    parser.add_argument("--path-min-done-m", type=float, default=3.0)
+    parser.add_argument("--path-min-done-m", type=float, default=12.0)
+    parser.add_argument("--hazard-soft-timeout-path-m", type=float, default=5.0)
     parser.add_argument("--path-coverage-done-min-m", type=float, default=8.0)
+    parser.add_argument("--reanchor-delta-pos-max-m", type=float, default=10.0)
+    parser.add_argument("--reanchor-delta-yaw-max-deg", type=float, default=180.0)
 
     parser.add_argument("--step3-pitch-deg", type=float, default=0.0)
 
@@ -2266,9 +2741,9 @@ def main():
     parser.add_argument("--origin-finish-pos-m", type=float, default=0.60)
     parser.add_argument("--origin-finish-yaw-deg", type=float, default=20.0)
     parser.add_argument("--origin-finish-streak", type=int, default=5)
-    parser.add_argument("--export-frames", dest="export_frames", action="store_true", default=False)
+    parser.add_argument("--export-frames", dest="export_frames", action="store_true", default=True)
     parser.add_argument("--no-export-frames", dest="export_frames", action="store_false")
-    parser.add_argument("--make-video", dest="make_video", action="store_true", default=False)
+    parser.add_argument("--make-video", dest="make_video", action="store_true", default=True)
     parser.add_argument("--no-make-video", dest="make_video", action="store_false")
     parser.add_argument("--video-fps", type=int, default=10)
     parser.add_argument("--video-fallback-gif", dest="video_fallback_gif", action="store_true", default=True)
