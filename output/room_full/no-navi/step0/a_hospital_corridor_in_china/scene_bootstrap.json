@@ -1,0 +1,91 @@
+{
+  "scene_id": "a_hospital_corridor_in_china",
+  "scene_path": "/Users/sota/code/3d/room/a_hospital_corridor_in_china.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789460.211911,
+  "events": [
+    {
+      "ts_unix": 1772789460.211912,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 1,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789460.9249542,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13659,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 28.604820251464844,
+          "aabb_volume": 2079.8458049429805,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789460.925225,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.305859,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.3062642,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.306464,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.365669,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.3705049,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.652462,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.652962,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.694863,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.709207,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789461.709866,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789461.709866
+}

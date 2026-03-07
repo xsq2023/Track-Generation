@@ -1,0 +1,14 @@
+{
+  "stage_instance": {
+    "template_name": "/Users/sota/code/3d_new/output/room_full/step0/sci_fi_biolab_corridor/stage_post_transform.stage_config.json",
+    "translation_origin": "asset_local",
+    "translation": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "uniform_scale": 1.0
+  },
+  "object_instances": [],
+  "articulated_object_instances": []
+}

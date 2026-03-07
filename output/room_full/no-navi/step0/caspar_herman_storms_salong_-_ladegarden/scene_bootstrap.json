@@ -1,0 +1,91 @@
+{
+  "scene_id": "caspar_herman_storms_salong_-_ladegarden",
+  "scene_path": "/Users/sota/code/3d/room/caspar_herman_storms_salong_-_ladegarden.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789470.620363,
+  "events": [
+    {
+      "ts_unix": 1772789470.620363,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 8,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789471.337476,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13700,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 15.59341812133789,
+          "aabb_volume": 1777.8920107311073,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789471.337983,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789471.764894,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789471.765215,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789471.765412,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789471.822756,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789471.829949,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789472.160139,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789472.160456,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789472.217013,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789472.361429,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789472.3620858,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789472.3620858
+}

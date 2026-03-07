@@ -4,8 +4,24 @@ __pycache__/
 *.so
 .venv/
 
-# Outputs
-output/
+# Local dependency checkout
+habitat-sim/
+
+# Generated outputs
+output/**/.DS_Store
+output/**/*.png
+output/**/*.jpg
+output/**/*.jpeg
+output/**/*.gif
+output/**/*.mp4
+output/**/*.npy
+output/**/*.jsonl
+output/**/*.zip
+output/**/_batch_logs/
+output/**/navmesh_cache/
+output/room_full/step0
+output/room_full/step1
+output/room_full/step2
 
 # OS/editor
 .DS_Store

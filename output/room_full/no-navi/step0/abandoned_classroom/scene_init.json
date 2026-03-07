@@ -1,0 +1,403 @@
+{
+  "scene_id": "abandoned_classroom",
+  "scene_path": "/Users/sota/code/3d/room/abandoned_classroom.glb",
+  "pipeline_stage": 0,
+  "step_name": "stage0_scene_init",
+  "status": "OK",
+  "run_state": "OK",
+  "quarantine": false,
+  "anomaly": {
+    "level": "soft",
+    "soft": true,
+    "hard": false,
+    "reasons": [
+      "max_dim_gt_soft_threshold"
+    ],
+    "max_dim": 432.3298645019531,
+    "aabb_volume": 11142712.162883565,
+    "from_scene_stats": true
+  },
+  "seed": 1,
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "zfar": 1000.0,
+    "color_sensor": true,
+    "depth_sensor": true
+  },
+  "source_root": "/Users/sota/code/3d/room",
+  "scene_stats_json": "/Users/sota/code/3d_new/output/room_full/step0/scene_stats.json",
+  "aabb_pre": {
+    "center": [
+      111.356201171875,
+      -223.0230255126953,
+      -57.206851959228516
+    ],
+    "size": [
+      225.26699829101562,
+      432.3298645019531,
+      114.4137191772461
+    ],
+    "min": [
+      -1.2772979736328125,
+      -439.1879577636719,
+      -114.41371154785156
+    ],
+    "max": [
+      223.9897003173828,
+      -6.85809326171875,
+      7.62939453125e-06
+    ],
+    "max_dim": 432.3298645019531,
+    "volume": 11142712.162883565
+  },
+  "aabb_post_expected": {
+    "center": [
+      0.0,
+      25.0,
+      -4.440892098500626e-16
+    ],
+    "size": [
+      26.052676068367923,
+      50.0,
+      13.23222480929596
+    ],
+    "min": [
+      -13.026338034183961,
+      0.0,
+      -6.61611240464798
+    ],
+    "max": [
+      13.026338034183961,
+      50.0,
+      6.616112404647979
+    ],
+    "max_dim": 50.0,
+    "volume": 17236.743331020458
+  },
+  "aabb_post": {
+    "center": [
+      111.356201171875,
+      57.206878662109375,
+      -223.0230255126953
+    ],
+    "size": [
+      225.26699829101562,
+      114.41366577148438,
+      432.3298645019531
+    ],
+    "min": [
+      -1.2772979736328125,
+      4.57763671875e-05,
+      -439.1879577636719
+    ],
+    "max": [
+      223.9897003173828,
+      114.41371154785156,
+      -6.85809326171875
+    ],
+    "max_dim": 432.3298645019531,
+    "volume": 11142706.961715078
+  },
+  "transform_plan": {
+    "scale": 0.115652431408134,
+    "translation": [
+      -12.878615417900644,
+      50.79315516054152,
+      6.616111522289952
+    ],
+    "align_floor_to_zero": true,
+    "target_max_dim": 50.0,
+    "target_min_dim": 10.0,
+    "applied": true,
+    "apply_mode": "stage_config_scene_instance"
+  },
+  "transform_apply_mode": "stage_config_scene_instance",
+  "post_scene_source": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/scene_post_transform.scene_instance.json",
+  "stage_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/stage_post_transform.stage_config.json",
+  "debug_cam_pose_pre": {
+    "position": [
+      111.356201171875,
+      -205.5230255126953,
+      -7.206851959228516
+    ],
+    "look_at_target": [
+      111.356201171875,
+      -223.0230255126953,
+      -57.206851959228516
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 50.0,
+    "debug_cam_distance_raw_m": 518.7958374023438,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.3303504247281061,
+      -0.9438583563660174
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.3366748193867272,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose_post": {
+    "position": [
+      111.356201171875,
+      74.70687866210938,
+      -173.0230255126953
+    ],
+    "look_at_target": [
+      111.356201171875,
+      57.206878662109375,
+      -223.0230255126953
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 50.0,
+    "debug_cam_distance_raw_m": 518.7958374023438,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.3303504247281061,
+      -0.9438583563660174
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.3366748193867272,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose": {
+    "position": [
+      111.356201171875,
+      74.70687866210938,
+      -173.0230255126953
+    ],
+    "look_at_target": [
+      111.356201171875,
+      57.206878662109375,
+      -223.0230255126953
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 50.0,
+    "debug_cam_distance_raw_m": 518.7958374023438,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.3303504247281061,
+      -0.9438583563660174
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.3366748193867272,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose_readback_pre": {
+    "position": [
+      111.356201171875,
+      -205.5230255126953,
+      -7.206851959228516
+    ],
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ]
+  },
+  "debug_cam_pose_readback_post": {
+    "position": [
+      111.356201171875,
+      74.70687866210938,
+      -173.0230255126953
+    ],
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ]
+  },
+  "depth_debug_meta_pre": {
+    "valid_ratio": 1.0,
+    "valid_min_m": 8.93364429473877,
+    "valid_max_m": 152.79949951171875,
+    "valid_mean_m": 95.54849243164062,
+    "clip_max_m": 10.0,
+    "rgb_mean": 58.85882703993055,
+    "rgb_std": 51.14210243618182,
+    "rgb_min": 0,
+    "rgb_max": 255,
+    "depth_range_valid_min_m": 8.93364429473877,
+    "depth_range_valid_max_m": 152.79949951171875,
+    "depth_range_valid_mean_m": 95.54849243164062,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 149.3979034423828,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 0.9926009114583333,
+    "u16_saturation_ratio_auto": 0.010146484375,
+    "u16_saturation_ratio": 0.010146484375,
+    "vis_percentile_min_m": 10.42072889328003,
+    "vis_percentile_max_m": 149.3979034423828,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_rgb_pre.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_pre.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_clip_pre.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_pre.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_pre.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_clip_pre.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_p99_pre.png"
+    }
+  },
+  "depth_debug_meta_post": {
+    "valid_ratio": 1.0,
+    "valid_min_m": 53.636138916015625,
+    "valid_max_m": 274.5889587402344,
+    "valid_mean_m": 143.97052001953125,
+    "clip_max_m": 10.0,
+    "rgb_mean": 72.2549609375,
+    "rgb_std": 67.47317689241459,
+    "rgb_min": 0,
+    "rgb_max": 255,
+    "depth_range_valid_min_m": 53.636138916015625,
+    "depth_range_valid_max_m": 274.5889587402344,
+    "depth_range_valid_mean_m": 143.97052001953125,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 268.43817138671875,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 1.0,
+    "u16_saturation_ratio_auto": 0.010266927083333334,
+    "u16_saturation_ratio": 0.010266927083333334,
+    "vis_percentile_min_m": 60.3286018371582,
+    "vis_percentile_max_m": 268.43817138671875,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_rgb_post.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_post.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_clip_post.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_post.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_post.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_clip_post.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_p99_post.png"
+    }
+  },
+  "depth_debug_meta": {
+    "valid_ratio": 1.0,
+    "valid_min_m": 53.636138916015625,
+    "valid_max_m": 274.5889587402344,
+    "valid_mean_m": 143.97052001953125,
+    "clip_max_m": 10.0,
+    "rgb_mean": 72.2549609375,
+    "rgb_std": 67.47317689241459,
+    "rgb_min": 0,
+    "rgb_max": 255,
+    "depth_range_valid_min_m": 53.636138916015625,
+    "depth_range_valid_max_m": 274.5889587402344,
+    "depth_range_valid_mean_m": 143.97052001953125,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 268.43817138671875,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 1.0,
+    "u16_saturation_ratio_auto": 0.010266927083333334,
+    "u16_saturation_ratio": 0.010266927083333334,
+    "vis_percentile_min_m": 60.3286018371582,
+    "vis_percentile_max_m": 268.43817138671875,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_rgb_post.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_post.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_clip_post.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_post.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_post.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_clip_post.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_p99_post.png"
+    }
+  },
+  "post_render_ok": true,
+  "post_render_fail_reason": null,
+  "navmesh_status": "FAIL",
+  "navmesh_fail_reason": "navmesh_skipped_soft_anomaly",
+  "fallback_used": "no_navmesh_sampling",
+  "fallback_plan": "no_navmesh_sampling",
+  "navmesh_attempts": [
+    {
+      "attempt_id": "SKIP_POLICY",
+      "settings_summary": null,
+      "success": false,
+      "error": "navmesh_skipped_soft_anomaly",
+      "attempt_wall_time_ms": 0.0,
+      "navmesh_poly_count": null
+    }
+  ],
+  "navmesh_cache_key": null,
+  "navmesh_cache_path": null,
+  "scene_init_ok": true,
+  "fail_fast_reasons": [],
+  "init_warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 13684,
+    "pip_freeze_subset": [
+      "habitat_sim==0.3.3",
+      "magnum @ file:///Users/runner/miniconda3/envs/habitat/conda-bld/habitat-sim_1738007552115/work/build/deps/magnum-bindings/src/python",
+      "numpy @ file:///Users/runner/miniforge3/conda-bld/numpy_1707225689808/work/dist/numpy-1.26.4-cp39-cp39-macosx_11_0_arm64.whl#sha256=989042d872faf31c0434bd99fec5ec09b5c5d9a0b8125edd0ae869c5d8851048",
+      "numpy-quaternion @ file:///Users/runner/miniforge3/conda-bld/quaternion_1719301757253/work"
+    ],
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "bootstrap_json": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/scene_bootstrap.json",
+  "artifacts": {
+    "scene_init_json": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/scene_init.json",
+    "scene_stats_json": "/Users/sota/code/3d_new/output/room_full/step0/scene_stats.json",
+    "scene_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/scene_post_transform.scene_instance.json",
+    "stage_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/stage_post_transform.stage_config.json",
+    "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_rgb.png",
+    "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth.png",
+    "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_clip.png",
+    "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth.npy",
+    "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16.png",
+    "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_clip.png",
+    "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/abandoned_classroom/debug_depth_u16_p99.png"
+  }
+}

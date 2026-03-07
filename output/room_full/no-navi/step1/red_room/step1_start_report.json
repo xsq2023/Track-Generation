@@ -1,0 +1,173 @@
+{
+  "scene_id": "red_room",
+  "scene_path": "/Users/sota/code/3d/room/red_room.glb",
+  "pipeline_stage": 1,
+  "step_name": "step1_indoor_start",
+  "step0_scene_init": "/Users/sota/code/3d_new/output/room_full/step0/red_room/scene_init.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/red_room/scene_post_transform.scene_instance.json",
+  "step0_dependency": {
+    "scene_init_ok": true,
+    "quarantine": false,
+    "navmesh_status": "RECOMPUTED_OK",
+    "fallback_plan": "navmesh"
+  },
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "thresholds": {
+    "depth_valid_min_m": 0.0001,
+    "depth_valid_max_m": 200.0,
+    "enforce_depth_valid_max": false,
+    "depth_validity_mode": "finite_gt_min",
+    "depth_near_m": 2.0,
+    "depth_far_m": 8.0,
+    "min_valid_ratio": 0.6,
+    "min_d05_m": 0.2,
+    "max_far_ratio": 0.6,
+    "min_edge_ratio": 0.01,
+    "edge_depth_delta_m": 0.03,
+    "iqr_norm_max_m": 3.0,
+    "score_min": 0.45
+  },
+  "score_weights": {
+    "w_near": 0.3,
+    "w_far": 0.3,
+    "w_edge": 0.2,
+    "w_iqr": 0.2
+  },
+  "search_params": {
+    "max_start_samples": 200,
+    "top_k": 3,
+    "max_actions_per_start": 30,
+    "turn_small_deg": 10.0,
+    "forward_small_m": 0.2,
+    "forward_medium_m": 0.4,
+    "back_small_m": 0.2
+  },
+  "no_navmesh_params": {
+    "cam_height_m": 1.5,
+    "raycast_top_pad_m": 5.0,
+    "min_floor_normal_dot": 0.8,
+    "clearance_min_m": 0.4,
+    "allow_floor_proxy": false,
+    "forward_hit_gate": false,
+    "forward_hit_max_m": 5.0,
+    "forward_yaw_trials": 12,
+    "adaptive_forward_hit_max": true,
+    "forward_hit_max_scale": 0.05,
+    "forward_hit_max_cap_m": 30.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 13903,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "status": "OK",
+  "run_state": "OK",
+  "step1_ok": true,
+  "start_mode": "navmesh",
+  "fail_reason": null,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/red_room_bfd7d0fc57830ca4.navmesh",
+    "error": null
+  },
+  "scene_aabb": {
+    "center": [
+      -1.1036920547485352,
+      1.3999347686767578,
+      -2.384185791015625e-07
+    ],
+    "size": [
+      6.49676513671875,
+      2.7918405532836914,
+      5.351806163787842
+    ],
+    "min": [
+      -4.35207462310791,
+      0.004014492034912109,
+      -2.6759033203125
+    ],
+    "max": [
+      2.14469051361084,
+      2.7958550453186035,
+      2.675902843475342
+    ],
+    "max_dim": 6.49676513671875,
+    "volume": 97.07069827674322
+  },
+  "start_candidates_total": 200,
+  "accepted_candidates": 83,
+  "best_score": 0.6478709183236404,
+  "best_metrics": {
+    "r_valid": 1.0,
+    "r_near": 0.6174479166666667,
+    "r_far": 0.0,
+    "r_edge": 0.01333811635794417,
+    "d05": 0.20852956026792593,
+    "d10": 0.291592448949814,
+    "depth_iqr": 2.399533800780773,
+    "depth_p25": 0.38648170977830887,
+    "depth_p75": 2.786015510559082,
+    "valid_min_m": 0.1827293187379837,
+    "valid_max_m": 2.8445887565612793,
+    "valid_mean_m": 1.5465894937515259,
+    "score": 0.6478709183236404,
+    "score_terms": {
+      "w_near_term": 0.18523437499999998,
+      "w_far_term": 0.3,
+      "w_edge_term": 0.002667623271588834,
+      "w_iqr_term": 0.15996892005205154,
+      "iqr_norm": 0.7998446002602577
+    },
+    "validity_mode": "finite_gt_min",
+    "reject_reasons": [],
+    "gate_pass": true,
+    "score_pass": true,
+    "accept": true
+  },
+  "chosen_start_pose": {
+    "position": [
+      1.7748247385025024,
+      1.7040150165557861,
+      0.10273706912994385
+    ],
+    "yaw_rad": 0.022962577414944736,
+    "pose_readback": {
+      "position": [
+        1.7748247385025024,
+        1.7040150165557861,
+        0.10273706912994385
+      ],
+      "rotation_quat_wxyz": [
+        0.9999340772628784,
+        0.0,
+        0.011481036432087421,
+        0.0
+      ]
+    }
+  },
+  "planner_trace": [],
+  "reject_histogram": {
+    "REJ_LOW_TEXTURE": 93,
+    "REJ_TOO_CLOSE_WALL": 14,
+    "REJ_SCORE_LOW": 14
+  },
+  "artifacts": {
+    "step1_report_json": "/Users/sota/code/3d_new/output/room_full/step1/red_room/step1_start_report.json",
+    "step1_rgb": "/Users/sota/code/3d_new/output/room_full/step1/red_room/step1_rgb.png",
+    "step1_depth": "/Users/sota/code/3d_new/output/room_full/step1/red_room/step1_depth.png",
+    "step1_depth_clip": "/Users/sota/code/3d_new/output/room_full/step1/red_room/step1_depth_clip.png",
+    "step1_depth_npy": "/Users/sota/code/3d_new/output/room_full/step1/red_room/step1_depth.npy"
+  }
+}

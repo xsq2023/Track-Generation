@@ -1,0 +1,107 @@
+{
+  "scene_id": "red_room",
+  "scene_path": "/Users/sota/code/3d/room/red_room.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_explorer_fsm",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/step2/red_room/step2_floor_report.json",
+  "status": "OK",
+  "run_state": "DONE",
+  "step3_ok": true,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/red_room_bfd7d0fc57830ca4.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "frames": 113,
+  "continuity_valid_ratio": 0.9911504424778761,
+  "recovery_ratio": 0.17699115044247787,
+  "collision_ratio": 0.19469026548672566,
+  "max_consecutive_recovery": 1,
+  "max_zero_move_streak": 14,
+  "max_coverage_stall_streak": 12,
+  "max_escape_blocked_streak": 5,
+  "black_alert_frames": 0,
+  "black_soft_alert_frames": 0,
+  "outside_proxy_frames": 0,
+  "inside_reanchor_count": 0,
+  "black_void_ratio": 0.0,
+  "black_soft_alert": false,
+  "black_soft_streak": 0,
+  "wall_lock": true,
+  "wall_lock_ratio": 0.8141592920353983,
+  "opening_persist_count": 0,
+  "startup_wall_guard_active": false,
+  "startup_wall_guard_ratio": 0.035398230088495575,
+  "path_length_m": 13.828405241962756,
+  "avg_step_m": 0.12237526762798899,
+  "net_displacement_m": 2.4686236782385165,
+  "visited_unique_cells": 19,
+  "coverage_area_m2": 2.3274999999999997,
+  "coverage_gain_recent": 2,
+  "coverage_gain_last_window": 8,
+  "net_disp_last_window_m": 2.9626519083976746,
+  "plateau_reason": "coverage_done",
+  "room_check_triggers_total": 0,
+  "room_check_success_ratio": 0.0,
+  "escape_attempts_total": 5,
+  "escape_success_ratio": 0.6,
+  "escape_attempts_consecutive": 1,
+  "fail_reason_histogram": {
+    "continuity_gate_failed": 1
+  },
+  "fail_reason": null,
+  "fail_reason_detail": null,
+  "terminal_record": {
+    "last_fsm_state": "ESCAPE",
+    "gate_name": null,
+    "fail_reason": null,
+    "counters_snapshot": {
+      "room_check_triggers_total": 0,
+      "escape_attempts_total": 5,
+      "max_consecutive_recovery": 1,
+      "coverage_gain_recent": 2,
+      "coverage_gain_last_window": 8,
+      "net_disp_last_window_m": 2.9626519083976746,
+      "max_zero_move_streak": 14,
+      "max_coverage_stall_streak": 12,
+      "black_alert_frames": 0,
+      "outside_proxy_frames": 0,
+      "inside_reanchor_count": 0
+    },
+    "stuck_window": {
+      "net_disp_window": 0.5742488051039455,
+      "path_window": 2.888329799822886,
+      "new_cells_window": 2
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_round2/red_room/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_round2/red_room/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3_round2/red_room/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3_round2/red_room/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3_round2/red_room/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_round2/red_room/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_round2/red_room/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_round2/red_room/step3_frames.gif"
+  },
+  "warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 19341,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "progress_marker": "done",
+  "timeout_stage": null,
+  "stage_timing_sec": {
+    "t_load_scene": 0.34974002838134766,
+    "t_load_navmesh": 0.0015637874603271484,
+    "t_total": 9.186919212341309
+  }
+}

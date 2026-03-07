@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/cafe_interior.glb",
+  "collision_asset": "/Users/sota/code/3d/room/cafe_interior.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    43.73539352416992,
+    29.16120719909668,
+    1.5999970436096191
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

@@ -1,0 +1,185 @@
+{
+  "scene_id": "apartamento",
+  "scene_path": "/Users/sota/code/3d/room/apartamento.glb",
+  "pipeline_stage": 2,
+  "step_name": "step2_floor_estimation",
+  "step1_report": "/Users/sota/code/3d_new/output/room_full/step1/apartamento/step1_start_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/apartamento/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "floor_init_lookdown_applied": true,
+  "floor_init_lookdown_delta_y_m": 0.6,
+  "params": {
+    "ransac_low_height_quantiles": "0.20,0.35,0.50,1.00",
+    "ransac_max_points": 12000,
+    "ransac_min_points": 500,
+    "ransac_max_iter": 200,
+    "ransac_dist_thresh_m": 0.03,
+    "min_inlier_ratio": 0.15,
+    "max_residual_m": 0.05,
+    "min_inlier_coverage": 0.15,
+    "min_normal_dot_up": 0.9,
+    "min_ny": 0.7,
+    "cam_height_range_m": [
+      0.8,
+      2.2
+    ],
+    "ray_grid": "3x3",
+    "ray_offset_m": 0.15,
+    "ray_min_hits": 5,
+    "ray_max_mad_m": 0.05,
+    "ray_preflight_min_hit_ratio": 0.4
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 13998,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "transform_check": {
+    "ok": true,
+    "reason": null,
+    "closure_median_m": 3.885780586188048e-16,
+    "closure_p95_m": 9.226363045931247e-16,
+    "center_ray_cos": 0.9887073895207971
+  },
+  "ransac_result": {
+    "ok": true,
+    "fail_reason": null,
+    "fail_reason_detail": null,
+    "valid_points_in_roi": 107520,
+    "sampled_points": 12000,
+    "inlier_ratio": 1.0,
+    "plane_residual_p50": 0.0003604287648408095,
+    "plane_residual_p95": 0.0014054272734401229,
+    "inlier_coverage": 1.0,
+    "ransac_low_height_quantile_used": 0.2
+  },
+  "status": "OK",
+  "run_state": "DONE",
+  "step2_ok": true,
+  "floor_status": "OK",
+  "floor_method": "ransac",
+  "floor_plane": [
+    -0.0001840714019218591,
+    0.9999997887255161,
+    0.0006234313453412218,
+    0.0022097436042426517
+  ],
+  "floor_normal": [
+    -0.0001840714019218591,
+    0.9999997887255161,
+    0.0006234313453412218
+  ],
+  "floor_height": -0.00220974407110519,
+  "cam_height_above_floor": 1.6649479334176995,
+  "floor_confidence": 0.9416286008359935,
+  "valid_points_in_roi": 107520,
+  "sampled_points": 12000,
+  "inlier_ratio": 1.0,
+  "plane_residual_p50": 0.0003604287648408095,
+  "plane_residual_p95": 0.0014054272734401229,
+  "inlier_coverage": 1.0,
+  "ray_preflight": null,
+  "ray_hit_count": null,
+  "ray_hit_height_median": null,
+  "ray_hit_height_mad": null,
+  "ransac_attempts": [
+    {
+      "quantile": 0.2,
+      "points": 2400,
+      "status": "ok",
+      "n": [
+        -0.0001840714019218591,
+        0.9999997887255161,
+        0.0006234313453412218
+      ],
+      "d": 0.0022097436042426517,
+      "dot_up": 0.9999997887255161,
+      "n_y": 0.9999997887255161,
+      "inlier_ratio": 1.0,
+      "plane_residual_p50": 0.0003604287648408095,
+      "plane_residual_p95": 0.0014054272734401229,
+      "cam_height_above_floor": 1.6649479334176995,
+      "inlier_coverage": 1.0,
+      "fail_items": []
+    }
+  ],
+  "ransac_low_height_quantile_used": 0.2,
+  "floor_plane_raw": [
+    -0.0001840714019218591,
+    0.9999997887255161,
+    0.0006234313453412218,
+    0.0022097436042426517
+  ],
+  "floor_plane_smooth": [
+    -0.0001840714019218591,
+    0.9999997887255161,
+    0.0006234313453412218,
+    0.0022097436042426517
+  ],
+  "floor_used": "raw",
+  "cam_y_before_floor_adjust": 1.6666666269302368,
+  "cam_y_after_floor_adjust": 1.4977902173995972,
+  "cam_y_delta_floor_adjust": -0.16887640953063965,
+  "cam_y_minus_floor_height": 1.4999999614707022,
+  "floor_pose_apply_applied": true,
+  "floor_pose_apply_reason": "floor_height_applied",
+  "floor_pose_apply_rgb_l1_diff": 32.43074417114258,
+  "depth_after_vs_before_shift": {
+    "median": -0.17550945281982422,
+    "p95": 0.025145781040191592
+  },
+  "floor_pose_apply_readback_before": {
+    "position": [
+      -2.659041404724121,
+      1.6666666269302368,
+      -7.085845947265625
+    ],
+    "rotation_quat_wxyz": [
+      0.053743768483400345,
+      -0.0070755016058683395,
+      0.9899871349334717,
+      0.1303342878818512
+    ],
+    "yaw_rad": 3.0331244703698546,
+    "pitch_rad": -0.2617993877991494
+  },
+  "floor_pose_apply_readback_after": {
+    "position": [
+      -2.659041404724121,
+      1.4977902173995972,
+      -7.085845947265625
+    ],
+    "rotation_quat_wxyz": [
+      0.053743768483400345,
+      -0.0070755016058683395,
+      0.9899871349334717,
+      0.1303342878818512
+    ],
+    "yaw_rad": 3.0331244703698546,
+    "pitch_rad": -0.2617993877991494
+  },
+  "fail_reason": null,
+  "fail_reason_detail": null,
+  "warnings": [],
+  "progress_marker": "render_after_done",
+  "timeout_stage": null,
+  "stage_timing_sec": {
+    "t_load_scene": 0.7821979522705078,
+    "t_render_before": 0.006616115570068359,
+    "t_floor_estimate": 0.012284994125366211,
+    "t_apply_pose": 0.002687215805053711,
+    "t_render_after": 0.16846895217895508,
+    "t_write_artifacts": 0.011540651321411133
+  }
+}

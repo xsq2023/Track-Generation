@@ -1,0 +1,20 @@
+{
+  "scene_id": "vr_gallery_-_like_model_if_you_download_it",
+  "scene_path": "/Users/sota/code/3d/room/vr_gallery_-_like_model_if_you_download_it.glb",
+  "pipeline_stage": 3,
+  "status": "SKIP",
+  "run_state": "SKIP",
+  "step3_ok": false,
+  "fail_reason": "step2_not_ok",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/step2/vr_gallery_-_like_model_if_you_download_it/step2_floor_report.json",
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 14580,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  }
+}

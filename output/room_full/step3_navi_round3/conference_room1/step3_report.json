@@ -1,0 +1,81 @@
+{
+  "scene_id": "conference_room1",
+  "scene_path": "/Users/sota/code/3d/room/conference_room1.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/conference_room1/step2_floor_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/conference_room1/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 29910,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "params": {
+    "target_frames": 240,
+    "path_target_m": 36.0,
+    "path_max_m": 44.0,
+    "path_min_done_m": 10.0,
+    "wall_side": "left",
+    "wall_target_dist_m": 0.55,
+    "nav_step_m": 0.22,
+    "camera_height_bias_m": 0.08
+  },
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/conference_room1_8a1b8a96940c19dc.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "start_pose": {
+    "camera_position": [
+      -6.523273944854736,
+      1.6550000029802323,
+      5.645862102508545
+    ],
+    "nav_position": [
+      -6.523273944854736,
+      0.07500000298023224,
+      5.645862102508545
+    ],
+    "yaw_rad": -2.6623648938428044,
+    "pitch_rad": 0.0,
+    "camera_height_m": 1.58
+  },
+  "status": "OK",
+  "run_state": "DONE",
+  "step3_ok": true,
+  "frames": 240,
+  "path_length_m": 42.42930068907003,
+  "visited_unique_cells": 133,
+  "coverage_area_m2": 16.292499999999997,
+  "continuity_valid_ratio": 0.8833333333333333,
+  "recovery_ratio": 0.12083333333333333,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 29,
+  "fail_reason": null,
+  "fail_reason_detail": null,
+  "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/conference_room1/traj_meta.json",
+  "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/conference_room1/poses.jsonl",
+  "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/conference_room1/frames",
+  "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/conference_room1/step3_frames.mp4",
+  "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/conference_room1/step3_frames.gif",
+  "warnings": [],
+  "stage_timing_sec": {
+    "t_load_scene": 0.9070861339569092,
+    "t_load_navmesh": 0.00025081634521484375,
+    "t_total": 14.682880640029907
+  }
+}

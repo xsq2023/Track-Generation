@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/caspar_herman_storms_salong_-_ladegarden.glb",
+  "collision_asset": "/Users/sota/code/3d/room/caspar_herman_storms_salong_-_ladegarden.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -0.9201602935791016,
+    8.226105690002441,
+    3.3702197074890137
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

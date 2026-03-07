@@ -1,0 +1,91 @@
+{
+  "scene_id": "modern_bathroom",
+  "scene_path": "/Users/sota/code/3d/room/modern_bathroom.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789481.809001,
+  "events": [
+    {
+      "ts_unix": 1772789481.809001,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 14,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789482.529818,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13729,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 4.199599266052246,
+          "aabb_volume": 30.375636145766517,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789482.5303009,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789482.939073,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789482.93956,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789482.939729,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789483.0278761,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789483.0340989,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789483.377105,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789483.377415,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789483.442917,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789483.459011,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789483.45963,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789483.45963
+}

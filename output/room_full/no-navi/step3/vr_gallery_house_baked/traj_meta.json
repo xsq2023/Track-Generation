@@ -1,0 +1,99 @@
+{
+  "scene_id": "vr_gallery_house_baked",
+  "scene_path": "/Users/sota/code/3d/room/vr_gallery_house_baked.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_explorer_fsm",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/step2/vr_gallery_house_baked/step2_floor_report.json",
+  "status": "FAIL",
+  "run_state": "TIMEOUT",
+  "step3_ok": false,
+  "frames": 177,
+  "continuity_valid_ratio": 1.0,
+  "recovery_ratio": 0.011299435028248588,
+  "collision_ratio": 0.05649717514124294,
+  "max_consecutive_recovery": 0,
+  "max_zero_move_streak": 9,
+  "max_coverage_stall_streak": 0,
+  "max_escape_blocked_streak": 0,
+  "black_alert_frames": 11,
+  "black_soft_alert_frames": 9,
+  "outside_proxy_frames": 5,
+  "inside_reanchor_count": 0,
+  "black_void_ratio": 0.029270667814265537,
+  "black_soft_alert": true,
+  "black_soft_streak": 8,
+  "wall_lock": false,
+  "wall_lock_ratio": 0.1807909604519774,
+  "opening_persist_count": 6,
+  "startup_wall_guard_active": false,
+  "startup_wall_guard_ratio": 0.062146892655367235,
+  "path_length_m": 30.160518341110354,
+  "avg_step_m": 0.17039840870683814,
+  "net_displacement_m": 9.030331334815664,
+  "visited_unique_cells": 81,
+  "coverage_area_m2": 9.9225,
+  "coverage_gain_recent": 14,
+  "coverage_gain_last_window": 17,
+  "net_disp_last_window_m": 6.637340286088485,
+  "plateau_reason": null,
+  "room_check_triggers_total": 0,
+  "room_check_success_ratio": 0.0,
+  "escape_attempts_total": 2,
+  "escape_success_ratio": 0.5,
+  "escape_attempts_consecutive": 1,
+  "fail_reason_histogram": {
+    "outside_scene_or_invalid_depth": 1
+  },
+  "fail_reason": "outside_scene_or_invalid_depth",
+  "fail_reason_detail": "valid_ratio=0.364, depth_low_streak=8 >= depth_valid_ratio_fail_streak=8",
+  "terminal_record": {
+    "last_fsm_state": "ESCAPE",
+    "gate_name": "depth_gate_soft_timeout",
+    "fail_reason": "outside_scene_or_invalid_depth",
+    "counters_snapshot": {
+      "room_check_triggers_total": 0,
+      "escape_attempts_total": 2,
+      "max_consecutive_recovery": 0,
+      "coverage_gain_recent": 14,
+      "coverage_gain_last_window": 17,
+      "net_disp_last_window_m": 6.637340286088485,
+      "max_zero_move_streak": 9,
+      "max_coverage_stall_streak": 0,
+      "black_alert_frames": 11,
+      "outside_proxy_frames": 5,
+      "inside_reanchor_count": 0
+    },
+    "stuck_window": {
+      "net_disp_window": 5.588077642391269,
+      "path_window": 6.050000043400821,
+      "new_cells_window": 14
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3/vr_gallery_house_baked/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3/vr_gallery_house_baked/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3/vr_gallery_house_baked/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3/vr_gallery_house_baked/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3/vr_gallery_house_baked/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3/vr_gallery_house_baked/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3/vr_gallery_house_baked/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3/vr_gallery_house_baked/step3_frames.gif"
+  },
+  "warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 14582,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "progress_marker": "fail",
+  "timeout_stage": null,
+  "stage_timing_sec": {
+    "t_load_scene": 1.4975831508636475,
+    "t_total": 25.58361291885376
+  }
+}

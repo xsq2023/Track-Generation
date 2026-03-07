@@ -1,0 +1,91 @@
+{
+  "scene_id": "sci_fi_biolab_corridor",
+  "scene_path": "/Users/sota/code/3d/room/sci_fi_biolab_corridor.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789490.512436,
+  "events": [
+    {
+      "ts_unix": 1772789490.512436,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 19,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789491.2051232,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13800,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 15.323324203491211,
+          "aabb_volume": 364.0759611210519,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789491.205652,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789491.5986109,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789491.599078,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789491.599297,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789491.658126,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789491.663143,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789491.9750452,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789491.975559,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789492.0220501,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789492.05021,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789492.0507689,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789492.0507689
+}

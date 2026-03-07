@@ -1,0 +1,81 @@
+{
+  "scene_id": "stylized_locker_room",
+  "scene_path": "/Users/sota/code/3d/room/stylized_locker_room.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/stylized_locker_room/step2_floor_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/stylized_locker_room/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 30122,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "params": {
+    "target_frames": 240,
+    "path_target_m": 36.0,
+    "path_max_m": 44.0,
+    "path_min_done_m": 10.0,
+    "wall_side": "left",
+    "wall_target_dist_m": 0.55,
+    "nav_step_m": 0.22,
+    "camera_height_bias_m": 0.08
+  },
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/stylized_locker_room_93a2446f2d946efe.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "start_pose": {
+    "camera_position": [
+      -1.8412874937057495,
+      1.7725186663866044,
+      1.5285087823867798
+    ],
+    "nav_position": [
+      -1.8412874937057495,
+      0.1925186663866043,
+      1.5285087823867798
+    ],
+    "yaw_rad": 2.7286115925959495,
+    "pitch_rad": 0.0,
+    "camera_height_m": 1.58
+  },
+  "status": "FAIL",
+  "run_state": "FAIL",
+  "step3_ok": false,
+  "frames": 10,
+  "path_length_m": 1.9494672971258518,
+  "visited_unique_cells": 8,
+  "coverage_area_m2": 0.9799999999999999,
+  "continuity_valid_ratio": 1.0,
+  "recovery_ratio": 1.0,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 10,
+  "fail_reason": "outside_scene_or_blackframe",
+  "fail_reason_detail": "poor_view_streak=10, valid_ratio=1.000, black_ratio=0.862",
+  "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/traj_meta.json",
+  "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/poses.jsonl",
+  "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/frames",
+  "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/step3_frames.mp4",
+  "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/step3_frames.gif",
+  "warnings": [],
+  "stage_timing_sec": {
+    "t_load_scene": 1.2224230766296387,
+    "t_load_navmesh": 0.0012409687042236328,
+    "t_total": 1.5557937622070312
+  }
+}

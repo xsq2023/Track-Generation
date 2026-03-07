@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/art_gallery.glb",
+  "collision_asset": "/Users/sota/code/3d/room/art_gallery.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -5.264684677124023,
+    7.529024124145508,
+    1.8420796394348145
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

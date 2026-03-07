@@ -1,0 +1,50 @@
+{
+  "scene_id": "vr_gallery_-_like_model_if_you_download_it",
+  "scene_path": "/Users/sota/code/3d/room/vr_gallery_-_like_model_if_you_download_it.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789498.157558,
+  "events": [
+    {
+      "ts_unix": 1772789498.1575592,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 23,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789498.866813,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13815,
+        "anomaly": {
+          "level": "hard",
+          "soft": true,
+          "hard": true,
+          "reasons": [
+            "max_dim_gt_soft_threshold",
+            "max_dim_gt_hard_threshold",
+            "aabb_volume_gt_hard_threshold"
+          ],
+          "max_dim": 11400.0,
+          "aabb_volume": 273813776718.75,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789498.867326,
+      "stage": "QUARANTINED_HARD_ANOMALY",
+      "detail": "skip_heavy_pipeline"
+    },
+    {
+      "ts_unix": 1772789498.867688,
+      "stage": "DONE_QUARANTINED",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE_QUARANTINED",
+  "updated_at_unix": 1772789498.867688
+}

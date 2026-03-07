@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/apartamento.glb",
+  "collision_asset": "/Users/sota/code/3d/room/apartamento.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    0.19635820388793945,
+    10.844894409179688,
+    1.5865111351013184
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

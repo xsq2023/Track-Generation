@@ -1,0 +1,91 @@
+{
+  "scene_id": "cafe_interior",
+  "scene_path": "/Users/sota/code/3d/room/cafe_interior.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789469.28948,
+  "events": [
+    {
+      "ts_unix": 1772789469.28948,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 7,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789470.012337,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13695,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 15.550018310546875,
+          "aabb_volume": 456.5792536432739,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789470.012706,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.24241,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.2430022,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.243258,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.2940102,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.3003972,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.472288,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.4730392,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.517618,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.5628428,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789470.563688,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789470.563688
+}

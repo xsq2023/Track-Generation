@@ -1,0 +1,67 @@
+{
+  "scene_id": "modern_apartment_interior",
+  "scene_path": "/Users/sota/code/3d/room/modern_apartment_interior.glb",
+  "pipeline_stage": 0,
+  "step_name": "stage0_scene_init",
+  "status": "QUARANTINED_LARGE_SCENE",
+  "run_state": "QUARANTINED",
+  "quarantine": true,
+  "quarantine_reason": "hard_anomaly_policy",
+  "anomaly": {
+    "level": "hard",
+    "soft": true,
+    "hard": true,
+    "reasons": [
+      "max_dim_gt_soft_threshold",
+      "max_dim_gt_hard_threshold",
+      "aabb_volume_gt_hard_threshold"
+    ],
+    "max_dim": 7349.0888671875,
+    "aabb_volume": 79049486961.15797,
+    "from_scene_stats": true
+  },
+  "scene_stats_json": "/Users/sota/code/3d_new/output/room_full/step0/scene_stats.json",
+  "source_root": "/Users/sota/code/3d/room",
+  "scene_init_ok": false,
+  "post_render_ok": false,
+  "post_render_fail_reason": "quarantined_no_render",
+  "navmesh_status": "FAIL",
+  "navmesh_fail_reason": "quarantined_no_navmesh",
+  "fallback_used": "no_navmesh_sampling",
+  "fallback_plan": "no_navmesh_sampling",
+  "navmesh_attempts": [
+    {
+      "attempt_id": "SKIP_POLICY",
+      "settings_summary": null,
+      "success": false,
+      "error": "quarantined_hard_anomaly",
+      "attempt_wall_time_ms": 0.0,
+      "navmesh_poly_count": null
+    }
+  ],
+  "fail_fast_reasons": [
+    "QUARANTINED_HARD_ANOMALY"
+  ],
+  "init_warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 13727,
+    "pip_freeze_subset": [
+      "habitat_sim==0.3.3",
+      "magnum @ file:///Users/runner/miniconda3/envs/habitat/conda-bld/habitat-sim_1738007552115/work/build/deps/magnum-bindings/src/python",
+      "numpy @ file:///Users/runner/miniforge3/conda-bld/numpy_1707225689808/work/dist/numpy-1.26.4-cp39-cp39-macosx_11_0_arm64.whl#sha256=989042d872faf31c0434bd99fec5ec09b5c5d9a0b8125edd0ae869c5d8851048",
+      "numpy-quaternion @ file:///Users/runner/miniforge3/conda-bld/quaternion_1719301757253/work"
+    ],
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "bootstrap_json": "/Users/sota/code/3d_new/output/room_full/step0/modern_apartment_interior/scene_bootstrap.json",
+  "artifacts": {
+    "scene_init_json": "/Users/sota/code/3d_new/output/room_full/step0/modern_apartment_interior/scene_init.json",
+    "scene_stats_json": "/Users/sota/code/3d_new/output/room_full/step0/scene_stats.json"
+  }
+}

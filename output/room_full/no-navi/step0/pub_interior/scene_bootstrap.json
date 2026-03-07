@@ -1,0 +1,91 @@
+{
+  "scene_id": "pub_interior",
+  "scene_path": "/Users/sota/code/3d/room/pub_interior.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789485.7598279,
+  "events": [
+    {
+      "ts_unix": 1772789485.7598279,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 16,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789486.480316,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13791,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 9.316011428833008,
+          "aabb_volume": 355.3052535824627,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789486.480839,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.001642,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.002124,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.00239,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.0781188,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.087198,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.5237298,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.5241961,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.5910451,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.6392372,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789487.639806,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789487.639806
+}

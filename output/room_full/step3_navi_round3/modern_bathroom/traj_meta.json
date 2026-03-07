@@ -1,0 +1,78 @@
+{
+  "scene_id": "modern_bathroom",
+  "scene_path": "/Users/sota/code/3d/room/modern_bathroom.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/modern_bathroom/step2_floor_report.json",
+  "status": "FAIL",
+  "run_state": "TIMEOUT",
+  "step3_ok": false,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/modern_bathroom_ab67a15879982606.navmesh",
+    "error": null
+  },
+  "frames": 61,
+  "path_length_m": 11.07821989036434,
+  "visited_unique_cells": 28,
+  "coverage_area_m2": 3.4299999999999993,
+  "continuity_valid_ratio": 0.9016393442622951,
+  "recovery_ratio": 0.39344262295081966,
+  "replans_total": 24,
+  "blocked_replans": 0,
+  "poor_view_replans": 17,
+  "completed_replans": 7,
+  "wall_missing_frames": 0,
+  "successful_motion_frames": 55,
+  "max_blocked_streak": 1,
+  "max_poor_view_streak": 10,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 24,
+  "last_plan_reason": "poor_view",
+  "plateau_reason": null,
+  "fail_reason_histogram": {
+    "outside_scene_or_blackframe": 1
+  },
+  "fail_reason": "outside_scene_or_blackframe",
+  "fail_reason_detail": "poor_view_streak=10, valid_ratio=0.454, black_ratio=0.546",
+  "terminal_record": {
+    "last_fsm_state": "wall_tangent",
+    "gate_name": "poor_view",
+    "fail_reason": "outside_scene_or_blackframe",
+    "counters_snapshot": {
+      "replans_total": 24,
+      "blocked_replans": 0,
+      "poor_view_replans": 17,
+      "successful_motion_frames": 55,
+      "max_blocked_streak": 1,
+      "max_poor_view_streak": 10
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/modern_bathroom/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/modern_bathroom/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/modern_bathroom/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/modern_bathroom/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/modern_bathroom/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/modern_bathroom/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/modern_bathroom/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/modern_bathroom/step3_frames.gif"
+  },
+  "warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 30053,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "stage_timing_sec": {
+    "t_load_scene": 0.5873539447784424,
+    "t_load_navmesh": 0.0006997585296630859,
+    "t_total": 6.854959726333618
+  }
+}

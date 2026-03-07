@@ -1,0 +1,91 @@
+{
+  "scene_id": "art_gallery",
+  "scene_path": "/Users/sota/code/3d/room/art_gallery.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789467.0037088,
+  "events": [
+    {
+      "ts_unix": 1772789467.0037088,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 5,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789467.70239,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13690,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 30.59896469116211,
+          "aabb_volume": 4231.66459591134,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789467.7029262,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.0431201,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.04366,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.043891,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.099193,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.104019,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.362203,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.3626912,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.408393,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.464927,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789468.465524,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789468.465524
+}

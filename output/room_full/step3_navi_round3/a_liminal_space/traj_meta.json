@@ -1,0 +1,76 @@
+{
+  "scene_id": "a_liminal_space",
+  "scene_path": "/Users/sota/code/3d/room/a_liminal_space.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/a_liminal_space/step2_floor_report.json",
+  "status": "OK",
+  "run_state": "DONE",
+  "step3_ok": true,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/a_liminal_space_a15bbd3340e0ef98.navmesh",
+    "error": null
+  },
+  "frames": 162,
+  "path_length_m": 28.763347663931135,
+  "visited_unique_cells": 83,
+  "coverage_area_m2": 10.167499999999999,
+  "continuity_valid_ratio": 0.8888888888888888,
+  "recovery_ratio": 0.11728395061728394,
+  "replans_total": 19,
+  "blocked_replans": 0,
+  "poor_view_replans": 0,
+  "completed_replans": 19,
+  "wall_missing_frames": 0,
+  "successful_motion_frames": 144,
+  "max_blocked_streak": 1,
+  "max_poor_view_streak": 0,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 19,
+  "last_plan_reason": "plan_exhausted",
+  "plateau_reason": "origin_finish",
+  "fail_reason_histogram": {},
+  "fail_reason": null,
+  "fail_reason_detail": null,
+  "terminal_record": {
+    "last_fsm_state": "wall_tangent",
+    "gate_name": "origin_finish",
+    "fail_reason": null,
+    "counters_snapshot": {
+      "replans_total": 19,
+      "blocked_replans": 0,
+      "poor_view_replans": 0,
+      "successful_motion_frames": 144,
+      "max_blocked_streak": 1,
+      "max_poor_view_streak": 0
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/a_liminal_space/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/a_liminal_space/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/a_liminal_space/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/a_liminal_space/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/a_liminal_space/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/a_liminal_space/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/a_liminal_space/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/a_liminal_space/step3_frames.gif"
+  },
+  "warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 29605,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "stage_timing_sec": {
+    "t_load_scene": 0.627312183380127,
+    "t_load_navmesh": 0.001316070556640625,
+    "t_total": 25.140122175216675
+  }
+}

@@ -1,0 +1,292 @@
+{
+  "scene_id": "pub_interior",
+  "scene_path": "/Users/sota/code/3d/room/pub_interior.glb",
+  "pipeline_stage": 2,
+  "step_name": "step2_floor_estimation",
+  "step1_report": "/Users/sota/code/3d_new/output/room_full/step1/pub_interior/step1_start_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "floor_init_lookdown_applied": true,
+  "floor_init_lookdown_delta_y_m": 0.6,
+  "params": {
+    "ransac_low_height_quantiles": "0.20,0.35,0.50,1.00",
+    "ransac_max_points": 12000,
+    "ransac_min_points": 500,
+    "ransac_max_iter": 200,
+    "ransac_dist_thresh_m": 0.03,
+    "min_inlier_ratio": 0.15,
+    "max_residual_m": 0.05,
+    "min_inlier_coverage": 0.15,
+    "min_normal_dot_up": 0.9,
+    "min_ny": 0.7,
+    "cam_height_range_m": [
+      0.8,
+      2.2
+    ],
+    "ray_grid": "3x3",
+    "ray_offset_m": 0.15,
+    "ray_min_hits": 5,
+    "ray_max_mad_m": 0.05,
+    "ray_preflight_min_hit_ratio": 0.4
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 14027,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "transform_check": {
+    "ok": true,
+    "reason": null,
+    "closure_median_m": 3.925231146709438e-16,
+    "closure_p95_m": 6.555167238245733e-16,
+    "center_ray_cos": 0.988707389520797
+  },
+  "ransac_result": {
+    "ok": false,
+    "fail_reason": "ransac_no_plane",
+    "fail_reason_detail": "all_ransac_quantiles_failed",
+    "valid_points_in_roi": 107520,
+    "sampled_points": 12000,
+    "inlier_ratio": null,
+    "plane_residual_p50": null,
+    "plane_residual_p95": null,
+    "inlier_coverage": null,
+    "ransac_low_height_quantile_used": null
+  },
+  "ray_result": {
+    "ok": true,
+    "floor_status": "FALLBACK_OK",
+    "floor_method": "ray_fallback",
+    "floor_plane": [
+      0.0,
+      1.0,
+      0.0,
+      -0.6000001430511475
+    ],
+    "floor_normal": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "floor_height": 0.6000001430511475,
+    "cam_height_above_floor": 1.6927754878997803,
+    "ray_hit_count": 9,
+    "ray_expected_hits": 9,
+    "ray_hit_height_median": 0.6000001430511475,
+    "ray_hit_height_mad": 0.0,
+    "ray_grid": "3x3",
+    "ray_offset_m": 0.15,
+    "floor_confidence": 1.0,
+    "ray_method": "ray_fallback"
+  },
+  "status": "OK",
+  "run_state": "DONE",
+  "step2_ok": true,
+  "floor_status": "FALLBACK_OK",
+  "floor_method": "ray_fallback",
+  "floor_plane": [
+    0.0,
+    1.0,
+    0.0,
+    -0.6000001430511475
+  ],
+  "floor_normal": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "floor_height": 0.6000001430511475,
+  "cam_height_above_floor": 1.6927754878997803,
+  "floor_confidence": 1.0,
+  "valid_points_in_roi": 107520,
+  "sampled_points": 12000,
+  "inlier_ratio": null,
+  "plane_residual_p50": null,
+  "plane_residual_p95": null,
+  "inlier_coverage": null,
+  "ray_preflight": {
+    "grid": "cross5",
+    "hit_count": 5,
+    "expected_hits": 5,
+    "hit_ratio": 1.0,
+    "first_hit_distance": 2.192775712311268,
+    "ok": true,
+    "fail_reason": null
+  },
+  "ray_hit_count": 9,
+  "ray_hit_height_median": 0.6000001430511475,
+  "ray_hit_height_mad": 0.0,
+  "ransac_attempts": [
+    {
+      "quantile": 0.2,
+      "points": 2400,
+      "status": "threshold_fail",
+      "n": [
+        -0.02957336118308176,
+        0.03720622686006327,
+        -0.9988699179528696
+      ],
+      "d": 6.967372661227287,
+      "dot_up": 0.03720622686006327,
+      "n_y": 0.03720622686006327,
+      "inlier_ratio": 0.7433333333333333,
+      "plane_residual_p50": 0.006401617620835687,
+      "plane_residual_p95": 0.302480834021138,
+      "cam_height_above_floor": 0.5641224877419537,
+      "inlier_coverage": 0.7421052631578947,
+      "fail_items": [
+        "n_y=0.03721 < min_ny=0.70000",
+        "dot_up=0.03721 < min_dot=0.90000",
+        "residual_p95=0.30248 > max_residual=0.05000",
+        "cam_height_above_floor=0.56412 not in [0.800,2.200]"
+      ]
+    },
+    {
+      "quantile": 0.35,
+      "points": 4200,
+      "status": "threshold_fail",
+      "n": [
+        -0.020334872034842896,
+        0.0014629421537904134,
+        -0.999792154789975
+      ],
+      "d": 7.022166571510618,
+      "dot_up": 0.0014629421537904134,
+      "n_y": 0.0014629421537904134,
+      "inlier_ratio": 0.5835714285714285,
+      "plane_residual_p50": 0.004300147150785527,
+      "plane_residual_p95": 0.48420141693903834,
+      "cam_height_above_floor": 0.5437629483562869,
+      "inlier_coverage": 0.5932721712538226,
+      "fail_items": [
+        "n_y=0.00146 < min_ny=0.70000",
+        "dot_up=0.00146 < min_dot=0.90000",
+        "residual_p95=0.48420 > max_residual=0.05000",
+        "cam_height_above_floor=0.54376 not in [0.800,2.200]"
+      ]
+    },
+    {
+      "quantile": 0.5,
+      "points": 6000,
+      "status": "threshold_fail",
+      "n": [
+        -0.10698207148098547,
+        0.9924413390365793,
+        0.06012507757100122
+      ],
+      "d": -2.1630996224930064,
+      "dot_up": 0.9924413390365793,
+      "n_y": 0.9924413390365793,
+      "inlier_ratio": 0.4676666666666667,
+      "plane_residual_p50": 0.03312433425100836,
+      "plane_residual_p95": 0.3543885333454172,
+      "cam_height_above_floor": 0.3527985422571174,
+      "inlier_coverage": 0.5946969696969697,
+      "fail_items": [
+        "residual_p95=0.35439 > max_residual=0.05000",
+        "cam_height_above_floor=0.35280 not in [0.800,2.200]"
+      ]
+    },
+    {
+      "quantile": 1.0,
+      "points": 12000,
+      "status": "threshold_fail",
+      "n": [
+        -0.032623790025373335,
+        0.9992990674670188,
+        0.018359250636311924
+      ],
+      "d": -2.0528468713282577,
+      "dot_up": 0.9992990674670188,
+      "n_y": 0.9992990674670188,
+      "inlier_ratio": 0.6203333333333333,
+      "plane_residual_p50": 0.012211762374742197,
+      "plane_residual_p95": 0.328665484239869,
+      "cam_height_above_floor": 0.3118039358253233,
+      "inlier_coverage": 0.6568181818181819,
+      "fail_items": [
+        "residual_p95=0.32867 > max_residual=0.05000",
+        "cam_height_above_floor=0.31180 not in [0.800,2.200]"
+      ]
+    }
+  ],
+  "ransac_low_height_quantile_used": null,
+  "floor_plane_raw": [
+    0.0,
+    1.0,
+    0.0,
+    -0.6000001430511475
+  ],
+  "floor_plane_smooth": [
+    0.0,
+    1.0,
+    0.0,
+    -0.6000001430511475
+  ],
+  "floor_used": "raw",
+  "cam_y_before_floor_adjust": 2.2927756309509277,
+  "cam_y_after_floor_adjust": 2.1000001430511475,
+  "cam_y_delta_floor_adjust": -0.19277548789978027,
+  "cam_y_minus_floor_height": 1.5,
+  "floor_pose_apply_applied": true,
+  "floor_pose_apply_reason": "floor_height_applied",
+  "floor_pose_apply_rgb_l1_diff": 31.362308502197266,
+  "depth_after_vs_before_shift": {
+    "median": 4.112720489501953e-06,
+    "p95": 1.8842921257019043
+  },
+  "floor_pose_apply_readback_before": {
+    "position": [
+      1.3801988363265991,
+      2.2927756309509277,
+      6.455033302307129
+    ],
+    "rotation_quat_wxyz": [
+      0.5135233402252197,
+      -0.06760663539171219,
+      -0.8480899930000305,
+      -0.111653171479702
+    ],
+    "yaw_rad": -2.0526767237885055,
+    "pitch_rad": -0.2617993877991494
+  },
+  "floor_pose_apply_readback_after": {
+    "position": [
+      1.3801988363265991,
+      2.1000001430511475,
+      6.455033302307129
+    ],
+    "rotation_quat_wxyz": [
+      0.5135233402252197,
+      -0.06760663539171219,
+      -0.8480899930000305,
+      -0.111653171479702
+    ],
+    "yaw_rad": -2.0526767237885055,
+    "pitch_rad": -0.2617993877991494
+  },
+  "fail_reason": null,
+  "fail_reason_detail": null,
+  "warnings": [],
+  "progress_marker": "render_after_done",
+  "timeout_stage": null,
+  "stage_timing_sec": {
+    "t_load_scene": 0.6029989719390869,
+    "t_render_before": 0.004103899002075195,
+    "t_floor_estimate": 0.04947710037231445,
+    "t_apply_pose": 0.0017867088317871094,
+    "t_render_after": 0.2208719253540039,
+    "t_write_artifacts": 0.00969243049621582
+  }
+}

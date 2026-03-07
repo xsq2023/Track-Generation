@@ -1,0 +1,93 @@
+{
+  "scene_id": "abandoned_classroom",
+  "scene_path": "/Users/sota/code/3d/room/abandoned_classroom.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789463.904594,
+  "events": [
+    {
+      "ts_unix": 1772789463.904595,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 3,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789464.6907961,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13684,
+        "anomaly": {
+          "level": "soft",
+          "soft": true,
+          "hard": false,
+          "reasons": [
+            "max_dim_gt_soft_threshold"
+          ],
+          "max_dim": 432.3298645019531,
+          "aabb_volume": 11142712.162883565,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789464.691144,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789464.9171278,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789464.91759,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789464.917844,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789465.0698612,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789465.0751271,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789465.21963,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789465.220129,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789465.364765,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789465.370761,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789465.371306,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789465.371306
+}

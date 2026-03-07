@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/modern_bathroom.glb",
+  "collision_asset": "/Users/sota/code/3d/room/modern_bathroom.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -0.23280275974265596,
+    5.480686365856655,
+    3.0354796156507438
+  ],
+  "scale": [
+    2.381179576069483,
+    2.381179576069483,
+    2.381179576069483
+  ]
+}

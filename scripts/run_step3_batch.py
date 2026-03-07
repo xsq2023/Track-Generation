@@ -557,6 +557,135 @@ def encode_gif_from_frames(frames_dir: Path, out_path: Path, fps: int) -> Tuple[
     return True, "ok"
 
 
+def try_load_navmesh_cache(sim: habitat_sim.Simulator, cache_path: Path) -> Dict:
+    if not cache_path.exists():
+        return {
+            "loaded": False,
+            "source": "cache_missing",
+            "cache_path": str(cache_path),
+            "error": "navmesh_cache_not_found",
+        }
+    try:
+        loaded = bool(sim.pathfinder.load_nav_mesh(str(cache_path)))
+        if not loaded or not bool(sim.pathfinder.is_loaded):
+            return {
+                "loaded": False,
+                "source": "cache_load",
+                "cache_path": str(cache_path),
+                "error": "load_nav_mesh_false",
+            }
+        p = sim.pathfinder.get_random_navigable_point()
+        arr = np.array([float(p[0]), float(p[1]), float(p[2])], dtype=np.float32)
+        if not np.all(np.isfinite(arr)):
+            return {
+                "loaded": False,
+                "source": "cache_load",
+                "cache_path": str(cache_path),
+                "error": "random_navigable_nonfinite",
+            }
+        return {
+            "loaded": True,
+            "source": "step0_cache",
+            "cache_path": str(cache_path),
+            "error": None,
+        }
+    except Exception as exc:
+        return {
+            "loaded": False,
+            "source": "cache_load_exception",
+            "cache_path": str(cache_path),
+            "error": f"{exc}",
+        }
+
+
+def try_load_navmesh_from_step2(sim: habitat_sim.Simulator, step2_payload: Dict) -> Dict:
+    step1_report_raw = step2_payload.get("step1_report")
+    if not isinstance(step1_report_raw, str) or not step1_report_raw.strip():
+        return {
+            "loaded": False,
+            "source": "step2_missing_step1_report",
+            "cache_path": None,
+            "error": "step2_step1_report_missing",
+        }
+
+    step1_payload = load_json(Path(step1_report_raw))
+    if not isinstance(step1_payload, dict):
+        return {
+            "loaded": False,
+            "source": "step1_report_invalid",
+            "cache_path": None,
+            "error": "step1_report_missing_or_invalid",
+        }
+
+    navmesh_probe = step1_payload.get("navmesh_probe") if isinstance(step1_payload.get("navmesh_probe"), dict) else {}
+    cache_path_raw = navmesh_probe.get("cache_path")
+    if isinstance(cache_path_raw, str) and cache_path_raw.strip():
+        return try_load_navmesh_cache(sim=sim, cache_path=Path(cache_path_raw))
+
+    step0_scene_init_raw = step1_payload.get("step0_scene_init")
+    if not isinstance(step0_scene_init_raw, str) or not step0_scene_init_raw.strip():
+        return {
+            "loaded": False,
+            "source": "step1_missing_step0_scene_init",
+            "cache_path": None,
+            "error": "step1_step0_scene_init_missing",
+        }
+
+    step0_payload = load_json(Path(step0_scene_init_raw))
+    if not isinstance(step0_payload, dict):
+        return {
+            "loaded": False,
+            "source": "step0_scene_init_invalid",
+            "cache_path": None,
+            "error": "step0_scene_init_missing_or_invalid",
+        }
+
+    navmesh_status = str(step0_payload.get("navmesh_status") or "UNKNOWN")
+    cache_path_raw = step0_payload.get("navmesh_cache_path")
+    if navmesh_status not in {"OK", "RECOMPUTED_OK"}:
+        return {
+            "loaded": False,
+            "source": "step0_status_gate",
+            "cache_path": None,
+            "error": f"step0_navmesh_status_{navmesh_status}",
+        }
+    if not isinstance(cache_path_raw, str) or not cache_path_raw.strip():
+        return {
+            "loaded": False,
+            "source": "step0_cache_missing",
+            "cache_path": None,
+            "error": "step0_navmesh_cache_missing",
+        }
+    return try_load_navmesh_cache(sim=sim, cache_path=Path(cache_path_raw))
+
+
+def try_navmesh_step(pathfinder, start: np.ndarray, target: np.ndarray) -> Tuple[Optional[np.ndarray], Optional[str]]:
+    if pathfinder is None or (not bool(pathfinder.is_loaded)):
+        return None, "navmesh_not_loaded"
+    try:
+        stepped = pathfinder.try_step(np.asarray(start, dtype=np.float32), np.asarray(target, dtype=np.float32))
+        stepped_np = np.array([float(stepped[0]), float(stepped[1]), float(stepped[2])], dtype=np.float64)
+        if not np.all(np.isfinite(stepped_np)):
+            return None, "navmesh_try_step_nonfinite"
+        return stepped_np, None
+    except Exception as exc:
+        return None, f"navmesh_try_step_exception:{exc}"
+
+
+def choose_turn_commit_sign(left: float, right: float, delta_l: float, delta_f: float) -> float:
+    if left > right + 0.15:
+        return 1.0
+    if right > left + 0.15:
+        return -1.0
+    if delta_l > 0.10:
+        return 1.0
+    if delta_l < -0.10:
+        return -1.0
+    if delta_f < -0.15:
+        return 1.0 if left >= right else -1.0
+    return 1.0 if left >= right else -1.0
+
+
 def compute_step_length(fwd: float, state: str, args) -> float:
     if state == "ROOM_CHECK_COMMIT":
         step_nominal = float(args.step_nominal_commit_m)
@@ -622,8 +751,65 @@ def scan_headings(
     ranked = usable if usable else rows
     top_k = ranked[: max(1, int(args.escape_scan_top_k))]
     return {
+        "ranked": ranked,
         "top": top_k,
         "best": (top_k[0] if top_k else None),
+    }
+
+
+def choose_room_check_heading(
+    sim: habitat_sim.Simulator,
+    agent,
+    pos: np.ndarray,
+    yaw_ref: float,
+    pitch_rad: float,
+    visited: set,
+    left: float,
+    right: float,
+    args,
+) -> Dict:
+    preferred_sign = 1.0 if left >= right else -1.0
+    scan = scan_headings(
+        sim=sim,
+        agent=agent,
+        pos=pos,
+        yaw_ref=yaw_ref,
+        pitch_rad=pitch_rad,
+        visited=visited,
+        forbid_yaw_rad=None,
+        forbid_half_angle_rad=0.0,
+        args=args,
+    )
+    best_row = None
+    best_score = None
+    for row in scan.get("ranked") or []:
+        diff = angle_diff_rad(float(row["yaw_rad"]), float(yaw_ref))
+        if abs(diff) > math.radians(105.0):
+            continue
+        side_bias = 0.0
+        if preferred_sign * diff > math.radians(20.0):
+            side_bias += 0.35
+        if preferred_sign * diff > math.radians(45.0):
+            side_bias += 0.25
+        if abs(diff) < math.radians(30.0):
+            side_bias -= 0.20
+        score = float(row["score"]) * (1.0 + side_bias)
+        if best_row is None or score > float(best_score):
+            best_row = row
+            best_score = score
+    if best_row is None:
+        fallback_yaw = wrap_angle_rad(float(yaw_ref) + preferred_sign * math.radians(65.0))
+        return {
+            "yaw_rad": fallback_yaw,
+            "yaw_deg": float(math.degrees(fallback_yaw)),
+            "score": None,
+            "source": "fallback_offset",
+        }
+    return {
+        "yaw_rad": float(best_row["yaw_rad"]),
+        "yaw_deg": float(best_row["yaw_deg"]),
+        "score": float(best_score),
+        "source": "opening_scan",
     }
 
 
@@ -901,10 +1087,13 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
     fsm_state_frames = 0
 
     heading_lock: Optional[float] = None
+    turn_commit_sign: Optional[float] = None
     commit_dist_left_m = 0.0
     commit_frames_left = 0
     room_check_start_cells = 0
     escape_start_cells = 0
+    escape_recovery_frames_left = 0
+    escape_recovery_mode = "none"
 
     last_escape_frame = -100000
     max_consecutive_recovery = 0
@@ -947,6 +1136,13 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
     no_back_until_frame = -1
     escape_blocked_streak = 0
     max_escape_blocked_streak = 0
+    navmesh_probe = {
+        "loaded": False,
+        "source": "not_attempted",
+        "cache_path": None,
+        "error": None,
+    }
+    use_navmesh_move = False
 
     terminal_record = {
         "last_fsm_state": fsm_state,
@@ -961,6 +1157,12 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
         sim = build_sim(scene_source=scene_source, sensor_cfg=sensor_cfg, seed=scene_seed, enable_physics=(not args.disable_physics))
         agent = sim.initialize_agent(0)
         timings["t_load_scene"] = float(time.time() - ts)
+        ts = time.time()
+        navmesh_probe = try_load_navmesh_from_step2(sim=sim, step2_payload=step2_payload)
+        use_navmesh_move = bool(navmesh_probe.get("loaded", False))
+        timings["t_load_navmesh"] = float(time.time() - ts)
+        report["navmesh_probe"] = navmesh_probe
+        report["use_navmesh_move"] = bool(use_navmesh_move)
 
         done_reason = None
 
@@ -1212,19 +1414,36 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             scan_best_heading_deg = None
             turn_locked = False
 
-            safety_override = bool(
-                (min_depth > 0 and min_depth < float(args.safety_min_depth_m))
-                or hard_recovery_trigger
+            boundary_escape_trigger = bool(
+                frame_idx >= 5
+                and fsm_state != "ESCAPE"
+                and (
+                    black_soft_alert
+                    or hard_recovery_trigger
+                    or (outside_proxy and black_alert)
+                )
             )
+            safety_turn_trigger = bool(min_depth > 0 and min_depth < float(args.safety_min_depth_m))
 
-            if safety_override and fsm_state not in {"TURN_IN_PLACE", "ESCAPE"}:
+            if boundary_escape_trigger:
+                fsm_state = "ESCAPE"
+                fsm_state_frames = 0
+                heading_lock = None
+                turn_commit_sign = None
+                escape_recovery_frames_left = max(int(escape_recovery_frames_left), 2)
+                escape_recovery_mode = "backoff"
+            elif safety_turn_trigger and fsm_state not in {"TURN_IN_PLACE", "ESCAPE"}:
                 fsm_state = "TURN_IN_PLACE"
                 fsm_state_frames = 0
                 corner_lock_level = 0
+                turn_commit_sign = choose_turn_commit_sign(left=left, right=right, delta_l=delta_l, delta_f=delta_f)
             elif force_escape_from_black:
                 fsm_state = "ESCAPE"
                 fsm_state_frames = 0
                 heading_lock = None
+                turn_commit_sign = None
+                escape_recovery_frames_left = max(int(escape_recovery_frames_left), 2)
+                escape_recovery_mode = "backoff"
             elif fsm_state == "WALL_FOLLOW":
                 allow_explore = not bool(startup_wall_guard_active)
                 if (
@@ -1238,21 +1457,35 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state = "ESCAPE"
                     fsm_state_frames = 0
                     heading_lock = None
+                    turn_commit_sign = None
                 elif geom_event == "CORNER_INNER" or fwd < float(args.turn_enter_fwd_m):
                     fsm_state = "TURN_IN_PLACE"
                     fsm_state_frames = 0
                     corner_lock_level = 0
+                    turn_commit_sign = choose_turn_commit_sign(left=left, right=right, delta_l=delta_l, delta_f=delta_f)
                 elif (
                     allow_explore
                     and geom_event == "OPENING_OUTER"
                     and opening_persist_count >= int(args.opening_persist_frames)
-                    and wall_lock
                 ):
+                    opening_heading = choose_room_check_heading(
+                        sim=sim,
+                        agent=agent,
+                        pos=pos,
+                        yaw_ref=yaw,
+                        pitch_rad=pitch,
+                        visited=visited,
+                        left=left,
+                        right=right,
+                        args=args,
+                    )
                     fsm_state = "ROOM_CHECK_COMMIT"
                     fsm_state_frames = 0
                     room_check_trigger = True
                     room_check_triggers_total += 1
-                    heading_lock = yaw
+                    heading_lock = float(opening_heading["yaw_rad"])
+                    scan_best_heading_deg = float(opening_heading["yaw_deg"])
+                    scan_score_best = opening_heading["score"]
                     commit_dist_left_m = float(args.room_check_commit_dist_m)
                     commit_frames_left = int(args.commit_frames_max)
                     room_check_start_cells = visited_unique_cells
@@ -1260,8 +1493,10 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state = "ESCAPE"
                     fsm_state_frames = 0
                     heading_lock = None
+                    turn_commit_sign = None
 
             elif fsm_state == "TURN_IN_PLACE":
+                corner_lock_level += 1
                 turn_locked = bool(
                     fsm_state_frames >= int(args.turn_corner_lock_frames) or zero_move_streak >= int(args.zero_move_recovery_streak)
                 )
@@ -1269,6 +1504,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state = "WALL_FOLLOW"
                     fsm_state_frames = 0
                     corner_lock_level = 0
+                    turn_commit_sign = None
                 elif (
                     (not bool(startup_wall_guard_active))
                     and (
@@ -1281,6 +1517,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state_frames = 0
                     heading_lock = None
                     corner_lock_level = 0
+                    turn_commit_sign = None
                 elif (
                     (not bool(startup_wall_guard_active))
                     and turn_locked
@@ -1291,6 +1528,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state_frames = 0
                     heading_lock = None
                     corner_lock_level = 0
+                    turn_commit_sign = None
                 elif (
                     (not bool(startup_wall_guard_active))
                     and stuck
@@ -1301,6 +1539,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state_frames = 0
                     heading_lock = None
                     corner_lock_level = 0
+                    turn_commit_sign = None
 
             elif fsm_state == "ROOM_CHECK_COMMIT":
                 if commit_dist_left_m <= 0.0 or commit_frames_left <= 0:
@@ -1309,49 +1548,53 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     fsm_state = "WALL_FOLLOW"
                     fsm_state_frames = 0
                     heading_lock = None
+                    turn_commit_sign = None
 
             elif fsm_state == "ESCAPE":
                 if heading_lock is None:
-                    scan_phase = "rotate"
-                    scan = scan_headings(
-                        sim=sim,
-                        agent=agent,
-                        pos=pos,
-                        yaw_ref=yaw,
-                        pitch_rad=pitch,
-                        visited=visited,
-                        forbid_yaw_rad=(float(no_back_yaw_rad) if (no_back_yaw_rad is not None and frame_idx <= int(no_back_until_frame)) else None),
-                        forbid_half_angle_rad=math.radians(float(args.no_back_forbid_half_deg)),
-                        args=args,
-                    )
-                    best = scan.get("best")
-                    top = scan.get("top") or []
-                    escape_attempts_total += 1
-                    escape_attempts_consecutive += 1
-                    last_escape_frame = frame_idx
-
-                    if best is None:
-                        fail_reason = "no_novel_direction"
-                        fail_reason_detail = "escape scan returned no heading"
-                        done_reason = "FAIL"
-                        terminal_record.update(
-                            {
-                                "last_fsm_state": fsm_state,
-                                "gate_name": "escape_scan",
-                                "fail_reason": fail_reason,
-                            }
+                    if escape_recovery_frames_left > 0:
+                        scan_phase = "recover"
+                    else:
+                        scan_phase = "rotate"
+                        scan = scan_headings(
+                            sim=sim,
+                            agent=agent,
+                            pos=pos,
+                            yaw_ref=yaw,
+                            pitch_rad=pitch,
+                            visited=visited,
+                            forbid_yaw_rad=(float(no_back_yaw_rad) if (no_back_yaw_rad is not None and frame_idx <= int(no_back_until_frame)) else None),
+                            forbid_half_angle_rad=math.radians(float(args.no_back_forbid_half_deg)),
+                            args=args,
                         )
-                        break
+                        best = scan.get("best")
+                        top = scan.get("top") or []
+                        escape_attempts_total += 1
+                        escape_attempts_consecutive += 1
+                        last_escape_frame = frame_idx
 
-                    heading_lock = float(best["yaw_rad"])
-                    scan_score_best = float(best["score"])
-                    scan_best_heading_deg = float(best["yaw_deg"])
-                    commit_dist_left_m = float(args.escape_commit_dist_m)
-                    commit_frames_left = int(args.escape_commit_frames_max)
-                    escape_start_cells = visited_unique_cells
-                    if top:
-                        # keep only first candidate score for record; full dump is heavy
-                        pass
+                        if best is None:
+                            fail_reason = "no_novel_direction"
+                            fail_reason_detail = "escape scan returned no heading"
+                            done_reason = "FAIL"
+                            terminal_record.update(
+                                {
+                                    "last_fsm_state": fsm_state,
+                                    "gate_name": "escape_scan",
+                                    "fail_reason": fail_reason,
+                                }
+                            )
+                            break
+
+                        heading_lock = float(best["yaw_rad"])
+                        scan_score_best = float(best["score"])
+                        scan_best_heading_deg = float(best["yaw_deg"])
+                        commit_dist_left_m = float(args.escape_commit_dist_m)
+                        commit_frames_left = int(args.escape_commit_frames_max)
+                        escape_start_cells = visited_unique_cells
+                        if top:
+                            # keep only first candidate score for record; full dump is heavy
+                            pass
                 else:
                     scan_phase = "commit"
                     if commit_dist_left_m <= 0.0 or commit_frames_left <= 0:
@@ -1375,6 +1618,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                         fsm_state = "WALL_FOLLOW"
                         fsm_state_frames = 0
                         heading_lock = None
+                        turn_commit_sign = None
 
             if fsm_state == "ESCAPE" and fsm_prev_state != "ESCAPE":
                 no_back_yaw_rad = float(last_effective_move_yaw)
@@ -1382,14 +1626,17 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
 
             recovery_used = "none"
             motion_policy = "wall_follow"
+            motion_source = "direct_pose"
+            nav_step_error = None
             yaw_cmd = 0.0
             step_cmd = 0.0
             move_mode = "forward"
 
             if fsm_state == "TURN_IN_PLACE":
                 motion_policy = "turn_in_place"
-                turn_sign = -1.0 if left <= right else 1.0
-                yaw_cmd = turn_sign * math.radians(float(args.turn_yaw_limit_deg))
+                if turn_commit_sign is None:
+                    turn_commit_sign = choose_turn_commit_sign(left=left, right=right, delta_l=delta_l, delta_f=delta_f)
+                yaw_cmd = float(turn_commit_sign) * math.radians(float(args.turn_yaw_limit_deg))
                 step_cmd = 0.0
             elif fsm_state == "ROOM_CHECK_COMMIT":
                 motion_policy = "room_check_commit"
@@ -1401,23 +1648,43 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 )
                 step_cmd = compute_step_length(fwd=fwd, state=fsm_state, args=args)
             elif fsm_state == "ESCAPE":
-                motion_policy = "escape"
-                target_yaw = yaw if heading_lock is None else float(heading_lock)
-                yaw_cmd = clamp(
-                    angle_diff_rad(target_yaw, yaw),
-                    -math.radians(float(args.escape_commit_yaw_limit_deg)),
-                    math.radians(float(args.escape_commit_yaw_limit_deg)),
-                )
-                step_cmd = compute_step_length(fwd=fwd, state=fsm_state, args=args)
-                if heading_lock is not None and step_cmd <= 0.0:
-                    if max(left, right) > float(args.step_obstacle_margin_m) + 0.08:
+                if heading_lock is None and escape_recovery_frames_left > 0:
+                    motion_policy = "escape_recover"
+                    yaw_cmd = 0.0
+                    if escape_recovery_mode == "backoff":
+                        recovery_used = "backoff"
+                        move_mode = "backward"
+                        backoff_mult = (
+                            int(args.black_backoff_steps_heavy)
+                            if (black_soft_alert or outside_proxy or black_alert)
+                            else int(args.black_backoff_steps_medium)
+                        )
+                        step_cmd = min(
+                            float(args.black_backoff_step_m) * max(1, backoff_mult),
+                            float(args.recovery_step_cap_m),
+                        )
+                    else:
                         recovery_used = "sidestep"
                         move_mode = "sidestep_left" if left >= right else "sidestep_right"
                         step_cmd = max(float(args.step_min_m), float(args.corner_sidestep_m))
-                    else:
-                        recovery_used = "backoff"
-                        move_mode = "backward"
-                        step_cmd = min(float(args.inside_backoff_m), float(args.recovery_step_cap_m))
+                else:
+                    motion_policy = "escape"
+                    target_yaw = yaw if heading_lock is None else float(heading_lock)
+                    yaw_cmd = clamp(
+                        angle_diff_rad(target_yaw, yaw),
+                        -math.radians(float(args.escape_commit_yaw_limit_deg)),
+                        math.radians(float(args.escape_commit_yaw_limit_deg)),
+                    )
+                    step_cmd = compute_step_length(fwd=fwd, state=fsm_state, args=args)
+                    if heading_lock is not None and step_cmd <= 0.0:
+                        if max(left, right) > float(args.step_obstacle_margin_m) + 0.08:
+                            recovery_used = "sidestep"
+                            move_mode = "sidestep_left" if left >= right else "sidestep_right"
+                            step_cmd = max(float(args.step_min_m), float(args.corner_sidestep_m))
+                        else:
+                            recovery_used = "backoff"
+                            move_mode = "backward"
+                            step_cmd = min(float(args.inside_backoff_m), float(args.recovery_step_cap_m))
             else:
                 motion_policy = "wall_follow"
                 e = float(left - float(args.wall_target_dist_m))
@@ -1470,6 +1737,17 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 pos_target = origin_pos.copy()
                 yaw_next = float(origin_yaw)
                 step_final = 0.0
+            elif bool(use_navmesh_move) and step_final > 0.0:
+                nav_target, nav_step_error = try_navmesh_step(
+                    pathfinder=sim.pathfinder,
+                    start=pos.astype(np.float32),
+                    target=pos_target.astype(np.float32),
+                )
+                if nav_target is not None:
+                    pos_target = nav_target
+                    motion_source = "navmesh_try_step"
+                else:
+                    motion_source = "direct_pose_fallback"
 
             ts_policy = time.time()
             obs_after = observe_pose(sim=sim, agent=agent, position=pos_target.astype(np.float32), yaw_rad=yaw_next, pitch_rad=pitch)
@@ -1498,6 +1776,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 commit_frames_left -= 1
             if fsm_state != "TURN_IN_PLACE":
                 corner_lock_level = 0
+                turn_commit_sign = None
 
             if fsm_state == "ESCAPE" and heading_lock is not None:
                 if delta_pos_m < float(args.zero_move_delta_pos_m):
@@ -1515,6 +1794,13 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             else:
                 escape_blocked_streak = 0
 
+            if fsm_state == "ESCAPE" and heading_lock is None and escape_recovery_frames_left > 0:
+                escape_recovery_frames_left = max(0, int(escape_recovery_frames_left) - 1)
+                if escape_recovery_mode == "backoff" and escape_recovery_frames_left > 0:
+                    escape_recovery_mode = "sidestep"
+                elif escape_recovery_frames_left <= 0:
+                    escape_recovery_mode = "none"
+
             plateau_window.append(
                 {
                     "path": float(path_length_m),
@@ -1528,6 +1814,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             coverage_gain_last_path_m = 0
             net_disp_last_path_m = 0.0
             coverage_plateau = False
+            coverage_done = False
             if plateau_window:
                 base = plateau_window[0]
                 path_span_last_window = float(path_length_m - float(base["path"]))
@@ -1538,6 +1825,16 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                     and coverage_gain_last_path_m <= int(args.plateau_new_cells_max)
                     and net_disp_last_path_m >= float(args.plateau_min_net_disp_m)
                     and escape_attempts_consecutive <= int(args.plateau_max_escape_attempts_consecutive)
+                )
+                coverage_done = bool(
+                    path_length_m >= float(args.path_min_done_m)
+                    and (
+                        coverage_plateau
+                        or (
+                            coverage_area_m2 >= float(args.path_coverage_done_min_m)
+                            and coverage_gain_last_path_m <= int(args.plateau_new_cells_max)
+                        )
+                    )
                 )
 
             state_pos_limit = float(args.wall_delta_pos_max_m)
@@ -1657,6 +1954,10 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 "commit_dist_left_m": float(commit_dist_left_m),
                 "commit_frames_left": int(commit_frames_left),
                 "recovery_used": recovery_used,
+                "motion_source": motion_source,
+                "nav_step_error": nav_step_error,
+                "turn_commit_sign": None if turn_commit_sign is None else float(turn_commit_sign),
+                "escape_recovery_mode": escape_recovery_mode,
                 "turn_locked": bool(turn_locked),
                 "collision_proxy": {
                     "near_wall_ratio": near_wall_ratio,
@@ -1675,6 +1976,7 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 "coverage_gain_last_window": int(coverage_gain_last_path_m),
                 "net_disp_last_window_m": float(net_disp_last_path_m),
                 "coverage_plateau": bool(coverage_plateau),
+                "coverage_done": bool(coverage_done),
                 "progress_marker": "frame_done",
                 "stage_timing_sec": {
                     "t_step3_render": timings_render,
@@ -1716,12 +2018,15 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
                 done_reason = "DONE"
                 plateau_reason = "path_max_reached"
                 break
-            if path_length_m >= float(args.path_min_done_m) and coverage_plateau:
+            if coverage_done:
                 done_reason = "DONE"
-                plateau_reason = "coverage_plateau"
+                plateau_reason = "coverage_done"
                 break
             if (frame_idx + 1) >= int(args.target_frames):
-                if path_length_m < float(args.path_min_done_m):
+                if coverage_done:
+                    done_reason = "DONE"
+                    plateau_reason = "frame_budget_coverage_done"
+                elif path_length_m < float(args.path_min_done_m):
                     fail_reason = "stuck_no_progress"
                     fail_reason_detail = (
                         f"path_length_m={path_length_m:.3f}<path_min_done_m={float(args.path_min_done_m):.3f} "
@@ -1817,6 +2122,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
         "status": status,
         "run_state": run_state,
         "step3_ok": bool(step3_ok),
+        "navmesh_probe": navmesh_probe,
+        "use_navmesh_move": bool(use_navmesh_move),
         "frames": frames,
         "continuity_valid_ratio": continuity_valid_ratio,
         "recovery_ratio": recovery_ratio,
@@ -1929,6 +2236,8 @@ def run_step3_scene_worker(step2_report_path: Path, step3_root: Path, args, env_
             "status": status,
             "run_state": run_state,
             "step3_ok": bool(step3_ok),
+            "navmesh_probe": navmesh_probe,
+            "use_navmesh_move": bool(use_navmesh_move),
             "frames": frames,
             "path_length_m": float(path_length_m),
             "visited_unique_cells": visited_unique_cells,

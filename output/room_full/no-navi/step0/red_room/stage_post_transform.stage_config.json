@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/red_room.glb",
+  "collision_asset": "/Users/sota/code/3d/room/red_room.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    1.6988332370376633,
+    4.11882489337016,
+    2.1548181890777225
+  ],
+  "scale": [
+    1.5392275678062437,
+    1.5392275678062437,
+    1.5392275678062437
+  ]
+}

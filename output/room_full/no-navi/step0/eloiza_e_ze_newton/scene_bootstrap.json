@@ -1,0 +1,91 @@
+{
+  "scene_id": "eloiza_e_ze_newton",
+  "scene_path": "/Users/sota/code/3d/room/eloiza_e_ze_newton.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789477.172698,
+  "events": [
+    {
+      "ts_unix": 1772789477.172698,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 11,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789477.886959,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13711,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 5.835719108581543,
+          "aabb_volume": 73.10500875801827,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789477.887487,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789478.528445,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789478.5289059,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789478.529082,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789478.591723,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789478.5999758,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789479.131205,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789479.131725,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789479.187527,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789479.2298398,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789479.230443,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789479.230443
+}

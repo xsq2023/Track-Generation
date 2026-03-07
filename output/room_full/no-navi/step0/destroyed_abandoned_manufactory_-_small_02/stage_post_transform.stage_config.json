@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/destroyed_abandoned_manufactory_-_small_02.glb",
+  "collision_asset": "/Users/sota/code/3d/room/destroyed_abandoned_manufactory_-_small_02.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -23.5439643074123,
+    6.247766976517093,
+    2.831593602294524
+  ],
+  "scale": [
+    1.1168589704808463,
+    1.1168589704808463,
+    1.1168589704808463
+  ]
+}

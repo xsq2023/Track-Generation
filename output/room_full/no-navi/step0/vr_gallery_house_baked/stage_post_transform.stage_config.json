@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/vr_gallery_house_baked.glb",
+  "collision_asset": "/Users/sota/code/3d/room/vr_gallery_house_baked.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -1.2678812192438929,
+    26.14877563174267,
+    9.59620640088153
+  ],
+  "scale": [
+    0.5843576786869144,
+    0.5843576786869144,
+    0.5843576786869144
+  ]
+}

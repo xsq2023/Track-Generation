@@ -1,0 +1,107 @@
+{
+  "scene_id": "a_hospital_corridor_in_china",
+  "scene_path": "/Users/sota/code/3d/room/a_hospital_corridor_in_china.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_explorer_fsm",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/step2/a_hospital_corridor_in_china/step2_floor_report.json",
+  "status": "FAIL",
+  "run_state": "FAIL",
+  "step3_ok": false,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/a_hospital_corridor_in_china_da5f2e84d5ccd642.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "frames": 13,
+  "continuity_valid_ratio": 0.38461538461538464,
+  "recovery_ratio": 1.0,
+  "collision_ratio": 0.7692307692307693,
+  "max_consecutive_recovery": 8,
+  "max_zero_move_streak": 1,
+  "max_coverage_stall_streak": 0,
+  "max_escape_blocked_streak": 1,
+  "black_alert_frames": 0,
+  "black_soft_alert_frames": 0,
+  "outside_proxy_frames": 0,
+  "inside_reanchor_count": 0,
+  "black_void_ratio": 0.09186623597756409,
+  "black_soft_alert": false,
+  "black_soft_streak": 0,
+  "wall_lock": false,
+  "wall_lock_ratio": 0.0,
+  "opening_persist_count": 0,
+  "startup_wall_guard_active": false,
+  "startup_wall_guard_ratio": 0.3076923076923077,
+  "path_length_m": 3.7305623092639086,
+  "avg_step_m": 0.28696633148183914,
+  "net_displacement_m": 1.5170286199409693,
+  "visited_unique_cells": 3,
+  "coverage_area_m2": 0.36749999999999994,
+  "coverage_gain_recent": 0,
+  "coverage_gain_last_window": 2,
+  "net_disp_last_window_m": 0.5431637995455474,
+  "plateau_reason": null,
+  "room_check_triggers_total": 0,
+  "room_check_success_ratio": 0.0,
+  "escape_attempts_total": 1,
+  "escape_success_ratio": 0.0,
+  "escape_attempts_consecutive": 1,
+  "fail_reason_histogram": {
+    "continuity_gate_failed": 10
+  },
+  "fail_reason": "continuity_gate_failed",
+  "fail_reason_detail": "delta_h_m=0.1089>0.0800",
+  "terminal_record": {
+    "last_fsm_state": "ESCAPE",
+    "gate_name": "continuity_gate",
+    "fail_reason": "continuity_gate_failed",
+    "counters_snapshot": {
+      "room_check_triggers_total": 0,
+      "escape_attempts_total": 1,
+      "max_consecutive_recovery": 8,
+      "coverage_gain_recent": 0,
+      "coverage_gain_last_window": 2,
+      "net_disp_last_window_m": 0.5431637995455474,
+      "max_zero_move_streak": 1,
+      "max_coverage_stall_streak": 0,
+      "black_alert_frames": 0,
+      "outside_proxy_frames": 0,
+      "inside_reanchor_count": 0
+    },
+    "stuck_window": {
+      "net_disp_window": 0.0,
+      "path_window": 0.0,
+      "new_cells_window": 0
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_round2/a_hospital_corridor_in_china/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_round2/a_hospital_corridor_in_china/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3_round2/a_hospital_corridor_in_china/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3_round2/a_hospital_corridor_in_china/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3_round2/a_hospital_corridor_in_china/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_round2/a_hospital_corridor_in_china/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_round2/a_hospital_corridor_in_china/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_round2/a_hospital_corridor_in_china/step3_frames.gif"
+  },
+  "warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 18751,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "progress_marker": "fail",
+  "timeout_stage": null,
+  "stage_timing_sec": {
+    "t_load_scene": 0.3680598735809326,
+    "t_load_navmesh": 0.0013108253479003906,
+    "t_total": 1.6430959701538086
+  }
+}
