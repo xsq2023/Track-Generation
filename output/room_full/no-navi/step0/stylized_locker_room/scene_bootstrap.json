@@ -1,0 +1,91 @@
+{
+  "scene_id": "stylized_locker_room",
+  "scene_path": "/Users/sota/code/3d/room/stylized_locker_room.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789494.005922,
+  "events": [
+    {
+      "ts_unix": 1772789494.005923,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 21,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789494.696512,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13808,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 14.634857177734375,
+          "aabb_volume": 582.3344356946661,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789494.697068,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789495.737684,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789495.738167,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789495.738372,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789495.787698,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789495.79826,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789496.755035,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789496.755542,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789496.7994308,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789496.8409128,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789496.8417642,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789496.8417642
+}

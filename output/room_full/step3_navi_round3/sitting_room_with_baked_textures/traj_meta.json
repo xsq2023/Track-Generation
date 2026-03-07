@@ -1,0 +1,78 @@
+{
+  "scene_id": "sitting_room_with_baked_textures",
+  "scene_path": "/Users/sota/code/3d/room/sitting_room_with_baked_textures.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/sitting_room_with_baked_textures/step2_floor_report.json",
+  "status": "FAIL",
+  "run_state": "TIMEOUT",
+  "step3_ok": false,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/sitting_room_with_baked_textures_f25f0d3593902183.navmesh",
+    "error": null
+  },
+  "frames": 119,
+  "path_length_m": 20.20564058656807,
+  "visited_unique_cells": 63,
+  "coverage_area_m2": 7.7174999999999985,
+  "continuity_valid_ratio": 0.8403361344537815,
+  "recovery_ratio": 0.11764705882352941,
+  "replans_total": 14,
+  "blocked_replans": 0,
+  "poor_view_replans": 0,
+  "completed_replans": 14,
+  "wall_missing_frames": 0,
+  "successful_motion_frames": 100,
+  "max_blocked_streak": 6,
+  "max_poor_view_streak": 0,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 14,
+  "last_plan_reason": "plan_exhausted",
+  "plateau_reason": null,
+  "fail_reason_histogram": {
+    "navi_no_plan": 1
+  },
+  "fail_reason": "navi_no_plan",
+  "fail_reason_detail": "replan_reason=plan_exhausted, no_plan_streak=6",
+  "terminal_record": {
+    "last_fsm_state": "PLAN",
+    "gate_name": "planner",
+    "fail_reason": "navi_no_plan",
+    "counters_snapshot": {
+      "replans_total": 14,
+      "blocked_replans": 0,
+      "poor_view_replans": 0,
+      "successful_motion_frames": 100,
+      "max_blocked_streak": 6,
+      "max_poor_view_streak": 0
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/sitting_room_with_baked_textures/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/sitting_room_with_baked_textures/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/sitting_room_with_baked_textures/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/sitting_room_with_baked_textures/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/sitting_room_with_baked_textures/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/sitting_room_with_baked_textures/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/sitting_room_with_baked_textures/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/sitting_room_with_baked_textures/step3_frames.gif"
+  },
+  "warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 30090,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "stage_timing_sec": {
+    "t_load_scene": 0.5333588123321533,
+    "t_load_navmesh": 0.0012750625610351562,
+    "t_total": 16.85071301460266
+  }
+}

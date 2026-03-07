@@ -1,0 +1,87 @@
+{
+  "scene_id": "sci_fi_biolab_corridor",
+  "scene_path": "/Users/sota/code/3d/room/sci_fi_biolab_corridor.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_explorer_fsm",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/step2/sci_fi_biolab_corridor/step2_floor_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/sci_fi_biolab_corridor/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "start_pose": {
+    "position": [
+      2.032449722290039,
+      1.4988168478012085,
+      7.108381271362305
+    ],
+    "yaw_rad": 1.8958726910076769,
+    "pitch_rad": 0.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 19418,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "params": {
+    "target_frames": 220,
+    "path_min_m": 12.0,
+    "path_max_m": 55.0,
+    "plateau_window_path_m": 8.0,
+    "plateau_new_cells_max": 8,
+    "startup_wall_frames": 15,
+    "startup_wall_path_m": 2.0,
+    "opening_persist_frames": 3,
+    "black_soft_void_ratio": 0.3,
+    "black_soft_ratio": 0.35,
+    "grid_res_m": 0.35,
+    "state_priority": "safety>turn>escape>room_check>wall_follow"
+  },
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/sci_fi_biolab_corridor_a6a27c18b64d3821.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "status": "OK",
+  "run_state": "DONE",
+  "step3_ok": true,
+  "frames": 124,
+  "path_length_m": 12.096598405494579,
+  "visited_unique_cells": 10,
+  "coverage_area_m2": 1.2249999999999999,
+  "continuity_valid_ratio": 0.9919354838709677,
+  "recovery_ratio": 0.8306451612903226,
+  "max_zero_move_streak": 9,
+  "max_coverage_stall_streak": 31,
+  "black_alert_frames": 0,
+  "outside_proxy_frames": 0,
+  "inside_reanchor_count": 0,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 5,
+  "fail_reason": null,
+  "fail_reason_detail": null,
+  "coverage_gain_last_window": 6,
+  "net_disp_last_window_m": 1.3336807748067703,
+  "plateau_reason": "coverage_done",
+  "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_round2/sci_fi_biolab_corridor/traj_meta.json",
+  "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_round2/sci_fi_biolab_corridor/poses.jsonl",
+  "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_round2/sci_fi_biolab_corridor/frames",
+  "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_round2/sci_fi_biolab_corridor/step3_frames.mp4",
+  "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_round2/sci_fi_biolab_corridor/step3_frames.gif",
+  "warnings": [],
+  "stage_timing_sec": {
+    "t_load_scene": 0.4926750659942627,
+    "t_load_navmesh": 0.0014278888702392578,
+    "t_total": 11.551153898239136
+  }
+}

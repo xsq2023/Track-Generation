@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/a_liminal_space.glb",
+  "collision_asset": "/Users/sota/code/3d/room/a_liminal_space.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    0.45952701568603516,
+    5.402489185333252,
+    1.2885324954986572
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

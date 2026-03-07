@@ -1,0 +1,81 @@
+{
+  "scene_id": "caspar_herman_storms_salong_-_ladegarden",
+  "scene_path": "/Users/sota/code/3d/room/caspar_herman_storms_salong_-_ladegarden.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/caspar_herman_storms_salong_-_ladegarden/step2_floor_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/caspar_herman_storms_salong_-_ladegarden/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 29748,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "params": {
+    "target_frames": 240,
+    "path_target_m": 36.0,
+    "path_max_m": 44.0,
+    "path_min_done_m": 10.0,
+    "wall_side": "left",
+    "wall_target_dist_m": 0.55,
+    "nav_step_m": 0.22,
+    "camera_height_bias_m": 0.08
+  },
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/caspar_herman_storms_salong_-_ladegarden_ab4ef6ade7ab9cb1.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "start_pose": {
+    "camera_position": [
+      4.138589382171631,
+      1.8765320348739625,
+      0.4158913195133209
+    ],
+    "nav_position": [
+      4.138589382171631,
+      0.2965320348739624,
+      0.4158913195133209
+    ],
+    "yaw_rad": 2.791837023445163,
+    "pitch_rad": 0.0,
+    "camera_height_m": 1.58
+  },
+  "status": "OK",
+  "run_state": "DONE",
+  "step3_ok": true,
+  "frames": 240,
+  "path_length_m": 41.73123813614282,
+  "visited_unique_cells": 127,
+  "coverage_area_m2": 15.557499999999997,
+  "continuity_valid_ratio": 0.8666666666666667,
+  "recovery_ratio": 0.1375,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 33,
+  "fail_reason": null,
+  "fail_reason_detail": null,
+  "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/caspar_herman_storms_salong_-_ladegarden/traj_meta.json",
+  "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/caspar_herman_storms_salong_-_ladegarden/poses.jsonl",
+  "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/caspar_herman_storms_salong_-_ladegarden/frames",
+  "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/caspar_herman_storms_salong_-_ladegarden/step3_frames.mp4",
+  "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/caspar_herman_storms_salong_-_ladegarden/step3_frames.gif",
+  "warnings": [],
+  "stage_timing_sec": {
+    "t_load_scene": 1.620624303817749,
+    "t_load_navmesh": 0.001283884048461914,
+    "t_total": 41.73158884048462
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/school_class_room_light_ver.glb",
+  "collision_asset": "/Users/sota/code/3d/room/school_class_room_light_ver.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    96.54000091552734,
+    -8.784698486328125,
+    1.5525016784667969
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

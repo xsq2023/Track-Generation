@@ -1,0 +1,91 @@
+{
+  "scene_id": "vr_gallery_house_baked",
+  "scene_path": "/Users/sota/code/3d/room/vr_gallery_house_baked.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789498.9196749,
+  "events": [
+    {
+      "ts_unix": 1772789498.9196749,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 24,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789499.6053572,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13822,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 85.56403350830078,
+          "aabb_volume": 275953.50383478205,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789499.605891,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789501.0811388,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789501.0816379,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789501.081829,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789501.202256,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789501.212501,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789502.6111948,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789502.6114979,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789502.667615,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789502.755122,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789502.755692,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789502.755692
+}

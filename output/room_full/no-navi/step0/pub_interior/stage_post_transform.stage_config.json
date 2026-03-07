@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/pub_interior.glb",
+  "collision_asset": "/Users/sota/code/3d/room/pub_interior.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -4.449162649180338,
+    0.6743695530532383,
+    2.5215180437293325
+  ],
+  "scale": [
+    1.0734207526892947,
+    1.0734207526892947,
+    1.0734207526892947
+  ]
+}

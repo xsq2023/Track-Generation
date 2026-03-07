@@ -1,0 +1,108 @@
+{
+  "scene_id": "subway",
+  "scene_path": "/Users/sota/code/3d/room/subway.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_explorer_fsm",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/step2/subway/step2_floor_report.json",
+  "status": "FAIL",
+  "run_state": "TIMEOUT",
+  "step3_ok": false,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/subway_f2a061e954e5fb37.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "frames": 220,
+  "continuity_valid_ratio": 0.9954545454545455,
+  "recovery_ratio": 0.21818181818181817,
+  "collision_ratio": 0.1590909090909091,
+  "max_consecutive_recovery": 1,
+  "max_zero_move_streak": 9,
+  "max_coverage_stall_streak": 14,
+  "max_escape_blocked_streak": 8,
+  "black_alert_frames": 0,
+  "black_soft_alert_frames": 0,
+  "outside_proxy_frames": 0,
+  "inside_reanchor_count": 0,
+  "black_void_ratio": 1.6128077651515161e-06,
+  "black_soft_alert": false,
+  "black_soft_streak": 0,
+  "wall_lock": true,
+  "wall_lock_ratio": 0.7545454545454545,
+  "opening_persist_count": 0,
+  "startup_wall_guard_active": false,
+  "startup_wall_guard_ratio": 0.01818181818181818,
+  "path_length_m": 25.317494896655838,
+  "avg_step_m": 0.11507952225752653,
+  "net_displacement_m": 8.998851911884017,
+  "visited_unique_cells": 53,
+  "coverage_area_m2": 6.492499999999999,
+  "coverage_gain_recent": 12,
+  "coverage_gain_last_window": 19,
+  "net_disp_last_window_m": 2.9055805319856525,
+  "plateau_reason": null,
+  "room_check_triggers_total": 0,
+  "room_check_success_ratio": 0.0,
+  "escape_attempts_total": 10,
+  "escape_success_ratio": 0.6,
+  "escape_attempts_consecutive": 1,
+  "fail_reason_histogram": {
+    "continuity_gate_failed": 1,
+    "target_frames_reached": 1
+  },
+  "fail_reason": "target_frames_reached",
+  "fail_reason_detail": "path_length_m=25.317, path_min_m=12.000, coverage_gain_last_window=19, net_disp_last_window_m=2.906",
+  "terminal_record": {
+    "last_fsm_state": "ESCAPE",
+    "gate_name": "frame_budget",
+    "fail_reason": "target_frames_reached",
+    "counters_snapshot": {
+      "room_check_triggers_total": 0,
+      "escape_attempts_total": 10,
+      "max_consecutive_recovery": 1,
+      "coverage_gain_recent": 12,
+      "coverage_gain_last_window": 19,
+      "net_disp_last_window_m": 2.9055805319856525,
+      "max_zero_move_streak": 9,
+      "max_coverage_stall_streak": 14,
+      "black_alert_frames": 0,
+      "outside_proxy_frames": 0,
+      "inside_reanchor_count": 0
+    },
+    "stuck_window": {
+      "net_disp_window": 3.4124998543408744,
+      "path_window": 4.279077665564362,
+      "new_cells_window": 12
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3/subway/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3/subway/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3/subway/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3/subway/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3/subway/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3/subway/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3/subway/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3/subway/step3_frames.gif"
+  },
+  "warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 17924,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "progress_marker": "fail",
+  "timeout_stage": null,
+  "stage_timing_sec": {
+    "t_load_scene": 0.2358400821685791,
+    "t_load_navmesh": 0.0006029605865478516,
+    "t_total": 32.354142904281616
+  }
+}

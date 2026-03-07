@@ -1,0 +1,81 @@
+{
+  "scene_id": "school_class_room_light_ver",
+  "scene_path": "/Users/sota/code/3d/room/school_class_room_light_ver.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/school_class_room_light_ver/step2_floor_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/school_class_room_light_ver/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 30083,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "params": {
+    "target_frames": 240,
+    "path_target_m": 36.0,
+    "path_max_m": 44.0,
+    "path_min_done_m": 10.0,
+    "wall_side": "left",
+    "wall_target_dist_m": 0.55,
+    "nav_step_m": 0.22,
+    "camera_height_bias_m": 0.08
+  },
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/school_class_room_light_ver_67998105c3355596.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "start_pose": {
+    "camera_position": [
+      -100.27719116210938,
+      1.7799999744831423,
+      17.89818572998047
+    ],
+    "nav_position": [
+      -100.27719116210938,
+      0.19999995827674866,
+      17.89818572998047
+    ],
+    "yaw_rad": 0.22362003071570136,
+    "pitch_rad": 0.0,
+    "camera_height_m": 1.5800000162063936
+  },
+  "status": "FAIL",
+  "run_state": "FAIL",
+  "step3_ok": false,
+  "frames": 61,
+  "path_length_m": 9.963492697425705,
+  "visited_unique_cells": 31,
+  "coverage_area_m2": 3.7974999999999994,
+  "continuity_valid_ratio": 0.8032786885245902,
+  "recovery_ratio": 0.11475409836065574,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 7,
+  "fail_reason": "navi_no_plan",
+  "fail_reason_detail": "replan_reason=plan_exhausted, no_plan_streak=6",
+  "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/school_class_room_light_ver/traj_meta.json",
+  "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/school_class_room_light_ver/poses.jsonl",
+  "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/school_class_room_light_ver/frames",
+  "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/school_class_room_light_ver/step3_frames.mp4",
+  "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/school_class_room_light_ver/step3_frames.gif",
+  "warnings": [],
+  "stage_timing_sec": {
+    "t_load_scene": 0.9428832530975342,
+    "t_load_navmesh": 0.0014100074768066406,
+    "t_total": 2.9079790115356445
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "scene_id": "eloiza_e_ze_newton",
+  "scene_path": "/Users/sota/code/3d/room/eloiza_e_ze_newton.glb",
+  "pipeline_stage": 1,
+  "step_name": "step1_indoor_start",
+  "step0_scene_init": "/Users/sota/code/3d_new/output/room_full/step0/eloiza_e_ze_newton/scene_init.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/eloiza_e_ze_newton/scene_post_transform.scene_instance.json",
+  "step0_dependency": {
+    "scene_init_ok": true,
+    "quarantine": false,
+    "navmesh_status": "RECOMPUTED_OK",
+    "fallback_plan": "navmesh"
+  },
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "thresholds": {
+    "depth_valid_min_m": 0.0001,
+    "depth_valid_max_m": 200.0,
+    "enforce_depth_valid_max": false,
+    "depth_validity_mode": "finite_gt_min",
+    "depth_near_m": 2.0,
+    "depth_far_m": 8.0,
+    "min_valid_ratio": 0.6,
+    "min_d05_m": 0.2,
+    "max_far_ratio": 0.6,
+    "min_edge_ratio": 0.01,
+    "edge_depth_delta_m": 0.03,
+    "iqr_norm_max_m": 3.0,
+    "score_min": 0.45
+  },
+  "score_weights": {
+    "w_near": 0.3,
+    "w_far": 0.3,
+    "w_edge": 0.2,
+    "w_iqr": 0.2
+  },
+  "search_params": {
+    "max_start_samples": 200,
+    "top_k": 3,
+    "max_actions_per_start": 30,
+    "turn_small_deg": 10.0,
+    "forward_small_m": 0.2,
+    "forward_medium_m": 0.4,
+    "back_small_m": 0.2
+  },
+  "no_navmesh_params": {
+    "cam_height_m": 1.5,
+    "raycast_top_pad_m": 5.0,
+    "min_floor_normal_dot": 0.8,
+    "clearance_min_m": 0.4,
+    "allow_floor_proxy": false,
+    "forward_hit_gate": false,
+    "forward_hit_max_m": 5.0,
+    "forward_yaw_trials": 12,
+    "adaptive_forward_hit_max": true,
+    "forward_hit_max_scale": 0.05,
+    "forward_hit_max_cap_m": 30.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 13885,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "status": "OK",
+  "run_state": "OK",
+  "step1_ok": true,
+  "start_mode": "navmesh",
+  "fail_reason": null,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/eloiza_e_ze_newton_9844d300b1eaf792.navmesh",
+    "error": null
+  },
+  "scene_aabb": {
+    "center": [
+      0.028970718383789062,
+      1.5444443225860596,
+      -2.384185791015625e-07
+    ],
+    "size": [
+      5.835719108581543,
+      3.088888645172119,
+      4.055555820465088
+    ],
+    "min": [
+      -2.8888888359069824,
+      0.0,
+      -2.027778148651123
+    ],
+    "max": [
+      2.9468302726745605,
+      3.088888645172119,
+      2.027777671813965
+    ],
+    "max_dim": 5.835719108581543,
+    "volume": 73.10498887725909
+  },
+  "start_candidates_total": 200,
+  "accepted_candidates": 51,
+  "best_score": 0.670481317037074,
+  "best_metrics": {
+    "r_valid": 1.0,
+    "r_near": 0.6884537760416667,
+    "r_far": 0.0,
+    "r_edge": 0.017142251500130445,
+    "d05": 0.3662223190069206,
+    "d10": 0.4023996025323886,
+    "depth_iqr": 2.4077510088682175,
+    "depth_p25": 0.5574990063905716,
+    "depth_p75": 2.965250015258789,
+    "valid_min_m": 0.33601275086402893,
+    "valid_max_m": 3.5872106552124023,
+    "valid_mean_m": 1.5169124603271484,
+    "score": 0.670481317037074,
+    "score_terms": {
+      "w_near_term": 0.2065361328125,
+      "w_far_term": 0.3,
+      "w_edge_term": 0.003428450300026089,
+      "w_iqr_term": 0.16051673392454785,
+      "iqr_norm": 0.8025836696227392
+    },
+    "validity_mode": "finite_gt_min",
+    "reject_reasons": [],
+    "gate_pass": true,
+    "score_pass": true,
+    "accept": true
+  },
+  "chosen_start_pose": {
+    "position": [
+      0.7285393476486206,
+      2.0999999046325684,
+      -1.6176854372024536
+    ],
+    "yaw_rad": 1.3619206822423022,
+    "pose_readback": {
+      "position": [
+        0.7285393476486206,
+        2.0999999046325684,
+        -1.6176854372024536
+      ],
+      "rotation_quat_wxyz": [
+        0.7769684791564941,
+        0.0,
+        0.6295394897460938,
+        0.0
+      ]
+    }
+  },
+  "planner_trace": [],
+  "reject_histogram": {
+    "REJ_LOW_TEXTURE": 118,
+    "REJ_SCORE_LOW": 38,
+    "REJ_TOO_CLOSE_WALL": 11
+  },
+  "artifacts": {
+    "step1_report_json": "/Users/sota/code/3d_new/output/room_full/step1/eloiza_e_ze_newton/step1_start_report.json",
+    "step1_rgb": "/Users/sota/code/3d_new/output/room_full/step1/eloiza_e_ze_newton/step1_rgb.png",
+    "step1_depth": "/Users/sota/code/3d_new/output/room_full/step1/eloiza_e_ze_newton/step1_depth.png",
+    "step1_depth_clip": "/Users/sota/code/3d_new/output/room_full/step1/eloiza_e_ze_newton/step1_depth_clip.png",
+    "step1_depth_npy": "/Users/sota/code/3d_new/output/room_full/step1/eloiza_e_ze_newton/step1_depth.npy"
+  }
+}

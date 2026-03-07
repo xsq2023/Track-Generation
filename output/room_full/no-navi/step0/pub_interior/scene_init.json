@@ -1,0 +1,418 @@
+{
+  "scene_id": "pub_interior",
+  "scene_path": "/Users/sota/code/3d/room/pub_interior.glb",
+  "pipeline_stage": 0,
+  "step_name": "stage0_scene_init",
+  "status": "OK",
+  "run_state": "OK",
+  "quarantine": false,
+  "anomaly": {
+    "level": "normal",
+    "soft": false,
+    "hard": false,
+    "reasons": [],
+    "max_dim": 9.316011428833008,
+    "aabb_volume": 355.3052535824627,
+    "from_scene_stats": true
+  },
+  "seed": 1,
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "zfar": 1000.0,
+    "color_sensor": true,
+    "depth_sensor": true
+  },
+  "source_root": "/Users/sota/code/3d/room",
+  "scene_stats_json": "/Users/sota/code/3d_new/output/room_full/step0/scene_stats.json",
+  "aabb_pre": {
+    "center": [
+      4.144845008850098,
+      3.4183149337768555,
+      -2.3490490913391113
+    ],
+    "size": [
+      9.316011428833008,
+      8.093116760253906,
+      4.71254825592041
+    ],
+    "min": [
+      -0.5131607055664062,
+      -0.6282434463500977,
+      -4.705323219299316
+    ],
+    "max": [
+      8.802850723266602,
+      7.464873313903809,
+      0.00722503662109375
+    ],
+    "max_dim": 9.316011428833008,
+    "volume": 355.3052535824627
+  },
+  "aabb_post_expected": {
+    "center": [
+      -4.440892098500626e-16,
+      4.3436597421970475,
+      -2.220446049250313e-16
+    ],
+    "size": [
+      10.0,
+      8.687319484394095,
+      5.05854709595471
+    ],
+    "min": [
+      -5.0,
+      0.0,
+      -2.529273547977355
+    ],
+    "max": [
+      4.999999999999999,
+      8.687319484394095,
+      2.5292735479773545
+    ],
+    "max_dim": 10.0,
+    "volume": 439.45214749412514
+  },
+  "aabb_post": {
+    "center": [
+      4.144845008850098,
+      2.349048614501953,
+      3.4183149337768555
+    ],
+    "size": [
+      9.316011428833008,
+      4.712547302246094,
+      8.09311580657959
+    ],
+    "min": [
+      -0.5131607055664062,
+      -0.00722503662109375,
+      -0.6282429695129395
+    ],
+    "max": [
+      8.802850723266602,
+      4.705322265625,
+      7.46487283706665
+    ],
+    "max_dim": 9.316011428833008,
+    "volume": 355.30513981129803
+  },
+  "transform_plan": {
+    "scale": 1.0734207526892947,
+    "translation": [
+      -4.449162649180338,
+      0.6743695530532383,
+      2.5215180437293325
+    ],
+    "align_floor_to_zero": true,
+    "target_max_dim": 50.0,
+    "target_min_dim": 10.0,
+    "applied": true,
+    "apply_mode": "stage_config_scene_instance"
+  },
+  "transform_apply_mode": "stage_config_scene_instance",
+  "post_scene_source": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/scene_post_transform.scene_instance.json",
+  "stage_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/stage_post_transform.stage_config.json",
+  "debug_cam_pose_pre": {
+    "position": [
+      4.144845008850098,
+      7.331039733886718,
+      8.830164623260497
+    ],
+    "look_at_target": [
+      4.144845008850098,
+      3.4183149337768555,
+      -2.3490490913391113
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 11.179213714599609,
+    "debug_cam_distance_raw_m": 11.179213714599609,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.33035042472810605,
+      -0.9438583563660173
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.33667481938672716,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose_post": {
+    "position": [
+      4.144845008850098,
+      6.261773414611816,
+      14.597528648376464
+    ],
+    "look_at_target": [
+      4.144845008850098,
+      2.349048614501953,
+      3.4183149337768555
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 11.179213714599609,
+    "debug_cam_distance_raw_m": 11.179213714599609,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.33035042472810605,
+      -0.9438583563660173
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.33667481938672716,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose": {
+    "position": [
+      4.144845008850098,
+      6.261773414611816,
+      14.597528648376464
+    ],
+    "look_at_target": [
+      4.144845008850098,
+      2.349048614501953,
+      3.4183149337768555
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 11.179213714599609,
+    "debug_cam_distance_raw_m": 11.179213714599609,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.33035042472810605,
+      -0.9438583563660173
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.33667481938672716,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose_readback_pre": {
+    "position": [
+      4.144845008850098,
+      7.331039905548096,
+      8.830164909362793
+    ],
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ]
+  },
+  "debug_cam_pose_readback_post": {
+    "position": [
+      4.144845008850098,
+      6.261773586273193,
+      14.597528457641602
+    ],
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ]
+  },
+  "depth_debug_meta_pre": {
+    "valid_ratio": 0.21125325520833332,
+    "valid_min_m": 8.43890380859375,
+    "valid_max_m": 14.485739707946777,
+    "valid_mean_m": 11.324934959411621,
+    "clip_max_m": 10.0,
+    "rgb_mean": 22.321889105902777,
+    "rgb_std": 49.30905839312937,
+    "rgb_min": 0,
+    "rgb_max": 249,
+    "depth_range_valid_min_m": 8.43890380859375,
+    "depth_range_valid_max_m": 14.485739707946777,
+    "depth_range_valid_mean_m": 11.324934959411621,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 14.259207725524902,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 0.16400065104166667,
+    "u16_saturation_ratio_auto": 0.002132161458333333,
+    "u16_saturation_ratio": 0.002132161458333333,
+    "vis_percentile_min_m": 8.60599422454834,
+    "vis_percentile_max_m": 14.259207725524902,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_rgb_pre.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_pre.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_clip_pre.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_pre.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_pre.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_clip_pre.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_p99_pre.png"
+    }
+  },
+  "depth_debug_meta_post": {
+    "valid_ratio": 0.2624283854166667,
+    "valid_min_m": 7.249755859375,
+    "valid_max_m": 14.710551261901855,
+    "valid_mean_m": 8.430574417114258,
+    "clip_max_m": 10.0,
+    "rgb_mean": 43.76079427083334,
+    "rgb_std": 73.40588282613132,
+    "rgb_min": 0,
+    "rgb_max": 186,
+    "depth_range_valid_min_m": 7.249755859375,
+    "depth_range_valid_max_m": 14.710551261901855,
+    "depth_range_valid_mean_m": 8.430574417114258,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 14.091537475585938,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 0.02685546875,
+    "u16_saturation_ratio_auto": 0.0026953125,
+    "u16_saturation_ratio": 0.0026953125,
+    "vis_percentile_min_m": 7.257909774780273,
+    "vis_percentile_max_m": 14.091537475585938,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_rgb_post.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_post.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_clip_post.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_post.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_post.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_clip_post.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_p99_post.png"
+    }
+  },
+  "depth_debug_meta": {
+    "valid_ratio": 0.2624283854166667,
+    "valid_min_m": 7.249755859375,
+    "valid_max_m": 14.710551261901855,
+    "valid_mean_m": 8.430574417114258,
+    "clip_max_m": 10.0,
+    "rgb_mean": 43.76079427083334,
+    "rgb_std": 73.40588282613132,
+    "rgb_min": 0,
+    "rgb_max": 186,
+    "depth_range_valid_min_m": 7.249755859375,
+    "depth_range_valid_max_m": 14.710551261901855,
+    "depth_range_valid_mean_m": 8.430574417114258,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 14.091537475585938,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 0.02685546875,
+    "u16_saturation_ratio_auto": 0.0026953125,
+    "u16_saturation_ratio": 0.0026953125,
+    "vis_percentile_min_m": 7.257909774780273,
+    "vis_percentile_max_m": 14.091537475585938,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_rgb_post.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_post.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_clip_post.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_post.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_post.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_clip_post.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_p99_post.png"
+    }
+  },
+  "post_render_ok": true,
+  "post_render_fail_reason": null,
+  "navmesh_status": "RECOMPUTED_OK",
+  "navmesh_fail_reason": null,
+  "fallback_used": "none",
+  "fallback_plan": "navmesh",
+  "navmesh_attempts": [
+    {
+      "attempt_id": "LOAD_CACHE",
+      "settings_summary": null,
+      "success": false,
+      "error": "cache_missing",
+      "attempt_wall_time_ms": 0.010013580322265625,
+      "navmesh_poly_count": null
+    },
+    {
+      "attempt_id": "ATTEMPT_A_DEFAULT",
+      "settings_summary": {
+        "agent_radius": 0.10000000149011612,
+        "agent_height": 1.5,
+        "cell_size": 0.05000000074505806,
+        "cell_height": 0.20000000298023224,
+        "agent_max_climb": 0.20000000298023224,
+        "agent_max_slope": 45.0,
+        "attempt_wall_time_ms": 37.46294975280762,
+        "navmesh_poly_count": 118
+      },
+      "success": true,
+      "error": null,
+      "attempt_wall_time_ms": 37.46294975280762,
+      "navmesh_poly_count": 118
+    }
+  ],
+  "navmesh_cache_key": "71bcde56011a9e92",
+  "navmesh_cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/pub_interior_71bcde56011a9e92.navmesh",
+  "scene_init_ok": true,
+  "fail_fast_reasons": [],
+  "init_warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 13791,
+    "pip_freeze_subset": [
+      "habitat_sim==0.3.3",
+      "magnum @ file:///Users/runner/miniconda3/envs/habitat/conda-bld/habitat-sim_1738007552115/work/build/deps/magnum-bindings/src/python",
+      "numpy @ file:///Users/runner/miniforge3/conda-bld/numpy_1707225689808/work/dist/numpy-1.26.4-cp39-cp39-macosx_11_0_arm64.whl#sha256=989042d872faf31c0434bd99fec5ec09b5c5d9a0b8125edd0ae869c5d8851048",
+      "numpy-quaternion @ file:///Users/runner/miniforge3/conda-bld/quaternion_1719301757253/work"
+    ],
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "bootstrap_json": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/scene_bootstrap.json",
+  "artifacts": {
+    "scene_init_json": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/scene_init.json",
+    "scene_stats_json": "/Users/sota/code/3d_new/output/room_full/step0/scene_stats.json",
+    "scene_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/scene_post_transform.scene_instance.json",
+    "stage_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/stage_post_transform.stage_config.json",
+    "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_rgb.png",
+    "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth.png",
+    "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_clip.png",
+    "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth.npy",
+    "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16.png",
+    "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_clip.png",
+    "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/pub_interior/debug_depth_u16_p99.png"
+  }
+}

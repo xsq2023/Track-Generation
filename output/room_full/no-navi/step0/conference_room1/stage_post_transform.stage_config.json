@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/conference_room1.glb",
+  "collision_asset": "/Users/sota/code/3d/room/conference_room1.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    2.0,
+    6.149998664855957,
+    2.124999761581421
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

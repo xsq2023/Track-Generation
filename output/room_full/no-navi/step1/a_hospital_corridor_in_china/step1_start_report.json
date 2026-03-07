@@ -1,0 +1,173 @@
+{
+  "scene_id": "a_hospital_corridor_in_china",
+  "scene_path": "/Users/sota/code/3d/room/a_hospital_corridor_in_china.glb",
+  "pipeline_stage": 1,
+  "step_name": "step1_indoor_start",
+  "step0_scene_init": "/Users/sota/code/3d_new/output/room_full/step0/a_hospital_corridor_in_china/scene_init.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/a_hospital_corridor_in_china/scene_post_transform.scene_instance.json",
+  "step0_dependency": {
+    "scene_init_ok": true,
+    "quarantine": false,
+    "navmesh_status": "RECOMPUTED_OK",
+    "fallback_plan": "navmesh"
+  },
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "thresholds": {
+    "depth_valid_min_m": 0.0001,
+    "depth_valid_max_m": 200.0,
+    "enforce_depth_valid_max": false,
+    "depth_validity_mode": "finite_gt_min",
+    "depth_near_m": 2.0,
+    "depth_far_m": 8.0,
+    "min_valid_ratio": 0.6,
+    "min_d05_m": 0.2,
+    "max_far_ratio": 0.6,
+    "min_edge_ratio": 0.01,
+    "edge_depth_delta_m": 0.03,
+    "iqr_norm_max_m": 3.0,
+    "score_min": 0.45
+  },
+  "score_weights": {
+    "w_near": 0.3,
+    "w_far": 0.3,
+    "w_edge": 0.2,
+    "w_iqr": 0.2
+  },
+  "search_params": {
+    "max_start_samples": 200,
+    "top_k": 3,
+    "max_actions_per_start": 30,
+    "turn_small_deg": 10.0,
+    "forward_small_m": 0.2,
+    "forward_medium_m": 0.4,
+    "back_small_m": 0.2
+  },
+  "no_navmesh_params": {
+    "cam_height_m": 1.5,
+    "raycast_top_pad_m": 5.0,
+    "min_floor_normal_dot": 0.8,
+    "clearance_min_m": 0.4,
+    "allow_floor_proxy": false,
+    "forward_hit_gate": false,
+    "forward_hit_max_m": 5.0,
+    "forward_yaw_trials": 12,
+    "adaptive_forward_hit_max": true,
+    "forward_hit_max_scale": 0.05,
+    "forward_hit_max_cap_m": 30.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 13841,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "status": "OK",
+  "run_state": "OK",
+  "step1_ok": true,
+  "start_mode": "navmesh",
+  "fail_reason": null,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/a_hospital_corridor_in_china_da5f2e84d5ccd642.navmesh",
+    "error": null
+  },
+  "scene_aabb": {
+    "center": [
+      2.3804140090942383,
+      2.443876266479492,
+      -2.345714569091797
+    ],
+    "size": [
+      12.745292663574219,
+      5.7048187255859375,
+      28.604820251464844
+    ],
+    "min": [
+      -3.992232322692871,
+      -0.40853309631347656,
+      -16.64812469482422
+    ],
+    "max": [
+      8.753060340881348,
+      5.296285629272461,
+      11.956695556640625
+    ],
+    "max_dim": 28.604820251464844,
+    "volume": 2079.844588036605
+  },
+  "start_candidates_total": 200,
+  "accepted_candidates": 23,
+  "best_score": 0.7002624966072639,
+  "best_metrics": {
+    "r_valid": 0.89701171875,
+    "r_near": 0.6568721376677481,
+    "r_far": 0.0,
+    "r_edge": 0.016004276534697753,
+    "d05": 0.3554944694042206,
+    "d10": 0.3906450569629669,
+    "depth_iqr": 3.5216270685195923,
+    "depth_p25": 0.5527294874191284,
+    "depth_p75": 4.074356555938721,
+    "valid_min_m": 0.32707321643829346,
+    "valid_max_m": 4.424882888793945,
+    "valid_mean_m": 2.033926010131836,
+    "score": 0.7002624966072639,
+    "score_terms": {
+      "w_near_term": 0.1970616413003244,
+      "w_far_term": 0.3,
+      "w_edge_term": 0.003200855306939551,
+      "w_iqr_term": 0.2,
+      "iqr_norm": 1.0
+    },
+    "validity_mode": "finite_gt_min",
+    "reject_reasons": [],
+    "gate_pass": true,
+    "score_pass": true,
+    "accept": true
+  },
+  "chosen_start_pose": {
+    "position": [
+      5.648251056671143,
+      1.8798894882202148,
+      2.6850802898406982
+    ],
+    "yaw_rad": 1.4749248139991658,
+    "pose_readback": {
+      "position": [
+        5.648251056671143,
+        1.8798894882202148,
+        2.6850802898406982
+      ],
+      "rotation_quat_wxyz": [
+        0.7401772737503052,
+        0.0,
+        0.6724117994308472,
+        0.0
+      ]
+    }
+  },
+  "planner_trace": [],
+  "reject_histogram": {
+    "REJ_SCORE_LOW": 19,
+    "REJ_LOW_TEXTURE": 160,
+    "REJ_TOO_CLOSE_WALL": 16
+  },
+  "artifacts": {
+    "step1_report_json": "/Users/sota/code/3d_new/output/room_full/step1/a_hospital_corridor_in_china/step1_start_report.json",
+    "step1_rgb": "/Users/sota/code/3d_new/output/room_full/step1/a_hospital_corridor_in_china/step1_rgb.png",
+    "step1_depth": "/Users/sota/code/3d_new/output/room_full/step1/a_hospital_corridor_in_china/step1_depth.png",
+    "step1_depth_clip": "/Users/sota/code/3d_new/output/room_full/step1/a_hospital_corridor_in_china/step1_depth_clip.png",
+    "step1_depth_npy": "/Users/sota/code/3d_new/output/room_full/step1/a_hospital_corridor_in_china/step1_depth.npy"
+  }
+}

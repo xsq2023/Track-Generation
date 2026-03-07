@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/lincolns_inn_drawing_room.glb",
+  "collision_asset": "/Users/sota/code/3d/room/lincolns_inn_drawing_room.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -41.32416534423828,
+    19.07707977294922,
+    13.99413013458252
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

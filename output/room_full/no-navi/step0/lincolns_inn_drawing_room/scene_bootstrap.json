@@ -1,0 +1,91 @@
+{
+  "scene_id": "lincolns_inn_drawing_room",
+  "scene_path": "/Users/sota/code/3d/room/lincolns_inn_drawing_room.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789479.2903712,
+  "events": [
+    {
+      "ts_unix": 1772789479.2903712,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 12,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789480.064757,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13714,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 39.98444747924805,
+          "aabb_volume": 38703.26227991408,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789480.0650449,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789480.273005,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789480.273294,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789480.2734752,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789480.358579,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789480.364296,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789480.5046751,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789480.504979,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789480.576313,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789481.0220869,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789481.022688,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789481.022688
+}

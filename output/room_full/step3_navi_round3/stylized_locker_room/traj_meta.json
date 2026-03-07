@@ -1,0 +1,78 @@
+{
+  "scene_id": "stylized_locker_room",
+  "scene_path": "/Users/sota/code/3d/room/stylized_locker_room.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/stylized_locker_room/step2_floor_report.json",
+  "status": "FAIL",
+  "run_state": "FAIL",
+  "step3_ok": false,
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/stylized_locker_room_93a2446f2d946efe.navmesh",
+    "error": null
+  },
+  "frames": 10,
+  "path_length_m": 1.9494672971258518,
+  "visited_unique_cells": 8,
+  "coverage_area_m2": 0.9799999999999999,
+  "continuity_valid_ratio": 1.0,
+  "recovery_ratio": 1.0,
+  "replans_total": 10,
+  "blocked_replans": 0,
+  "poor_view_replans": 9,
+  "completed_replans": 1,
+  "wall_missing_frames": 0,
+  "successful_motion_frames": 10,
+  "max_blocked_streak": 0,
+  "max_poor_view_streak": 10,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 10,
+  "last_plan_reason": "poor_view",
+  "plateau_reason": null,
+  "fail_reason_histogram": {
+    "outside_scene_or_blackframe": 1
+  },
+  "fail_reason": "outside_scene_or_blackframe",
+  "fail_reason_detail": "poor_view_streak=10, valid_ratio=1.000, black_ratio=0.862",
+  "terminal_record": {
+    "last_fsm_state": "wall_tangent",
+    "gate_name": "poor_view",
+    "fail_reason": "outside_scene_or_blackframe",
+    "counters_snapshot": {
+      "replans_total": 10,
+      "blocked_replans": 0,
+      "poor_view_replans": 9,
+      "successful_motion_frames": 10,
+      "max_blocked_streak": 0,
+      "max_poor_view_streak": 10
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/stylized_locker_room/step3_frames.gif"
+  },
+  "warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 30122,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "stage_timing_sec": {
+    "t_load_scene": 1.2224230766296387,
+    "t_load_navmesh": 0.0012409687042236328,
+    "t_total": 1.5557937622070312
+  }
+}

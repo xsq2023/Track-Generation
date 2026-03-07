@@ -1,0 +1,418 @@
+{
+  "scene_id": "lincolns_inn_drawing_room",
+  "scene_path": "/Users/sota/code/3d/room/lincolns_inn_drawing_room.glb",
+  "pipeline_stage": 0,
+  "step_name": "stage0_scene_init",
+  "status": "OK",
+  "run_state": "OK",
+  "quarantine": false,
+  "anomaly": {
+    "level": "normal",
+    "soft": false,
+    "hard": false,
+    "reasons": [],
+    "max_dim": 39.98444747924805,
+    "aabb_volume": 38703.26227991408,
+    "from_scene_stats": true
+  },
+  "seed": 1,
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "zfar": 1000.0,
+    "color_sensor": true,
+    "depth_sensor": true
+  },
+  "source_root": "/Users/sota/code/3d/room",
+  "scene_stats_json": "/Users/sota/code/3d_new/output/room_full/step0/scene_stats.json",
+  "aabb_pre": {
+    "center": [
+      41.32416534423828,
+      0.9151439666748047,
+      -13.99413013458252
+    ],
+    "size": [
+      35.26719665527344,
+      39.98444747924805,
+      27.446409225463867
+    ],
+    "min": [
+      23.690567016601562,
+      -19.07707977294922,
+      -27.717334747314453
+    ],
+    "max": [
+      58.957763671875,
+      20.907367706298828,
+      -0.27092552185058594
+    ],
+    "max_dim": 39.98444747924805,
+    "volume": 38703.26227991408
+  },
+  "aabb_post_expected": {
+    "center": [
+      0.0,
+      19.992223739624023,
+      0.0
+    ],
+    "size": [
+      35.26719665527344,
+      39.98444747924805,
+      27.446409225463867
+    ],
+    "min": [
+      -17.63359832763672,
+      0.0,
+      -13.723204612731934
+    ],
+    "max": [
+      17.63359832763672,
+      39.98444747924805,
+      13.723204612731934
+    ],
+    "max_dim": 39.98444747924805,
+    "volume": 38703.26227991408
+  },
+  "aabb_post": {
+    "center": [
+      41.32416534423828,
+      13.99413013458252,
+      0.9151458740234375
+    ],
+    "size": [
+      35.26719665527344,
+      27.4464054107666,
+      39.98444366455078
+    ],
+    "min": [
+      23.690567016601562,
+      0.27092742919921875,
+      -19.077075958251953
+    ],
+    "max": [
+      58.957763671875,
+      27.71733283996582,
+      20.907367706298828
+    ],
+    "max_dim": 39.98444366455078,
+    "volume": 38703.25320819339
+  },
+  "transform_plan": {
+    "scale": 1.0,
+    "translation": [
+      -41.32416534423828,
+      19.07707977294922,
+      13.99413013458252
+    ],
+    "align_floor_to_zero": true,
+    "target_max_dim": 50.0,
+    "target_min_dim": 10.0,
+    "applied": true,
+    "apply_mode": "stage_config_scene_instance"
+  },
+  "transform_apply_mode": "stage_config_scene_instance",
+  "post_scene_source": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/scene_post_transform.scene_instance.json",
+  "stage_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/stage_post_transform.stage_config.json",
+  "debug_cam_pose_pre": {
+    "position": [
+      41.32416534423828,
+      17.708611907958982,
+      33.987206840515135
+    ],
+    "look_at_target": [
+      41.32416534423828,
+      0.9151439666748047,
+      -13.99413013458252
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 47.981336975097655,
+    "debug_cam_distance_raw_m": 47.981336975097655,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754351556301117,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.33035042472810605,
+      -0.9438583563660173
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.33667481938672716,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose_post": {
+    "position": [
+      41.32416534423828,
+      30.787596473693846,
+      48.896478271484376
+    ],
+    "look_at_target": [
+      41.32416534423828,
+      13.99413013458252,
+      0.9151458740234375
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 47.98133239746094,
+    "debug_cam_distance_raw_m": 47.98133239746094,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.33035042472810605,
+      -0.9438583563660173
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.33667481938672716,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose": {
+    "position": [
+      41.32416534423828,
+      30.787596473693846,
+      48.896478271484376
+    ],
+    "look_at_target": [
+      41.32416534423828,
+      13.99413013458252,
+      0.9151458740234375
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "fov_deg": 90.0,
+    "near": 0.1,
+    "far": 1000.0,
+    "debug_cam_distance_m": 47.98133239746094,
+    "debug_cam_distance_raw_m": 47.98133239746094,
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.0,
+      -0.33035042472810605,
+      -0.9438583563660173
+    ],
+    "yaw_rad": 0.0,
+    "pitch_rad": -0.33667481938672716,
+    "roll_rad": 0.0,
+    "pose_frame": "world"
+  },
+  "debug_cam_pose_readback_pre": {
+    "position": [
+      41.32416534423828,
+      17.7086124420166,
+      33.987205505371094
+    ],
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754351556301117,
+      0.0,
+      0.0
+    ]
+  },
+  "debug_cam_pose_readback_post": {
+    "position": [
+      41.32416534423828,
+      30.787595748901367,
+      48.89647674560547
+    ],
+    "rotation_quat_wxyz": [
+      0.9858646988868713,
+      -0.16754350066184998,
+      0.0,
+      0.0
+    ]
+  },
+  "depth_debug_meta_pre": {
+    "valid_ratio": 0.22593424479166666,
+    "valid_min_m": 33.20281982421875,
+    "valid_max_m": 69.35669708251953,
+    "valid_mean_m": 51.402183532714844,
+    "clip_max_m": 10.0,
+    "rgb_mean": 13.728023003472222,
+    "rgb_std": 34.20164003168722,
+    "rgb_min": 0,
+    "rgb_max": 254,
+    "depth_range_valid_min_m": 33.20281982421875,
+    "depth_range_valid_max_m": 69.35669708251953,
+    "depth_range_valid_mean_m": 51.402183532714844,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 68.47911834716797,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 0.22593424479166666,
+    "u16_saturation_ratio_auto": 0.0023990885416666666,
+    "u16_saturation_ratio": 0.0023990885416666666,
+    "vis_percentile_min_m": 35.18008804321289,
+    "vis_percentile_max_m": 68.47911834716797,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_rgb_pre.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_pre.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_clip_pre.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_pre.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_pre.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_clip_pre.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_p99_pre.png"
+    }
+  },
+  "depth_debug_meta_post": {
+    "valid_ratio": 0.20790364583333334,
+    "valid_min_m": 29.810562133789062,
+    "valid_max_m": 73.26368713378906,
+    "valid_mean_m": 50.54230499267578,
+    "clip_max_m": 10.0,
+    "rgb_mean": 15.461794704861111,
+    "rgb_std": 40.563604098026026,
+    "rgb_min": 0,
+    "rgb_max": 253,
+    "depth_range_valid_min_m": 29.810562133789062,
+    "depth_range_valid_max_m": 73.26368713378906,
+    "depth_range_valid_mean_m": 50.54230499267578,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 72.75535583496094,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 0.20790364583333334,
+    "u16_saturation_ratio_auto": 0.0021354166666666665,
+    "u16_saturation_ratio": 0.0021354166666666665,
+    "vis_percentile_min_m": 31.51274299621582,
+    "vis_percentile_max_m": 72.75535583496094,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_rgb_post.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_post.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_clip_post.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_post.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_post.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_clip_post.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_p99_post.png"
+    }
+  },
+  "depth_debug_meta": {
+    "valid_ratio": 0.20790364583333334,
+    "valid_min_m": 29.810562133789062,
+    "valid_max_m": 73.26368713378906,
+    "valid_mean_m": 50.54230499267578,
+    "clip_max_m": 10.0,
+    "rgb_mean": 15.461794704861111,
+    "rgb_std": 40.563604098026026,
+    "rgb_min": 0,
+    "rgb_max": 253,
+    "depth_range_valid_min_m": 29.810562133789062,
+    "depth_range_valid_max_m": 73.26368713378906,
+    "depth_range_valid_mean_m": 50.54230499267578,
+    "u16_clip_max_m": 10.0,
+    "u16_auto_max_m": 72.75535583496094,
+    "u16_auto_percentile": 99.0,
+    "u16_saturation_ratio_clip": 0.20790364583333334,
+    "u16_saturation_ratio_auto": 0.0021354166666666665,
+    "u16_saturation_ratio": 0.0021354166666666665,
+    "vis_percentile_min_m": 31.51274299621582,
+    "vis_percentile_max_m": 72.75535583496094,
+    "clip_fixed_max_m": 10.0,
+    "artifacts": {
+      "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_rgb_post.png",
+      "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_post.png",
+      "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_clip_post.png",
+      "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_post.npy",
+      "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_post.png",
+      "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_clip_post.png",
+      "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_p99_post.png"
+    }
+  },
+  "post_render_ok": true,
+  "post_render_fail_reason": null,
+  "navmesh_status": "RECOMPUTED_OK",
+  "navmesh_fail_reason": null,
+  "fallback_used": "none",
+  "fallback_plan": "navmesh",
+  "navmesh_attempts": [
+    {
+      "attempt_id": "LOAD_CACHE",
+      "settings_summary": null,
+      "success": false,
+      "error": "cache_missing",
+      "attempt_wall_time_ms": 0.012159347534179688,
+      "navmesh_poly_count": null
+    },
+    {
+      "attempt_id": "ATTEMPT_A_DEFAULT",
+      "settings_summary": {
+        "agent_radius": 0.10000000149011612,
+        "agent_height": 1.5,
+        "cell_size": 0.05000000074505806,
+        "cell_height": 0.20000000298023224,
+        "agent_max_climb": 0.20000000298023224,
+        "agent_max_slope": 45.0,
+        "attempt_wall_time_ms": 438.1279945373535,
+        "navmesh_poly_count": 1780
+      },
+      "success": true,
+      "error": null,
+      "attempt_wall_time_ms": 438.1279945373535,
+      "navmesh_poly_count": 1780
+    }
+  ],
+  "navmesh_cache_key": "b52c6699df31b22d",
+  "navmesh_cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/lincolns_inn_drawing_room_b52c6699df31b22d.navmesh",
+  "scene_init_ok": true,
+  "fail_fast_reasons": [],
+  "init_warnings": [],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 13714,
+    "pip_freeze_subset": [
+      "habitat_sim==0.3.3",
+      "magnum @ file:///Users/runner/miniconda3/envs/habitat/conda-bld/habitat-sim_1738007552115/work/build/deps/magnum-bindings/src/python",
+      "numpy @ file:///Users/runner/miniforge3/conda-bld/numpy_1707225689808/work/dist/numpy-1.26.4-cp39-cp39-macosx_11_0_arm64.whl#sha256=989042d872faf31c0434bd99fec5ec09b5c5d9a0b8125edd0ae869c5d8851048",
+      "numpy-quaternion @ file:///Users/runner/miniforge3/conda-bld/quaternion_1719301757253/work"
+    ],
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "bootstrap_json": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/scene_bootstrap.json",
+  "artifacts": {
+    "scene_init_json": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/scene_init.json",
+    "scene_stats_json": "/Users/sota/code/3d_new/output/room_full/step0/scene_stats.json",
+    "scene_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/scene_post_transform.scene_instance.json",
+    "stage_post_transform": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/stage_post_transform.stage_config.json",
+    "debug_rgb": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_rgb.png",
+    "debug_depth": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth.png",
+    "debug_depth_clip": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_clip.png",
+    "debug_depth_npy": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth.npy",
+    "debug_depth_u16": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16.png",
+    "debug_depth_u16_clip": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_clip.png",
+    "debug_depth_u16_p99": "/Users/sota/code/3d_new/output/room_full/step0/lincolns_inn_drawing_room/debug_depth_u16_p99.png"
+  }
+}

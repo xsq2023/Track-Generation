@@ -1,0 +1,91 @@
+{
+  "scene_id": "sitting_room_with_baked_textures",
+  "scene_path": "/Users/sota/code/3d/room/sitting_room_with_baked_textures.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789492.104418,
+  "events": [
+    {
+      "ts_unix": 1772789492.104418,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 20,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789492.80797,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13804,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 10.607966423034668,
+          "aabb_volume": 363.8001310911165,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789492.808355,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.348446,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.348906,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.349084,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.4170492,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.423667,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.878259,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.878745,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.934743,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.949302,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789493.950685,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789493.950685
+}

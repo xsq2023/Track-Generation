@@ -1,0 +1,91 @@
+{
+  "scene_id": "conference_room1",
+  "scene_path": "/Users/sota/code/3d/room/conference_room1.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789472.423893,
+  "events": [
+    {
+      "ts_unix": 1772789472.423894,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 9,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789473.189079,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13704,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 18.149995803833008,
+          "aabb_volume": 1306.8009441372851,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789473.189613,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789474.177118,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789474.177623,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789474.1778822,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789474.234171,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789474.2399738,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789475.072757,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789475.073256,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789475.121141,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789475.143929,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789475.144556,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789475.144556
+}

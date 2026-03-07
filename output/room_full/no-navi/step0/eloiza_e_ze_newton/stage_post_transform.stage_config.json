@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/eloiza_e_ze_newton.glb",
+  "collision_asset": "/Users/sota/code/3d/room/eloiza_e_ze_newton.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -0.049643784844248307,
+    3.4747707827581897,
+    2.6465364316711595
+  ],
+  "scale": [
+    1.7135848751347196,
+    1.7135848751347196,
+    1.7135848751347196
+  ]
+}

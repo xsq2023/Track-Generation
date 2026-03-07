@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/abandoned_classroom.glb",
+  "collision_asset": "/Users/sota/code/3d/room/abandoned_classroom.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -12.878615417900644,
+    50.79315516054152,
+    6.616111522289952
+  ],
+  "scale": [
+    0.115652431408134,
+    0.115652431408134,
+    0.115652431408134
+  ]
+}

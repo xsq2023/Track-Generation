@@ -1,0 +1,91 @@
+{
+  "scene_id": "subway",
+  "scene_path": "/Users/sota/code/3d/room/subway.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789496.898278,
+  "events": [
+    {
+      "ts_unix": 1772789496.898279,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 22,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789497.6289191,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13812,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 18.49333953857422,
+          "aabb_volume": 193.43662687051633,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789497.629448,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789497.8394802,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789497.8397708,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789497.839951,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789497.909639,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789497.913728,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789498.0412018,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789498.041686,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789498.084224,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789498.103599,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789498.104152,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789498.104152
+}

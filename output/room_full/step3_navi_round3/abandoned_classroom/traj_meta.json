@@ -1,0 +1,81 @@
+{
+  "scene_id": "abandoned_classroom",
+  "scene_path": "/Users/sota/code/3d/room/abandoned_classroom.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/abandoned_classroom/step2_floor_report.json",
+  "status": "FAIL",
+  "run_state": "FAIL",
+  "step3_ok": false,
+  "navmesh_probe": {
+    "loaded": false,
+    "source": "exception",
+    "cache_path": null,
+    "error": "navmesh_required:step0_navmesh_status_FAIL"
+  },
+  "frames": 0,
+  "path_length_m": 0.0,
+  "visited_unique_cells": 0,
+  "coverage_area_m2": 0.0,
+  "continuity_valid_ratio": 0.0,
+  "recovery_ratio": 0.0,
+  "replans_total": 0,
+  "blocked_replans": 0,
+  "poor_view_replans": 0,
+  "completed_replans": 0,
+  "wall_missing_frames": 0,
+  "successful_motion_frames": 0,
+  "max_blocked_streak": 0,
+  "max_poor_view_streak": 0,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 0,
+  "last_plan_reason": "startup",
+  "plateau_reason": null,
+  "fail_reason_histogram": {
+    "STEP3_EXCEPTION": 1
+  },
+  "fail_reason": "STEP3_EXCEPTION",
+  "fail_reason_detail": "navmesh_required:step0_navmesh_status_FAIL",
+  "terminal_record": {
+    "last_fsm_state": "PLAN",
+    "gate_name": null,
+    "fail_reason": "STEP3_EXCEPTION",
+    "counters_snapshot": {
+      "replans_total": 0,
+      "blocked_replans": 0,
+      "poor_view_replans": 0,
+      "successful_motion_frames": 0,
+      "max_blocked_streak": 0,
+      "max_poor_view_streak": 0
+    }
+  },
+  "artifacts": {
+    "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/abandoned_classroom/poses.jsonl",
+    "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/abandoned_classroom/traj_meta.json",
+    "step3_debug_strip": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/abandoned_classroom/step3_debug_strip.png",
+    "step3_fail_snapshot": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/abandoned_classroom/step3_fail_snapshot.png",
+    "visited_map_debug": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/abandoned_classroom/visited_map_debug.png",
+    "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/abandoned_classroom/frames",
+    "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/abandoned_classroom/step3_frames.mp4",
+    "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/abandoned_classroom/step3_frames.gif"
+  },
+  "warnings": [
+    "video_encode_skipped_no_frames",
+    "gif_encode_skipped_no_frames"
+  ],
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 29711,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "stage_timing_sec": {
+    "t_load_scene": 0.25530481338500977,
+    "t_load_navmesh": 0.0006520748138427734,
+    "t_total": 0.25987982749938965
+  }
+}

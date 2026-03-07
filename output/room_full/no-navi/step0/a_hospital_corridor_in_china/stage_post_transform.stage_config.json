@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/a_hospital_corridor_in_china.glb",
+  "collision_asset": "/Users/sota/code/3d/room/a_hospital_corridor_in_china.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -2.3804140090942383,
+    16.64812469482422,
+    2.443876028060913
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

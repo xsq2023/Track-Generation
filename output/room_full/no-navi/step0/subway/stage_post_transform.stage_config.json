@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/subway.glb",
+  "collision_asset": "/Users/sota/code/3d/room/subway.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    14.632125854492188,
+    -2.0103683471679688,
+    6.849555015563965
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

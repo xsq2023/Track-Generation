@@ -1,0 +1,81 @@
+{
+  "scene_id": "eloiza_e_ze_newton",
+  "scene_path": "/Users/sota/code/3d/room/eloiza_e_ze_newton.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/eloiza_e_ze_newton/step2_floor_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/eloiza_e_ze_newton/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 29963,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "params": {
+    "target_frames": 240,
+    "path_target_m": 36.0,
+    "path_max_m": 44.0,
+    "path_min_done_m": 10.0,
+    "wall_side": "left",
+    "wall_target_dist_m": 0.55,
+    "nav_step_m": 0.22,
+    "camera_height_bias_m": 0.08
+  },
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/eloiza_e_ze_newton_9844d300b1eaf792.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "start_pose": {
+    "camera_position": [
+      0.7285393476486206,
+      2.180000023841858,
+      -1.6176854372024536
+    ],
+    "nav_position": [
+      0.7285393476486206,
+      0.6000000238418579,
+      -1.6176854372024536
+    ],
+    "yaw_rad": 1.3619206822423022,
+    "pitch_rad": 0.0,
+    "camera_height_m": 1.58
+  },
+  "status": "FAIL",
+  "run_state": "FAIL",
+  "step3_ok": false,
+  "frames": 10,
+  "path_length_m": 1.6427400575764777,
+  "visited_unique_cells": 5,
+  "coverage_area_m2": 0.6124999999999999,
+  "continuity_valid_ratio": 0.8,
+  "recovery_ratio": 0.8,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 8,
+  "fail_reason": "outside_scene_or_blackframe",
+  "fail_reason_detail": "poor_view_streak=10, valid_ratio=1.000, black_ratio=0.726",
+  "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/eloiza_e_ze_newton/traj_meta.json",
+  "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/eloiza_e_ze_newton/poses.jsonl",
+  "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/eloiza_e_ze_newton/frames",
+  "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/eloiza_e_ze_newton/step3_frames.mp4",
+  "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/eloiza_e_ze_newton/step3_frames.gif",
+  "warnings": [],
+  "stage_timing_sec": {
+    "t_load_scene": 1.1105449199676514,
+    "t_load_navmesh": 0.001318216323852539,
+    "t_total": 1.5955750942230225
+  }
+}

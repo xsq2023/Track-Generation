@@ -1,0 +1,79 @@
+{
+  "scene_id": "apartamento",
+  "scene_path": "/Users/sota/code/3d/room/apartamento.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_explorer_fsm",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/step2/apartamento/step2_floor_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/apartamento/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "start_pose": {
+    "position": [
+      -2.659041404724121,
+      1.4977902173995972,
+      -7.085845947265625
+    ],
+    "yaw_rad": 3.0331244703698546,
+    "pitch_rad": 0.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 14097,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "params": {
+    "target_frames": 220,
+    "path_min_m": 12.0,
+    "path_max_m": 55.0,
+    "plateau_window_path_m": 8.0,
+    "plateau_new_cells_max": 8,
+    "startup_wall_frames": 15,
+    "startup_wall_path_m": 2.0,
+    "opening_persist_frames": 3,
+    "black_soft_void_ratio": 0.3,
+    "black_soft_ratio": 0.35,
+    "grid_res_m": 0.35,
+    "state_priority": "safety>turn>escape>room_check>wall_follow"
+  },
+  "status": "FAIL",
+  "run_state": "TIMEOUT",
+  "step3_ok": false,
+  "frames": 220,
+  "path_length_m": 32.33273919134074,
+  "visited_unique_cells": 78,
+  "coverage_area_m2": 9.554999999999998,
+  "continuity_valid_ratio": 1.0,
+  "recovery_ratio": 0.05454545454545454,
+  "max_zero_move_streak": 12,
+  "max_coverage_stall_streak": 12,
+  "black_alert_frames": 0,
+  "outside_proxy_frames": 0,
+  "inside_reanchor_count": 0,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 2,
+  "fail_reason": "target_frames_reached",
+  "fail_reason_detail": "path_length_m=32.333, path_min_m=12.000, coverage_gain_last_window=21, net_disp_last_window_m=5.127",
+  "coverage_gain_last_window": 21,
+  "net_disp_last_window_m": 5.126616359685459,
+  "plateau_reason": null,
+  "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3/apartamento/traj_meta.json",
+  "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3/apartamento/poses.jsonl",
+  "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3/apartamento/frames",
+  "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3/apartamento/step3_frames.mp4",
+  "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3/apartamento/step3_frames.gif",
+  "warnings": [],
+  "stage_timing_sec": {
+    "t_load_scene": 0.7686777114868164,
+    "t_total": 24.27312994003296
+  }
+}

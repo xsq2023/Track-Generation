@@ -1,0 +1,30 @@
+{
+  "render_asset": "/Users/sota/code/3d/room/modern_office.glb",
+  "collision_asset": "/Users/sota/code/3d/room/modern_office.glb",
+  "up": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "front": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "gravity": [
+    0.0,
+    -9.8,
+    0.0
+  ],
+  "units_to_meters": 1.0,
+  "origin": [
+    -0.7256681008925994,
+    3.6807865222875327,
+    -0.0
+  ],
+  "scale": [
+    1.6735356188273396,
+    1.6735356188273396,
+    1.6735356188273396
+  ]
+}

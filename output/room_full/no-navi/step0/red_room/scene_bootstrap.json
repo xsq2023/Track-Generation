@@ -1,0 +1,91 @@
+{
+  "scene_id": "red_room",
+  "scene_path": "/Users/sota/code/3d/room/red_room.glb",
+  "pid": 13657,
+  "created_at_unix": 1772789487.701483,
+  "events": [
+    {
+      "ts_unix": 1772789487.701484,
+      "stage": "PARENT_DISPATCH",
+      "detail": "spawn_worker",
+      "extra": {
+        "idx": 17,
+        "total": 24
+      }
+    },
+    {
+      "ts_unix": 1772789488.393106,
+      "stage": "BOOT",
+      "detail": "worker_start",
+      "extra": {
+        "pid": 13794,
+        "anomaly": {
+          "level": "normal",
+          "soft": false,
+          "hard": false,
+          "reasons": [],
+          "max_dim": 6.49676513671875,
+          "aabb_volume": 97.07074008429649,
+          "from_scene_stats": true
+        }
+      }
+    },
+    {
+      "ts_unix": 1772789488.393646,
+      "stage": "LOAD_SIM_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789488.7143822,
+      "stage": "COMPUTE_AABB_PRE",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789488.714831,
+      "stage": "COMPUTE_TRANSFORM_PLAN",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789488.715001,
+      "stage": "RENDER_PRE_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789488.777429,
+      "stage": "WRITE_TRANSFORM_SCENE_FILES",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789488.782683,
+      "stage": "LOAD_SIM_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789489.03106,
+      "stage": "COMPUTE_AABB_POST",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789489.0315561,
+      "stage": "RENDER_POST_DEBUG",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789489.0903301,
+      "stage": "NAVMESH",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789489.1029398,
+      "stage": "WRITE_SCENE_INIT",
+      "detail": null
+    },
+    {
+      "ts_unix": 1772789489.103502,
+      "stage": "DONE",
+      "detail": null
+    }
+  ],
+  "last_stage": "DONE",
+  "updated_at_unix": 1772789489.103502
+}

@@ -1,0 +1,81 @@
+{
+  "scene_id": "destroyed_abandoned_manufactory_-_small_02",
+  "scene_path": "/Users/sota/code/3d/room/destroyed_abandoned_manufactory_-_small_02.glb",
+  "pipeline_stage": 3,
+  "step_name": "step3_navi_walltrace",
+  "step2_report": "/Users/sota/code/3d_new/output/room_full/no-navi/step2/destroyed_abandoned_manufactory_-_small_02/step2_floor_report.json",
+  "scene_source": "/Users/sota/code/3d_new/output/room_full/step0/destroyed_abandoned_manufactory_-_small_02/scene_post_transform.scene_instance.json",
+  "sensor_config": {
+    "width": 640,
+    "height": 480,
+    "hfov": 90.0,
+    "znear": 0.1,
+    "zfar": 1000.0
+  },
+  "environment": {
+    "python": "3.9.20",
+    "executable": "/Users/sota/miniconda3/envs/habitat39/bin/python",
+    "pid": 29945,
+    "module_versions": {
+      "habitat_sim": "0.3.3",
+      "numpy": "1.26.4",
+      "magnum": null
+    }
+  },
+  "params": {
+    "target_frames": 240,
+    "path_target_m": 36.0,
+    "path_max_m": 44.0,
+    "path_min_done_m": 10.0,
+    "wall_side": "left",
+    "wall_target_dist_m": 0.55,
+    "nav_step_m": 0.22,
+    "camera_height_bias_m": 0.08
+  },
+  "navmesh_probe": {
+    "loaded": true,
+    "source": "step0_cache",
+    "cache_path": "/Users/sota/code/3d_new/output/room_full/step0/navmesh_cache/destroyed_abandoned_manufactory_-_small_02_08d4c1d5d342865c.navmesh",
+    "error": null
+  },
+  "use_navmesh_move": true,
+  "start_pose": {
+    "camera_position": [
+      20.486509323120117,
+      2.0704796183109284,
+      -0.8546845316886902
+    ],
+    "nav_position": [
+      20.486509323120117,
+      0.49047961831092834,
+      -0.8546845316886902
+    ],
+    "yaw_rad": -1.9771457974327447,
+    "pitch_rad": 0.0,
+    "camera_height_m": 1.58
+  },
+  "status": "OK",
+  "run_state": "DONE",
+  "step3_ok": true,
+  "frames": 159,
+  "path_length_m": 36.211253889911,
+  "visited_unique_cells": 9,
+  "coverage_area_m2": 1.1024999999999998,
+  "continuity_valid_ratio": 0.9937106918238994,
+  "recovery_ratio": 0.012578616352201259,
+  "room_check_triggers_total": 0,
+  "escape_attempts_total": 2,
+  "fail_reason": null,
+  "fail_reason_detail": null,
+  "traj_meta_json": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/destroyed_abandoned_manufactory_-_small_02/traj_meta.json",
+  "poses_jsonl": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/destroyed_abandoned_manufactory_-_small_02/poses.jsonl",
+  "frames_dir": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/destroyed_abandoned_manufactory_-_small_02/frames",
+  "step3_video_mp4": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/destroyed_abandoned_manufactory_-_small_02/step3_frames.mp4",
+  "step3_video_gif": "/Users/sota/code/3d_new/output/room_full/step3_navi_round3/destroyed_abandoned_manufactory_-_small_02/step3_frames.gif",
+  "warnings": [],
+  "stage_timing_sec": {
+    "t_load_scene": 0.6891179084777832,
+    "t_load_navmesh": 0.0013599395751953125,
+    "t_total": 21.619580030441284
+  }
+}
