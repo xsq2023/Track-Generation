@@ -16,3 +16,6 @@ output/**/*.jsonl
 output/**/*.zip
 output/**/_batch_logs/
 output/**/navmesh_cache/
+output/room_full/step0
+output/room_full/step1
+output/room_full/step2
