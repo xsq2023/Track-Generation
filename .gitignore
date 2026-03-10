@@ -8,6 +8,10 @@ __pycache__/
 habitat-sim/
 
 # Generated outputs
+output/step0/
+output/step1/
+output/step2/
+output/step3/
 output/**/.DS_Store
 output/**/*.png
 output/**/*.jpg

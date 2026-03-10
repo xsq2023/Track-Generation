@@ -16,9 +16,8 @@ from PIL import Image
 
 import habitat_sim
 from habitat_sim.utils.settings import default_sim_settings, make_cfg
+from path_defaults import DEFAULT_OUTPUT_ROOT
 
-ROOT = Path("/Users/sota/code/3d_new")
-DEFAULT_OUTPUT_ROOT = ROOT / "output"
 DEFAULT_STEP1_ROOT = DEFAULT_OUTPUT_ROOT / "step1"
 STEP2_DIRNAME = "step2"
 SUMMARY_PATH_NAME = "_batch_summary.tsv"

@@ -2,11 +2,11 @@
 
 ![Track-Generation logo](assets/logo.svg)
 
-[![CI](https://github.com/OWNER/Track-Generation/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/Track-Generation/actions/workflows/ci.yml)
+[![CI](https://github.com/xsq2023/Track-Generation/actions/workflows/ci.yml/badge.svg)](https://github.com/xsq2023/Track-Generation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
-> 基于 Habitat-Sim 的室内场景四阶段批处理轨迹生成工具链（scene 预检查 → 初始视点 → 地面估计 → 连续轨迹采样）。
+> 基于 Habitat-Sim 的四阶段批处理轨迹生成工具链（scene 预检查 → 初始视点 → 地面估计 → 连续轨迹采样）。
 
 ## 项目动机
 在 3D 场景数据集构建中，轨迹生成常面临以下问题：
@@ -20,7 +20,9 @@ Track-Generation 将流程拆分为 4 个可复跑步骤，并在每一步输出
 - 四阶段流水线：`step0` / `step1` / `step2` / `step3`。
 - 批处理摘要：每一步输出 `_batch_summary.tsv` 便于筛查失败样本。
 - 可恢复运行：支持日志与中间 JSON 报告，便于断点排查。
-- 面向 Habitat-Sim：支持 `scene_instance`/`glb` 场景输入。
+- 面向 Habitat-Sim：支持 `glb` 和 `scene_instance` 作为输入源。
+- `step0` 会对原始 `glb` 生成经验证的 `scene_post_transform.glb`，后续阶段直接消费这个可复现资产。
+- 默认路径可由环境变量或命令行参数覆盖，不再依赖写死的本地目录。
 - 低侵入：核心逻辑按步骤分离，便于替换单阶段策略。
 
 ## 示例图
@@ -32,7 +34,7 @@ Track-Generation 将流程拆分为 4 个可复跑步骤，并在每一步输出
 
 ### 1) 克隆仓库
 ```bash
-git clone https://github.com/OWNER/Track-Generation.git
+git clone https://github.com/xsq2023/Track-Generation.git
 cd Track-Generation
 ```
 
@@ -51,6 +53,7 @@ pip install -U pip
 - `numpy`
 - `Pillow`
 - `magnum`
+- `pygltflib`
 
 > 说明：`habitat-sim` 安装依赖系统环境（CUDA/GL 等），请优先参考 Habitat 官方安装文档。
 
@@ -58,34 +61,46 @@ pip install -U pip
 
 ### 最小示例（单场景 Step0）
 ```bash
-python scripts/run_step0_batch.py \
-  --scene-path /path/to/scene.glb \
-  --output-root ./output
+python scripts/run_step0_batch.py --scene /path/to/scene.glb --output-root ./output
 ```
 
 ### 典型顺序（Step0 → Step3）
 ```bash
-python scripts/run_step0_batch.py --help
-python scripts/run_step1_batch.py --help
-python scripts/run_step2_batch.py --help
-python scripts/run_step3_batch.py --help
+python scripts/run_step0_batch.py --source-root /path/to/data --output-root ./output
+python scripts/run_step1_batch.py --step0-root ./output/step0 --step1-root ./output/step1
+python scripts/run_step2_batch.py --step1-root ./output/step1 --step2-root ./output/step2
+python scripts/run_step3_batch.py --step2-root ./output/step2 --step3-root ./output/step3
 ```
 
 ## 配置说明
-当前脚本内部包含默认路径常量（例如 `ROOT`、`DEFAULT_OUTPUT_ROOT`）。运行前建议：
-1. 优先通过命令行参数覆盖输入 / 输出路径。
-2. 如需固定本地环境，可在脚本中将 `ROOT` 改为你的数据根目录。
-3. 批处理时，统一将输出写入独立目录，避免与历史结果混淆。
+默认路径通过 `scripts/path_defaults.py` 解析，优先级如下：
+1. 命令行参数。
+2. 环境变量：`TRACK_GEN_ROOT`、`TRACK_GEN_OUTPUT_ROOT`、`TRACK_GEN_SOURCE_ROOT`、`TRACK_GEN_DATA_ROOT`。
+3. 仓库相邻目录中的常见 `data/` 布局。
+
+批处理建议：
+1. `step0` 使用独立 `--output-root`，避免与历史结果混淆。
+2. 如果只跑单场景，直接传 `--scene /abs/path/to/foo.glb`。
+3. 如果使用 conda，可写成 `conda run -n <env> python scripts/run_step0_batch.py ...`。
+
+## Step0 输出说明
+- 原始输入场景记录在 `scene_init.json` 的 `scene_path`。
+- 真实生效的缩放后资产记录在 `transformed_scene_glb` 和 `post_scene_source`。
+- 变换校验结果记录在 `transform_verification`；只有 `transform_plan.applied=true` 才表示缩放真正生效。
+- 默认会生成 `scene_post_transform.glb`，后续阶段会沿用这个场景源。
 
 ## FAQ
 
 ### Q1: 为什么运行时报错找不到 scene / stage 资产？
-A: 请先检查 `scene_instance.json` 中 `template_name`、`render_asset`、`collision_asset` 的相对路径是否可解析。
+A: 先检查 `scene_init.json` 里的 `post_scene_source` 是否存在；如果输入是 `scene_instance.json`，再检查其中 `template_name`、`render_asset`、`collision_asset` 的相对路径是否可解析。
 
 ### Q2: 为什么 step1/2/3 没有产出？
 A: 这些步骤依赖上一步生成的报告文件；请先确认上一步 `_batch_summary.tsv` 状态为成功。
 
-### Q3: CI 为什么只做基础检查？
+### Q3: 为什么 step0 会额外生成一个 `scene_post_transform.glb`？
+A: 当前 `step0` 通过 glTF 根节点变换生成真实生效的缩放资产，并用 AABB 回读验证结果。这样可以避免 Habitat 忽略 `scene_instance` 缩放请求时产生假阳性。
+
+### Q4: CI 为什么只做基础检查？
 A: Habitat-Sim 依赖较重，默认 CI 先做 `ruff` 静态检查和 `compileall` 语法检查。集成测试建议在具备图形/仿真依赖的 runner 上扩展。
 
 ## 路线图
@@ -93,7 +108,7 @@ A: Habitat-Sim 依赖较重，默认 CI 先做 `ruff` 静态检查和 `compileal
 - [ ] 提供 Docker / DevContainer 环境。
 - [ ] 增加端到端 smoke test（小型示例场景）。
 - [ ] 补充真实运行截图 / GIF。
-- [ ] 支持可配置化（环境变量 / YAML）替代硬编码路径。
+- [ ] 增加可共享的参数 preset，降低 `step3` 调参成本。
 
 ## 开源协作
 - 贡献指南：[`CONTRIBUTING.md`](CONTRIBUTING.md)

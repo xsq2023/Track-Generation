@@ -15,14 +15,12 @@ from typing import Dict, List, Optional, Tuple
 import magnum as mn
 import numpy as np
 from PIL import Image
+from pygltflib import GLTF2, Node
 
 import habitat_sim
 from habitat_sim.utils.settings import default_sim_settings, make_cfg
+from path_defaults import DEFAULT_OUTPUT_ROOT, DEFAULT_SOURCE_ROOT
 
-ROOT = Path("/Users/sota/code/3d_new")
-PREFERRED_SOURCE_ROOT = ROOT / "data" / "scenes" / "3d-assets"
-DEFAULT_SOURCE_ROOT = PREFERRED_SOURCE_ROOT if PREFERRED_SOURCE_ROOT.exists() else (ROOT / "data" / "scenes")
-DEFAULT_OUTPUT_ROOT = ROOT / "output"
 STEP0_DIRNAME = "step0"
 SUMMARY_PATH_NAME = "_batch_summary.tsv"
 NAVMESH_CACHE_DIRNAME = "navmesh_cache"
@@ -180,8 +178,7 @@ def build_sim(
 
 
 def compute_scene_aabb(sim: habitat_sim.Simulator) -> Dict:
-    root = sim.get_active_scene_graph().get_root_node()
-    return aabb_to_dict(root.cumulative_bb)
+    return aabb_to_dict(sim.scene_aabb)
 
 
 def compute_transform_plan(
@@ -211,8 +208,9 @@ def compute_transform_plan(
         "align_floor_to_zero": bool(align_floor_to_zero),
         "target_max_dim": float(target_max_dim),
         "target_min_dim": float(target_min_dim),
-        "applied": True,
-        "apply_mode": "stage_config_scene_instance",
+        "requested": True,
+        "applied": False,
+        "apply_mode": "scene_instance_uniform_scale_translation",
     }
 
 
@@ -228,6 +226,73 @@ def apply_transform_to_aabb(aabb: Dict, scale: float, translation: List[float]) 
         "max": max_v.tolist(),
         "max_dim": float(np.max(size)),
         "volume": float(np.prod(size)),
+    }
+
+
+def write_transformed_scene_glb(scene_path: Path, scene_dir: Path, transform_plan: Dict) -> Path:
+    out_path = scene_dir / "scene_post_transform.glb"
+    scale = float(transform_plan["scale"])
+    world_translation = [float(v) for v in transform_plan["translation"]]
+    # Habitat's GLB loader maps glTF root-node translation axes to world as:
+    # x->x, y->-z, z->y. Convert the desired world translation back to glTF space.
+    translation = [
+        world_translation[0],
+        -world_translation[2],
+        world_translation[1],
+    ]
+
+    gltf = GLTF2().load_binary(str(scene_path))
+    scene_index = gltf.scene if gltf.scene is not None else 0
+    if scene_index >= len(gltf.scenes):
+        raise RuntimeError(f"gltf_scene_index_invalid:{scene_index}")
+
+    scene = gltf.scenes[scene_index]
+    old_roots = list(scene.nodes or [])
+    if not old_roots:
+        raise RuntimeError("gltf_scene_has_no_root_nodes")
+
+    new_root = Node(
+        name="trackgen_root_transform",
+        children=old_roots,
+        scale=[scale, scale, scale],
+        translation=translation,
+    )
+    gltf.nodes.append(new_root)
+    scene.nodes = [len(gltf.nodes) - 1]
+    gltf.save_binary(str(out_path))
+    return out_path
+
+
+def aabb_diff_summary(expected: Optional[Dict], actual: Optional[Dict]) -> Dict:
+    if not isinstance(expected, dict) or not isinstance(actual, dict):
+        return {
+            "matches": False,
+            "atol": None,
+            "max_abs_err": None,
+            "per_key_max_abs_err": {},
+        }
+
+    per_key = {}
+    max_abs_err = 0.0
+    for key in ("center", "size", "min", "max"):
+        exp_v = np.asarray(expected.get(key, []), dtype=np.float64)
+        act_v = np.asarray(actual.get(key, []), dtype=np.float64)
+        if exp_v.shape != act_v.shape or exp_v.size == 0:
+            per_key[key] = None
+            max_abs_err = math.inf
+            continue
+        err = float(np.max(np.abs(exp_v - act_v)))
+        per_key[key] = err
+        max_abs_err = max(max_abs_err, err)
+
+    atol = 1.0e-3
+    return {
+        "matches": bool(np.isfinite(max_abs_err) and max_abs_err <= atol),
+        "atol": float(atol),
+        "max_abs_err": None if not np.isfinite(max_abs_err) else float(max_abs_err),
+        "per_key_max_abs_err": per_key,
+        "expected_max_dim": expected.get("max_dim"),
+        "actual_max_dim": actual.get("max_dim"),
     }
 
 
@@ -618,37 +683,6 @@ def run_navmesh_strategy(
     }
 
 
-def write_stage_scene_transform_files(scene_path: Path, scene_dir: Path, transform_plan: Dict) -> Tuple[Path, Path]:
-    stage_path = scene_dir / "stage_post_transform.stage_config.json"
-    scene_instance_path = scene_dir / "scene_post_transform.scene_instance.json"
-    scale = float(transform_plan["scale"])
-    translation = transform_plan["translation"]
-
-    stage_payload = {
-        "render_asset": str(scene_path),
-        "collision_asset": str(scene_path),
-        "up": [0.0, 1.0, 0.0],
-        "front": [0.0, 0.0, -1.0],
-        "gravity": [0.0, -9.8, 0.0],
-        "units_to_meters": 1.0,
-        "origin": translation,
-        "scale": [scale, scale, scale],
-    }
-    scene_payload = {
-        "stage_instance": {
-            "template_name": str(stage_path),
-            "translation_origin": "asset_local",
-            "translation": [0.0, 0.0, 0.0],
-            "uniform_scale": 1.0,
-        },
-        "object_instances": [],
-        "articulated_object_instances": [],
-    }
-    save_json(stage_path, stage_payload)
-    save_json(scene_instance_path, scene_payload)
-    return stage_path, scene_instance_path
-
-
 def copy_post_artifacts_to_default(scene_dir: Path):
     pairs = [
         ("debug_rgb_post.png", "debug_rgb.png"),
@@ -1022,6 +1056,7 @@ def run_stage0_scene_worker(
     post_sim = None
     stage_path = None
     scene_instance_path = None
+    transformed_scene_path = None
     aabb_pre = None
     aabb_post = None
     aabb_post_expected = None
@@ -1033,6 +1068,8 @@ def run_stage0_scene_worker(
     depth_meta_pre = None
     depth_meta_post = None
     navmesh = make_navmesh_skip_result("navmesh_not_run")
+    transform_verification = None
+    post_scene_source_path = None
 
     allow_navmesh = True
     navmesh_skip_reason = None
@@ -1088,12 +1125,13 @@ def run_stage0_scene_worker(
         if depth_meta_pre["valid_ratio"] <= 0.0:
             warnings.append("PRE_RENDER_DEPTH_EMPTY")
 
-        write_bootstrap(bootstrap_path, scene_id, scene_path, stage="WRITE_TRANSFORM_SCENE_FILES")
-        stage_path, scene_instance_path = write_stage_scene_transform_files(
+        write_bootstrap(bootstrap_path, scene_id, scene_path, stage="WRITE_TRANSFORMED_SCENE_GLB")
+        transformed_scene_path = write_transformed_scene_glb(
             scene_path=scene_path,
             scene_dir=scene_dir,
             transform_plan=transform_plan,
         )
+        post_scene_source_path = transformed_scene_path
 
         if pre_sim is not None:
             try:
@@ -1104,7 +1142,7 @@ def run_stage0_scene_worker(
 
         write_bootstrap(bootstrap_path, scene_id, scene_path, stage="LOAD_SIM_POST")
         post_sim = build_sim(
-            scene_path=scene_instance_path,
+            scene_path=transformed_scene_path,
             width=args.width,
             height=args.height,
             hfov=args.hfov,
@@ -1115,6 +1153,23 @@ def run_stage0_scene_worker(
 
         write_bootstrap(bootstrap_path, scene_id, scene_path, stage="COMPUTE_AABB_POST")
         aabb_post = compute_scene_aabb(post_sim)
+        transform_verification = aabb_diff_summary(expected=aabb_post_expected, actual=aabb_post)
+        if not transform_verification["matches"]:
+            fail_fast_reasons.append("TRANSFORM_VERIFICATION_FAILED")
+            transform_plan["applied"] = False
+            transform_plan["apply_mode"] = "glb_root_transform_verification_failed"
+            write_bootstrap(
+                bootstrap_path,
+                scene_id,
+                scene_path,
+                stage="TRANSFORM_VERIFY_FAIL",
+                detail="transformed_glb_not_matching_expected_aabb",
+                extra=transform_verification,
+            )
+        else:
+            transform_plan["applied"] = True
+            transform_plan["apply_mode"] = "glb_root_transform"
+            post_scene_source_path = transformed_scene_path
 
         write_bootstrap(bootstrap_path, scene_id, scene_path, stage="RENDER_POST_DEBUG")
         pose_post = build_debug_cam_pose(
@@ -1139,7 +1194,7 @@ def run_stage0_scene_worker(
             sim=post_sim,
             scene_id=scene_id,
             cache_dir=navmesh_cache_dir,
-            max_dim=float(aabb_pre["max_dim"]),
+            max_dim=float((aabb_post or aabb_pre)["max_dim"]),
             allow_navmesh=allow_navmesh,
             skip_reason=navmesh_skip_reason,
         )
@@ -1171,6 +1226,7 @@ def run_stage0_scene_worker(
         and aabb_pre.get("max_dim", 0.0) > 1e-6
         and depth_meta_post is not None
         and depth_meta_post.get("valid_ratio", 0.0) > 0.0
+        and "TRANSFORM_VERIFICATION_FAILED" not in fail_fast_reasons
     )
     post_render_ok = depth_meta_post is not None and depth_meta_post.get("valid_ratio", 0.0) > 0.0
 
@@ -1204,9 +1260,12 @@ def run_stage0_scene_worker(
         "aabb_post_expected": aabb_post_expected,
         "aabb_post": aabb_post,
         "transform_plan": transform_plan,
-        "transform_apply_mode": "stage_config_scene_instance",
-        "post_scene_source": str(scene_instance_path) if scene_instance_path else None,
+        "transform_verification": transform_verification,
+        "transform_apply_mode": None if not isinstance(transform_plan, dict) else transform_plan.get("apply_mode"),
+        "post_scene_source": str(post_scene_source_path) if post_scene_source_path else None,
         "stage_post_transform": str(stage_path) if stage_path else None,
+        "scene_instance_transform": str(scene_instance_path) if scene_instance_path else None,
+        "transformed_scene_glb": str(transformed_scene_path) if transformed_scene_path else None,
         "debug_cam_pose_pre": pose_pre,
         "debug_cam_pose_post": pose_post,
         "debug_cam_pose": pose_post if pose_post is not None else pose_pre,
@@ -1232,8 +1291,9 @@ def run_stage0_scene_worker(
         "artifacts": {
             "scene_init_json": str(scene_init_path),
             "scene_stats_json": str(stats_path),
-            "scene_post_transform": str(scene_instance_path) if scene_instance_path else None,
+            "scene_post_transform": str(transformed_scene_path) if transformed_scene_path else None,
             "stage_post_transform": str(stage_path) if stage_path else None,
+            "canonical_scene_source": str(post_scene_source_path) if post_scene_source_path else None,
             "debug_rgb": str(scene_dir / "debug_rgb.png"),
             "debug_depth": str(scene_dir / "debug_depth.png"),
             "debug_depth_clip": str(scene_dir / "debug_depth_clip.png"),
