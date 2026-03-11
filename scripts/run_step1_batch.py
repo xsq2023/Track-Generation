@@ -135,6 +135,35 @@ def compute_scene_aabb(sim: habitat_sim.Simulator) -> Dict:
     return aabb_to_dict(root.cumulative_bb)
 
 
+def is_valid_aabb(aabb: Optional[Dict]) -> bool:
+    if not isinstance(aabb, dict):
+        return False
+    min_v = np.asarray(aabb.get("min", []), dtype=np.float64)
+    max_v = np.asarray(aabb.get("max", []), dtype=np.float64)
+    if min_v.shape != (3,) or max_v.shape != (3,):
+        return False
+    if not (np.all(np.isfinite(min_v)) and np.all(np.isfinite(max_v))):
+        return False
+    size = max_v - min_v
+    return bool(np.all(np.isfinite(size)) and np.all(size >= 0.0))
+
+
+def resolve_effective_scene_aabb(step0_payload: Dict, raw_aabb: Optional[Dict]) -> Tuple[Optional[Dict], str]:
+    candidate_keys = []
+    if bool(step0_payload.get("post_scene_source")):
+        candidate_keys.extend(("scene_aabb_effective", "aabb_post_expected_effective", "aabb_post"))
+    candidate_keys.extend(("aabb_pre_effective", "aabb_pre_canonical", "aabb_pre"))
+
+    for key in candidate_keys:
+        aabb = step0_payload.get(key)
+        if is_valid_aabb(aabb):
+            return aabb, f"step0:{key}"
+
+    if is_valid_aabb(raw_aabb):
+        return raw_aabb, "runtime_raw"
+    return raw_aabb, "missing"
+
+
 def resolve_sensor_config(step0_payload: Dict, args) -> Dict:
     base = step0_payload.get("sensor_config") if isinstance(step0_payload.get("sensor_config"), dict) else {}
     width = int(args.width if args.width > 0 else int(base.get("width", 640)))
@@ -946,6 +975,8 @@ def run_step1_scene_worker(scene_init_path: Path, step1_root: Path, args, env_me
     start_mode = "none"
     navmesh_probe = {}
     scene_aabb = None
+    scene_aabb_raw = None
+    scene_aabb_source = "runtime_raw"
     start_probe = {}
     best_eval = None
     chosen_pose = None
@@ -962,7 +993,8 @@ def run_step1_scene_worker(scene_init_path: Path, step1_root: Path, args, env_me
             enable_physics=(not args.disable_physics),
         )
         agent = sim.initialize_agent(0)
-        scene_aabb = compute_scene_aabb(sim)
+        scene_aabb_raw = compute_scene_aabb(sim)
+        scene_aabb, scene_aabb_source = resolve_effective_scene_aabb(step0_payload=step0_payload, raw_aabb=scene_aabb_raw)
         navmesh_probe = try_load_navmesh_from_step0(sim=sim, step0_payload=step0_payload)
         use_navmesh = bool(navmesh_probe.get("loaded", False))
         start_mode = "navmesh" if use_navmesh else "no_navmesh_sampling"
@@ -1044,6 +1076,9 @@ def run_step1_scene_worker(scene_init_path: Path, step1_root: Path, args, env_me
             "fail_reason": fail_reason,
             "navmesh_probe": navmesh_probe,
             "scene_aabb": scene_aabb,
+            "scene_aabb_raw": scene_aabb_raw,
+            "scene_aabb_effective": scene_aabb,
+            "scene_aabb_source": scene_aabb_source,
             "start_candidates_total": int(start_probe.get("start_candidates_total", 0)),
             "accepted_candidates": int(start_probe.get("accepted_candidates", 0)),
             "best_score": float(best_eval["metrics"]["score"]) if isinstance(best_eval, dict) else None,

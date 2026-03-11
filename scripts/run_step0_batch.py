@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import base64
 import csv
 import hashlib
 import json
@@ -15,7 +16,22 @@ from typing import Dict, List, Optional, Tuple
 import magnum as mn
 import numpy as np
 from PIL import Image
-from pygltflib import GLTF2, Node
+from pygltflib import (
+    ARRAY_BUFFER,
+    ELEMENT_ARRAY_BUFFER,
+    FLOAT,
+    UNSIGNED_INT,
+    Accessor,
+    Asset,
+    Attributes,
+    Buffer,
+    BufferView,
+    GLTF2,
+    Mesh,
+    Node,
+    Primitive,
+    Scene,
+)
 
 import habitat_sim
 from habitat_sim.utils.settings import default_sim_settings, make_cfg
@@ -25,6 +41,42 @@ STEP0_DIRNAME = "step0"
 SUMMARY_PATH_NAME = "_batch_summary.tsv"
 NAVMESH_CACHE_DIRNAME = "navmesh_cache"
 LOG_DIRNAME = "_batch_logs"
+HABITAT_GLTF_BASIS_CORRECTION_ROTATION_X_DEG = 90.0
+HABITAT_GLTF_BASIS_CORRECTION_QUAT_XYZW = [
+    float(math.sin(math.radians(HABITAT_GLTF_BASIS_CORRECTION_ROTATION_X_DEG) * 0.5)),
+    0.0,
+    0.0,
+    float(math.cos(math.radians(HABITAT_GLTF_BASIS_CORRECTION_ROTATION_X_DEG) * 0.5)),
+]
+HABITAT_GLTF_BASIS_CORRECTION_MATRIX = np.array(
+    [
+        [1.0, 0.0, 0.0],
+        [0.0, 0.0, -1.0],
+        [0.0, 1.0, 0.0],
+    ],
+    dtype=np.float64,
+)
+GLTF_ACCESSOR_COMPONENT_DTYPE = {
+    5120: np.int8,
+    5121: np.uint8,
+    5122: np.int16,
+    5123: np.uint16,
+    5125: np.uint32,
+    5126: np.float32,
+}
+GLTF_ACCESSOR_TYPE_COMPONENTS = {
+    "SCALAR": 1,
+    "VEC2": 2,
+    "VEC3": 3,
+    "VEC4": 4,
+    "MAT2": 4,
+    "MAT3": 9,
+    "MAT4": 16,
+}
+GLTF_PRIMITIVE_MODE_TRIANGLES = 4
+GLTF_PRIMITIVE_MODE_TRIANGLE_STRIP = 5
+GLTF_PRIMITIVE_MODE_TRIANGLE_FAN = 6
+MAIN_COMPONENT_CONNECTIVITY_FACE_LIMIT = 200_000
 
 SUMMARY_FIELDS = [
     "row_id",
@@ -90,6 +142,12 @@ def vector_to_list(vec) -> List[float]:
 def aabb_to_dict(bb) -> Dict:
     min_v = np.array(vector_to_list(bb.min), dtype=np.float64)
     max_v = np.array(vector_to_list(bb.max), dtype=np.float64)
+    return bounds_to_aabb_dict(min_v=min_v, max_v=max_v)
+
+
+def bounds_to_aabb_dict(min_v: np.ndarray, max_v: np.ndarray) -> Dict:
+    min_v = np.asarray(min_v, dtype=np.float64)
+    max_v = np.asarray(max_v, dtype=np.float64)
     size = max_v - min_v
     center = (min_v + max_v) * 0.5
     return {
@@ -99,6 +157,600 @@ def aabb_to_dict(bb) -> Dict:
         "max": max_v.tolist(),
         "max_dim": float(np.max(size)),
         "volume": float(np.prod(size)),
+    }
+
+
+def points_to_aabb(points: np.ndarray) -> Optional[Dict]:
+    pts = np.asarray(points, dtype=np.float64)
+    if pts.ndim != 2 or pts.shape[0] <= 0 or pts.shape[1] != 3:
+        return None
+    finite = np.all(np.isfinite(pts), axis=1)
+    pts = pts[finite]
+    if pts.shape[0] <= 0:
+        return None
+    return bounds_to_aabb_dict(min_v=np.min(pts, axis=0), max_v=np.max(pts, axis=0))
+
+
+def is_valid_aabb(aabb: Optional[Dict]) -> bool:
+    if not isinstance(aabb, dict):
+        return False
+    min_v = np.asarray(aabb.get("min", []), dtype=np.float64)
+    max_v = np.asarray(aabb.get("max", []), dtype=np.float64)
+    if min_v.shape != (3,) or max_v.shape != (3,):
+        return False
+    if not (np.all(np.isfinite(min_v)) and np.all(np.isfinite(max_v))):
+        return False
+    size = max_v - min_v
+    return bool(np.all(np.isfinite(size)) and np.all(size >= 0.0))
+
+
+def select_first_valid_aabb(*aabbs: Optional[Dict]) -> Optional[Dict]:
+    for aabb in aabbs:
+        if is_valid_aabb(aabb):
+            return aabb
+    return None
+
+
+def quantile_aabb(points: np.ndarray, lower_pct: float, upper_pct: float) -> Optional[Dict]:
+    pts = np.asarray(points, dtype=np.float64)
+    if pts.ndim != 2 or pts.shape[0] <= 0 or pts.shape[1] != 3:
+        return None
+    finite = np.all(np.isfinite(pts), axis=1)
+    pts = pts[finite]
+    if pts.shape[0] <= 0:
+        return None
+    lower = np.percentile(pts, lower_pct, axis=0)
+    upper = np.percentile(pts, upper_pct, axis=0)
+    upper = np.maximum(upper, lower)
+    return bounds_to_aabb_dict(min_v=lower, max_v=upper)
+
+
+def qvec_xyzw_to_rotmat(rotation_xyzw: List[float]) -> np.ndarray:
+    if len(rotation_xyzw) != 4:
+        return np.eye(3, dtype=np.float64)
+    x, y, z, w = [float(v) for v in rotation_xyzw]
+    norm = math.sqrt(x * x + y * y + z * z + w * w)
+    if norm <= 1.0e-12:
+        return np.eye(3, dtype=np.float64)
+    x /= norm
+    y /= norm
+    z /= norm
+    w /= norm
+    return np.array(
+        [
+            [1.0 - 2.0 * (y * y + z * z), 2.0 * (x * y - z * w), 2.0 * (x * z + y * w)],
+            [2.0 * (x * y + z * w), 1.0 - 2.0 * (x * x + z * z), 2.0 * (y * z - x * w)],
+            [2.0 * (x * z - y * w), 2.0 * (y * z + x * w), 1.0 - 2.0 * (x * x + y * y)],
+        ],
+        dtype=np.float64,
+    )
+
+
+def gltf_node_local_matrix(node) -> np.ndarray:
+    if getattr(node, "matrix", None):
+        values = list(node.matrix or [])
+        if len(values) == 16:
+            return np.asarray(values, dtype=np.float64).reshape((4, 4), order="F")
+
+    translation = np.asarray(node.translation or [0.0, 0.0, 0.0], dtype=np.float64)
+    rotation = qvec_xyzw_to_rotmat(list(node.rotation or [0.0, 0.0, 0.0, 1.0]))
+    scale = np.asarray(node.scale or [1.0, 1.0, 1.0], dtype=np.float64)
+
+    mat = np.eye(4, dtype=np.float64)
+    mat[:3, :3] = rotation @ np.diag(scale)
+    mat[:3, 3] = translation
+    return mat
+
+
+def load_gltf_buffer_bytes(gltf: GLTF2, scene_path: Path, buffer_index: int, cache: Dict[int, bytes]) -> bytes:
+    if buffer_index in cache:
+        return cache[buffer_index]
+    if buffer_index < 0 or buffer_index >= len(gltf.buffers):
+        raise RuntimeError(f"gltf_buffer_index_invalid:{buffer_index}")
+
+    buffer = gltf.buffers[buffer_index]
+    payload = None
+    uri = getattr(buffer, "uri", None)
+    if uri:
+        if uri.startswith("data:"):
+            marker = "base64,"
+            pos = uri.find(marker)
+            if pos < 0:
+                raise RuntimeError("gltf_data_uri_missing_base64_marker")
+            payload = base64.b64decode(uri[pos + len(marker) :])
+        else:
+            payload = (scene_path.parent / uri).read_bytes()
+    else:
+        payload = gltf.binary_blob()
+
+    if payload is None:
+        raise RuntimeError(f"gltf_buffer_missing_payload:{buffer_index}")
+
+    cache[buffer_index] = payload
+    return payload
+
+
+def read_gltf_accessor(gltf: GLTF2, scene_path: Path, accessor_index: int, buffer_cache: Dict[int, bytes]) -> np.ndarray:
+    if accessor_index < 0 or accessor_index >= len(gltf.accessors):
+        raise RuntimeError(f"gltf_accessor_index_invalid:{accessor_index}")
+
+    accessor = gltf.accessors[accessor_index]
+    if accessor.sparse is not None:
+        raise RuntimeError(f"gltf_sparse_accessor_unsupported:{accessor_index}")
+    if accessor.bufferView is None:
+        raise RuntimeError(f"gltf_accessor_missing_bufferview:{accessor_index}")
+
+    buffer_view = gltf.bufferViews[accessor.bufferView]
+    component_dtype = GLTF_ACCESSOR_COMPONENT_DTYPE.get(accessor.componentType)
+    num_components = GLTF_ACCESSOR_TYPE_COMPONENTS.get(accessor.type)
+    if component_dtype is None or num_components is None:
+        raise RuntimeError(
+            f"gltf_accessor_layout_unsupported:{accessor_index}:{accessor.componentType}:{accessor.type}"
+        )
+
+    buffer_bytes = load_gltf_buffer_bytes(
+        gltf=gltf,
+        scene_path=scene_path,
+        buffer_index=int(buffer_view.buffer),
+        cache=buffer_cache,
+    )
+    dtype = np.dtype(component_dtype).newbyteorder("<")
+    item_nbytes = dtype.itemsize * int(num_components)
+    stride = int(buffer_view.byteStride or item_nbytes)
+    offset = int(buffer_view.byteOffset or 0) + int(accessor.byteOffset or 0)
+    count = int(accessor.count or 0)
+    if count <= 0:
+        return np.zeros((0, int(num_components)), dtype=dtype)
+
+    if stride == item_nbytes:
+        arr = np.frombuffer(buffer_bytes, dtype=dtype, count=count * int(num_components), offset=offset)
+        arr = arr.reshape((count, int(num_components)))
+    else:
+        raw = np.frombuffer(buffer_bytes, dtype=np.uint8, count=count * stride, offset=offset)
+        raw = raw.reshape((count, stride))
+        trimmed = np.ascontiguousarray(raw[:, :item_nbytes])
+        arr = trimmed.view(dtype).reshape((count, int(num_components)))
+
+    if int(num_components) == 1:
+        return arr.reshape((count,))
+    return arr
+
+
+def gltf_primitive_positions_accessor_index(primitive) -> Optional[int]:
+    attrs = getattr(primitive, "attributes", None)
+    if attrs is None:
+        return None
+    if isinstance(attrs, dict):
+        value = attrs.get("POSITION")
+    else:
+        value = getattr(attrs, "POSITION", None)
+    return None if value is None else int(value)
+
+
+def gltf_world_positions(local_positions: np.ndarray, world_matrix: np.ndarray) -> np.ndarray:
+    pts = np.asarray(local_positions, dtype=np.float64)
+    if pts.ndim != 2 or pts.shape[1] != 3 or pts.shape[0] <= 0:
+        return np.zeros((0, 3), dtype=np.float64)
+    homo = np.concatenate([pts, np.ones((pts.shape[0], 1), dtype=np.float64)], axis=1)
+    return (world_matrix @ homo.T).T[:, :3]
+
+
+def gltf_tri_faces(indices: Optional[np.ndarray], vertex_count: int, mode: Optional[int]) -> Optional[np.ndarray]:
+    primitive_mode = int(mode if mode is not None else GLTF_PRIMITIVE_MODE_TRIANGLES)
+    if indices is None:
+        base = np.arange(vertex_count, dtype=np.int64)
+    else:
+        base = np.asarray(indices, dtype=np.int64).reshape(-1)
+    if base.size <= 0:
+        return None
+
+    if primitive_mode == GLTF_PRIMITIVE_MODE_TRIANGLES:
+        tri_count = base.size // 3
+        if tri_count <= 0:
+            return None
+        return base[: tri_count * 3].reshape((-1, 3))
+
+    if primitive_mode == GLTF_PRIMITIVE_MODE_TRIANGLE_STRIP:
+        if base.size < 3:
+            return None
+        faces = []
+        for i in range(base.size - 2):
+            tri = [int(base[i]), int(base[i + 1]), int(base[i + 2])]
+            if i % 2 == 1:
+                tri[1], tri[2] = tri[2], tri[1]
+            if tri[0] == tri[1] or tri[1] == tri[2] or tri[0] == tri[2]:
+                continue
+            faces.append(tri)
+        if not faces:
+            return None
+        return np.asarray(faces, dtype=np.int64)
+
+    if primitive_mode == GLTF_PRIMITIVE_MODE_TRIANGLE_FAN:
+        if base.size < 3:
+            return None
+        faces = [[int(base[0]), int(base[i]), int(base[i + 1])] for i in range(1, base.size - 1)]
+        return np.asarray(faces, dtype=np.int64) if faces else None
+
+    return None
+
+
+def connected_component_candidates(points: np.ndarray, faces: Optional[np.ndarray]) -> List[Dict]:
+    pts = np.asarray(points, dtype=np.float64)
+    if pts.ndim != 2 or pts.shape[0] <= 0 or pts.shape[1] != 3:
+        return []
+
+    if faces is None or faces.shape[0] <= 0 or faces.shape[0] > MAIN_COMPONENT_CONNECTIVITY_FACE_LIMIT:
+        aabb = points_to_aabb(pts)
+        if not is_valid_aabb(aabb):
+            return []
+        return [
+            {
+                "aabb": aabb,
+                "vertex_count": int(pts.shape[0]),
+                "face_count": 0 if faces is None else int(faces.shape[0]),
+                "member_idx": np.arange(int(pts.shape[0]), dtype=np.int64),
+                "faces_local": None if faces is None else np.asarray(faces, dtype=np.int64),
+            }
+        ]
+
+    faces = np.asarray(faces, dtype=np.int64)
+    if faces.ndim != 2 or faces.shape[1] != 3:
+        aabb = points_to_aabb(pts)
+        if not is_valid_aabb(aabb):
+            return []
+        return [
+            {
+                "aabb": aabb,
+                "vertex_count": int(pts.shape[0]),
+                "face_count": 0,
+                "member_idx": np.arange(int(pts.shape[0]), dtype=np.int64),
+                "faces_local": None,
+            }
+        ]
+
+    used = np.unique(faces.reshape(-1))
+    if used.size <= 0:
+        aabb = points_to_aabb(pts)
+        if not is_valid_aabb(aabb):
+            return []
+        return [
+            {
+                "aabb": aabb,
+                "vertex_count": int(pts.shape[0]),
+                "face_count": int(faces.shape[0]),
+                "member_idx": np.arange(int(pts.shape[0]), dtype=np.int64),
+                "faces_local": np.asarray(faces, dtype=np.int64),
+            }
+        ]
+
+    parent = np.arange(int(pts.shape[0]), dtype=np.int32)
+    rank = np.zeros(int(pts.shape[0]), dtype=np.uint8)
+
+    def find_root(idx: int) -> int:
+        idx = int(idx)
+        while parent[idx] != idx:
+            parent[idx] = parent[parent[idx]]
+            idx = int(parent[idx])
+        return idx
+
+    def union(a: int, b: int):
+        ra = find_root(a)
+        rb = find_root(b)
+        if ra == rb:
+            return
+        if rank[ra] < rank[rb]:
+            parent[ra] = rb
+        elif rank[ra] > rank[rb]:
+            parent[rb] = ra
+        else:
+            parent[rb] = ra
+            rank[ra] += 1
+
+    for tri in faces:
+        a = int(tri[0])
+        b = int(tri[1])
+        c = int(tri[2])
+        if a < 0 or b < 0 or c < 0:
+            continue
+        if a >= pts.shape[0] or b >= pts.shape[0] or c >= pts.shape[0]:
+            continue
+        union(a, b)
+        union(a, c)
+
+    groups: Dict[int, List[int]] = {}
+    for idx in used.tolist():
+        root = find_root(int(idx))
+        groups.setdefault(int(root), []).append(int(idx))
+
+    faces_by_root: Dict[int, List[List[int]]] = {}
+    for tri in faces.tolist():
+        a = int(tri[0])
+        b = int(tri[1])
+        c = int(tri[2])
+        if a < 0 or b < 0 or c < 0:
+            continue
+        if a >= pts.shape[0] or b >= pts.shape[0] or c >= pts.shape[0]:
+            continue
+        root = find_root(a)
+        if find_root(b) != root or find_root(c) != root:
+            continue
+        faces_by_root.setdefault(int(root), []).append([a, b, c])
+
+    candidates = []
+    for root, members in groups.items():
+        member_idx = np.asarray(members, dtype=np.int64)
+        aabb = points_to_aabb(pts[member_idx])
+        if not is_valid_aabb(aabb):
+            continue
+        remap = np.full(int(pts.shape[0]), -1, dtype=np.int64)
+        remap[member_idx] = np.arange(member_idx.size, dtype=np.int64)
+        faces_group_raw = np.asarray(faces_by_root.get(int(root), []), dtype=np.int64)
+        faces_local = None
+        if faces_group_raw.size > 0:
+            faces_local = remap[faces_group_raw]
+            if faces_local.ndim != 2 or faces_local.shape[1] != 3:
+                faces_local = None
+        candidates.append(
+            {
+                "aabb": aabb,
+                "vertex_count": int(member_idx.size),
+                "face_count": int(0 if faces_local is None else faces_local.shape[0]),
+                "member_idx": member_idx,
+                "faces_local": faces_local,
+            }
+        )
+    return candidates
+
+
+def gltf_scene_root_nodes(gltf: GLTF2) -> List[int]:
+    scene_index = gltf.scene if gltf.scene is not None else 0
+    if scene_index >= len(gltf.scenes):
+        raise RuntimeError(f"gltf_scene_index_invalid:{scene_index}")
+    scene = gltf.scenes[scene_index]
+    root_nodes = [int(node_index) for node_index in list(scene.nodes or [])]
+    if not root_nodes:
+        raise RuntimeError("gltf_scene_has_no_root_nodes")
+    return root_nodes
+
+
+def build_gltf_world_matrix_map(gltf: GLTF2) -> Dict[int, np.ndarray]:
+    world_map: Dict[int, np.ndarray] = {}
+    stack = [(node_index, np.eye(4, dtype=np.float64)) for node_index in gltf_scene_root_nodes(gltf)]
+    while stack:
+        node_index, parent_world = stack.pop()
+        node = gltf.nodes[node_index]
+        world = parent_world @ gltf_node_local_matrix(node)
+        world_map[int(node_index)] = world
+        for child_index in list(node.children or []):
+            stack.append((int(child_index), world))
+    return world_map
+
+
+def aabb_max_abs_err(lhs: Optional[Dict], rhs: Optional[Dict]) -> float:
+    if not is_valid_aabb(lhs) or not is_valid_aabb(rhs):
+        return 1.0e18
+    max_err = 0.0
+    for key in ("center", "size", "min", "max"):
+        lhs_v = np.asarray(lhs.get(key, []), dtype=np.float64)
+        rhs_v = np.asarray(rhs.get(key, []), dtype=np.float64)
+        if lhs_v.shape != rhs_v.shape or lhs_v.size == 0:
+            return 1.0e18
+        max_err = max(max_err, float(np.max(np.abs(lhs_v - rhs_v))))
+    return max_err
+
+
+def find_main_component_geometry(scene_path: Path, anomaly_info: Optional[Dict]) -> Optional[Dict]:
+    if not isinstance(anomaly_info, dict):
+        return None
+
+    variant_status = anomaly_info.get("variant_status") or {}
+    raw_status = variant_status.get("raw") if isinstance(variant_status, dict) else None
+    main_status = variant_status.get("main_component") if isinstance(variant_status, dict) else None
+    if not isinstance(raw_status, dict) or not bool(raw_status.get("hard")):
+        return None
+    if not isinstance(main_status, dict) or not bool(main_status.get("valid")) or bool(main_status.get("hard")):
+        return None
+
+    analysis_meta = anomaly_info.get("aabb_analysis_meta") or {}
+    component_meta = analysis_meta.get("main_component_meta") if isinstance(analysis_meta, dict) else None
+    if not isinstance(component_meta, dict):
+        return None
+
+    node_index = component_meta.get("node_index")
+    mesh_index = component_meta.get("mesh_index")
+    primitive_index = component_meta.get("primitive_index")
+    if any(v is None for v in (node_index, mesh_index, primitive_index)):
+        return None
+
+    expected_vertex_count = int(component_meta.get("vertex_count", 0) or 0)
+    expected_face_count = int(component_meta.get("face_count", 0) or 0)
+    expected_aabb = None
+    aabb_variants = anomaly_info.get("aabb_variants")
+    if isinstance(aabb_variants, dict):
+        expected_aabb = aabb_variants.get("main_component")
+    if not is_valid_aabb(expected_aabb):
+        expected_aabb = anomaly_info.get("effective_aabb")
+
+    gltf = GLTF2().load_binary(str(scene_path))
+    world_map = build_gltf_world_matrix_map(gltf)
+    world = world_map.get(int(node_index))
+    if world is None:
+        return None
+    if int(mesh_index) < 0 or int(mesh_index) >= len(gltf.meshes):
+        return None
+    mesh = gltf.meshes[int(mesh_index)]
+    primitives = list(mesh.primitives or [])
+    if int(primitive_index) < 0 or int(primitive_index) >= len(primitives):
+        return None
+    primitive = primitives[int(primitive_index)]
+    pos_accessor_index = gltf_primitive_positions_accessor_index(primitive)
+    if pos_accessor_index is None:
+        return None
+
+    buffer_cache: Dict[int, bytes] = {}
+    local_positions = read_gltf_accessor(
+        gltf=gltf,
+        scene_path=scene_path,
+        accessor_index=pos_accessor_index,
+        buffer_cache=buffer_cache,
+    )
+    if local_positions.ndim != 2 or local_positions.shape[1] != 3 or local_positions.shape[0] <= 0:
+        return None
+    world_positions = gltf_world_positions(local_positions=local_positions, world_matrix=world)
+    if world_positions.shape[0] <= 0:
+        return None
+
+    indices = None
+    if primitive.indices is not None:
+        indices = read_gltf_accessor(
+            gltf=gltf,
+            scene_path=scene_path,
+            accessor_index=int(primitive.indices),
+            buffer_cache=buffer_cache,
+        )
+    faces = gltf_tri_faces(indices=indices, vertex_count=world_positions.shape[0], mode=getattr(primitive, "mode", None))
+    candidates = connected_component_candidates(points=world_positions, faces=faces)
+    if not candidates:
+        return None
+
+    best = min(
+        candidates,
+        key=lambda candidate: (
+            abs(int(candidate.get("vertex_count", 0)) - expected_vertex_count),
+            abs(int(candidate.get("face_count", 0)) - expected_face_count),
+            aabb_max_abs_err(candidate.get("aabb"), expected_aabb),
+            -int(candidate.get("vertex_count", 0)),
+        ),
+    )
+    member_idx = np.asarray(best.get("member_idx", []), dtype=np.int64)
+    faces_local = best.get("faces_local")
+    if member_idx.size <= 0 or faces_local is None:
+        return None
+
+    positions_world = np.asarray(world_positions[member_idx], dtype=np.float32)
+    faces_local = np.asarray(faces_local, dtype=np.int64)
+    if positions_world.ndim != 2 or positions_world.shape[0] <= 0 or positions_world.shape[1] != 3:
+        return None
+    if faces_local.ndim != 2 or faces_local.shape[0] <= 0 or faces_local.shape[1] != 3:
+        return None
+
+    return {
+        "positions_world": positions_world,
+        "faces_local": faces_local,
+        "source": "main_component",
+        "aabb": best.get("aabb"),
+        "meta": {
+            "node_index": int(node_index),
+            "mesh_index": int(mesh_index),
+            "primitive_index": int(primitive_index),
+            "vertex_count": int(best.get("vertex_count", 0)),
+            "face_count": int(best.get("face_count", 0)),
+        },
+    }
+
+
+def analyze_gltf_aabb_variants(scene_path: Path, args) -> Dict:
+    gltf = GLTF2().load_binary(str(scene_path))
+    scene_index = gltf.scene if gltf.scene is not None else 0
+    if scene_index >= len(gltf.scenes):
+        raise RuntimeError(f"gltf_scene_index_invalid:{scene_index}")
+    scene = gltf.scenes[scene_index]
+    root_nodes = list(scene.nodes or [])
+    if not root_nodes:
+        raise RuntimeError("gltf_scene_has_no_root_nodes")
+
+    buffer_cache: Dict[int, bytes] = {}
+    all_points = []
+    component_candidates = []
+    stack = [(int(node_index), np.eye(4, dtype=np.float64)) for node_index in root_nodes]
+
+    while stack:
+        node_index, parent_world = stack.pop()
+        node = gltf.nodes[node_index]
+        world = parent_world @ gltf_node_local_matrix(node)
+
+        for child_index in list(node.children or []):
+            stack.append((int(child_index), world))
+
+        mesh_index = getattr(node, "mesh", None)
+        if mesh_index is None:
+            continue
+        if int(mesh_index) < 0 or int(mesh_index) >= len(gltf.meshes):
+            continue
+
+        mesh = gltf.meshes[int(mesh_index)]
+        for primitive_index, primitive in enumerate(list(mesh.primitives or [])):
+            pos_accessor_index = gltf_primitive_positions_accessor_index(primitive)
+            if pos_accessor_index is None:
+                continue
+            local_positions = read_gltf_accessor(
+                gltf=gltf,
+                scene_path=scene_path,
+                accessor_index=pos_accessor_index,
+                buffer_cache=buffer_cache,
+            )
+            if local_positions.ndim != 2 or local_positions.shape[1] != 3 or local_positions.shape[0] <= 0:
+                continue
+            world_positions = gltf_world_positions(local_positions=local_positions, world_matrix=world)
+            if world_positions.shape[0] <= 0:
+                continue
+            all_points.append(world_positions)
+
+            indices = None
+            if primitive.indices is not None:
+                indices = read_gltf_accessor(
+                    gltf=gltf,
+                    scene_path=scene_path,
+                    accessor_index=int(primitive.indices),
+                    buffer_cache=buffer_cache,
+                )
+            faces = gltf_tri_faces(indices=indices, vertex_count=world_positions.shape[0], mode=getattr(primitive, "mode", None))
+            for candidate in connected_component_candidates(points=world_positions, faces=faces):
+                candidate["node_index"] = int(node_index)
+                candidate["mesh_index"] = int(mesh_index)
+                candidate["primitive_index"] = int(primitive_index)
+                component_candidates.append(candidate)
+
+    points = np.concatenate(all_points, axis=0) if all_points else np.zeros((0, 3), dtype=np.float64)
+    raw = points_to_aabb(points)
+    robust = quantile_aabb(
+        points=points,
+        lower_pct=float(args.robust_aabb_lower_pct),
+        upper_pct=float(args.robust_aabb_upper_pct),
+    )
+
+    main_component = None
+    main_component_meta = None
+    if component_candidates:
+        component_candidates.sort(
+            key=lambda item: (
+                int(item.get("vertex_count", 0)),
+                float((item.get("aabb") or {}).get("max_dim") or 0.0),
+                float((item.get("aabb") or {}).get("volume") or 0.0),
+            ),
+            reverse=True,
+        )
+        best = component_candidates[0]
+        main_component = best.get("aabb")
+        main_component_meta = {
+            "vertex_count": int(best.get("vertex_count", 0)),
+            "face_count": int(best.get("face_count", 0)),
+            "node_index": int(best.get("node_index", -1)),
+            "mesh_index": int(best.get("mesh_index", -1)),
+            "primitive_index": int(best.get("primitive_index", -1)),
+            "component_candidates": int(len(component_candidates)),
+        }
+
+    return {
+        "raw": raw,
+        "robust": robust,
+        "main_component": main_component,
+        "main_component_meta": main_component_meta,
+        "vertex_count_total": int(points.shape[0]),
+        "quantile_bounds_pct": {
+            "lower": float(args.robust_aabb_lower_pct),
+            "upper": float(args.robust_aabb_upper_pct),
+        },
     }
 
 
@@ -143,6 +795,15 @@ def collect_env_meta() -> Dict:
     }
 
 
+def transform_plan_gltf_translation(transform_plan: Dict) -> List[float]:
+    world_translation = [float(v) for v in transform_plan["translation"]]
+    return [
+        world_translation[0],
+        -world_translation[2],
+        world_translation[1],
+    ]
+
+
 def build_sim(
     scene_path: Path,
     width: int,
@@ -179,6 +840,37 @@ def build_sim(
 
 def compute_scene_aabb(sim: habitat_sim.Simulator) -> Dict:
     return aabb_to_dict(sim.scene_aabb)
+
+
+def apply_rotation_to_aabb(aabb: Dict, rotation: np.ndarray) -> Dict:
+    min_v = np.asarray(aabb["min"], dtype=np.float64)
+    max_v = np.asarray(aabb["max"], dtype=np.float64)
+    corners = np.array(
+        [
+            [min_v[0], min_v[1], min_v[2]],
+            [min_v[0], min_v[1], max_v[2]],
+            [min_v[0], max_v[1], min_v[2]],
+            [min_v[0], max_v[1], max_v[2]],
+            [max_v[0], min_v[1], min_v[2]],
+            [max_v[0], min_v[1], max_v[2]],
+            [max_v[0], max_v[1], min_v[2]],
+            [max_v[0], max_v[1], max_v[2]],
+        ],
+        dtype=np.float64,
+    )
+    rotated = (rotation @ corners.T).T
+    min_r = np.min(rotated, axis=0)
+    max_r = np.max(rotated, axis=0)
+    size = max_r - min_r
+    center = (min_r + max_r) * 0.5
+    return {
+        "center": center.tolist(),
+        "size": size.tolist(),
+        "min": min_r.tolist(),
+        "max": max_r.tolist(),
+        "max_dim": float(np.max(size)),
+        "volume": float(np.prod(size)),
+    }
 
 
 def compute_transform_plan(
@@ -232,14 +924,11 @@ def apply_transform_to_aabb(aabb: Dict, scale: float, translation: List[float]) 
 def write_transformed_scene_glb(scene_path: Path, scene_dir: Path, transform_plan: Dict) -> Path:
     out_path = scene_dir / "scene_post_transform.glb"
     scale = float(transform_plan["scale"])
-    world_translation = [float(v) for v in transform_plan["translation"]]
-    # Habitat's GLB loader maps glTF root-node translation axes to world as:
-    # x->x, y->-z, z->y. Convert the desired world translation back to glTF space.
-    translation = [
-        world_translation[0],
-        -world_translation[2],
-        world_translation[1],
-    ]
+    # Habitat's GLB loader applies an implicit basis change to glTF transforms:
+    # world = Rx(-90deg) * glTF. We cancel that here with Rx(+90deg) on the
+    # root node, then convert the desired canonical world translation back into
+    # glTF space with the same inverse basis.
+    translation = transform_plan_gltf_translation(transform_plan=transform_plan)
 
     gltf = GLTF2().load_binary(str(scene_path))
     scene_index = gltf.scene if gltf.scene is not None else 0
@@ -254,11 +943,100 @@ def write_transformed_scene_glb(scene_path: Path, scene_dir: Path, transform_pla
     new_root = Node(
         name="trackgen_root_transform",
         children=old_roots,
+        rotation=HABITAT_GLTF_BASIS_CORRECTION_QUAT_XYZW,
         scale=[scale, scale, scale],
         translation=translation,
     )
     gltf.nodes.append(new_root)
     scene.nodes = [len(gltf.nodes) - 1]
+    gltf.save_binary(str(out_path))
+    return out_path
+
+
+def pad_binary_chunk(data: bytes) -> bytes:
+    padding = (-len(data)) % 4
+    return data if padding == 0 else (data + (b"\x00" * padding))
+
+
+def write_navmesh_component_scene_glb(scene_dir: Path, transform_plan: Dict, component_geometry: Dict) -> Path:
+    out_path = scene_dir / "navmesh_main_component.glb"
+    positions = np.asarray(component_geometry.get("positions_world"), dtype=np.float32)
+    faces_local = np.asarray(component_geometry.get("faces_local"), dtype=np.int64)
+    if positions.ndim != 2 or positions.shape[0] <= 0 or positions.shape[1] != 3:
+        raise RuntimeError("navmesh_component_positions_invalid")
+    if faces_local.ndim != 2 or faces_local.shape[0] <= 0 or faces_local.shape[1] != 3:
+        raise RuntimeError("navmesh_component_faces_invalid")
+
+    indices = np.asarray(faces_local.reshape(-1), dtype=np.uint32)
+    position_bytes = positions.astype("<f4", copy=False).tobytes()
+    position_blob = pad_binary_chunk(position_bytes)
+    index_bytes = indices.astype("<u4", copy=False).tobytes()
+    index_blob = pad_binary_chunk(index_bytes)
+    index_offset = len(position_blob)
+    binary_blob = position_blob + index_blob
+
+    primitive = Primitive(
+        attributes=Attributes(POSITION=0),
+        indices=1,
+        mode=GLTF_PRIMITIVE_MODE_TRIANGLES,
+    )
+    mesh = Mesh(primitives=[primitive], name="trackgen_navmesh_main_component")
+    root_node = Node(
+        name="trackgen_root_transform",
+        rotation=HABITAT_GLTF_BASIS_CORRECTION_QUAT_XYZW,
+        scale=[float(transform_plan["scale"])] * 3,
+        translation=transform_plan_gltf_translation(transform_plan=transform_plan),
+        children=[1],
+    )
+    component_node = Node(name="trackgen_navmesh_component_node", mesh=0)
+
+    gltf = GLTF2(
+        asset=Asset(version="2.0", generator="Track-Generation"),
+        scene=0,
+        scenes=[Scene(nodes=[0])],
+        nodes=[root_node, component_node],
+        meshes=[mesh],
+        buffers=[Buffer(byteLength=len(binary_blob))],
+        bufferViews=[
+            BufferView(
+                buffer=0,
+                byteOffset=0,
+                byteLength=len(position_bytes),
+                target=ARRAY_BUFFER,
+                name="positions",
+            ),
+            BufferView(
+                buffer=0,
+                byteOffset=index_offset,
+                byteLength=len(index_bytes),
+                target=ELEMENT_ARRAY_BUFFER,
+                name="indices",
+            ),
+        ],
+        accessors=[
+            Accessor(
+                bufferView=0,
+                byteOffset=0,
+                componentType=FLOAT,
+                count=int(positions.shape[0]),
+                type="VEC3",
+                min=np.min(positions, axis=0).astype(np.float64).tolist(),
+                max=np.max(positions, axis=0).astype(np.float64).tolist(),
+                name="POSITION",
+            ),
+            Accessor(
+                bufferView=1,
+                byteOffset=0,
+                componentType=UNSIGNED_INT,
+                count=int(indices.size),
+                type="SCALAR",
+                min=[int(np.min(indices))],
+                max=[int(np.max(indices))],
+                name="INDICES",
+            ),
+        ],
+    )
+    gltf.set_binary_blob(binary_blob)
     gltf.save_binary(str(out_path))
     return out_path
 
@@ -525,9 +1303,29 @@ def make_navmesh_skip_result(reason: str) -> Dict:
     }
 
 
+def navmesh_cache_identity_for_path(scene_source_path: Path) -> str:
+    try:
+        resolved = scene_source_path.resolve()
+    except Exception:
+        resolved = scene_source_path
+    try:
+        st = resolved.stat()
+        sha1 = hashlib.sha1()
+        with resolved.open("rb") as f:
+            while True:
+                chunk = f.read(1024 * 1024)
+                if not chunk:
+                    break
+                sha1.update(chunk)
+        return f"{resolved}|size={st.st_size}|sha1={sha1.hexdigest()}"
+    except Exception:
+        return str(resolved)
+
+
 def run_navmesh_strategy(
     sim: habitat_sim.Simulator,
     scene_id: str,
+    scene_source_path: Path,
     cache_dir: Path,
     max_dim: float,
     allow_navmesh: bool,
@@ -537,7 +1335,7 @@ def run_navmesh_strategy(
         return make_navmesh_skip_result(skip_reason or "navmesh_skipped")
 
     attempts = []
-    cache_key_seed = f"{scene_id}|{sim.config.sim_cfg.scene_id}"
+    cache_key_seed = f"{scene_id}|{navmesh_cache_identity_for_path(scene_source_path=scene_source_path)}"
     cache_key = hashlib.sha1(cache_key_seed.encode("utf-8")).hexdigest()[:16]
     cache_path = cache_dir / f"{scene_id}_{cache_key}.navmesh"
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -727,6 +1525,14 @@ def write_bootstrap(
     save_json(bootstrap_path, payload)
 
 
+def metric_distribution(values: List[float]) -> Dict:
+    return {
+        "min": float(min(values)) if values else None,
+        "median": float(np.median(values)) if values else None,
+        "p95": percentile(values, 95.0),
+    }
+
+
 def classify_anomaly(max_dim: Optional[float], volume: Optional[float], args) -> Dict:
     soft = False
     hard = False
@@ -755,12 +1561,119 @@ def classify_anomaly(max_dim: Optional[float], volume: Optional[float], args) ->
     }
 
 
+def classify_aabb_variants(aabb_variants: Dict, args, analysis_meta: Optional[Dict] = None) -> Dict:
+    normalized_variants = {
+        "raw": aabb_variants.get("raw") if isinstance(aabb_variants, dict) else None,
+        "robust": aabb_variants.get("robust") if isinstance(aabb_variants, dict) else None,
+        "main_component": aabb_variants.get("main_component") if isinstance(aabb_variants, dict) else None,
+    }
+    variant_status = {key: classify_anomaly(
+        max_dim=None if not is_valid_aabb(aabb) else float(aabb["max_dim"]),
+        volume=None if not is_valid_aabb(aabb) else float(aabb["volume"]),
+        args=args,
+    ) for key, aabb in normalized_variants.items()}
+
+    for key, aabb in normalized_variants.items():
+        variant_status[key]["valid"] = bool(is_valid_aabb(aabb))
+        if not variant_status[key]["valid"]:
+            variant_status[key]["reasons"] = list(variant_status[key].get("reasons") or []) + ["aabb_invalid"]
+
+    raw_status = variant_status["raw"]
+    robust_status = variant_status["robust"]
+    main_status = variant_status["main_component"]
+
+    effective_key = "raw"
+    selection_reason = "fallback_raw_only"
+    if raw_status["hard"]:
+        if robust_status["valid"] and not robust_status["hard"]:
+            effective_key = "robust"
+            selection_reason = "raw_hard_robust_normal"
+        elif main_status["valid"] and not main_status["hard"]:
+            effective_key = "main_component"
+            selection_reason = "raw_hard_main_component_normal"
+        elif robust_status["valid"]:
+            effective_key = "robust"
+            selection_reason = "raw_hard_fallback_robust"
+        elif main_status["valid"]:
+            effective_key = "main_component"
+            selection_reason = "raw_hard_fallback_main_component"
+        elif raw_status["valid"]:
+            effective_key = "raw"
+            selection_reason = "raw_hard_raw_only"
+    else:
+        if robust_status["valid"]:
+            effective_key = "robust"
+            selection_reason = "prefer_robust"
+        elif main_status["valid"]:
+            effective_key = "main_component"
+            selection_reason = "prefer_main_component"
+        elif raw_status["valid"]:
+            effective_key = "raw"
+            selection_reason = "fallback_raw_only"
+
+    effective_aabb = normalized_variants.get(effective_key)
+    if not is_valid_aabb(effective_aabb):
+        for fallback_key in ("robust", "main_component", "raw"):
+            if is_valid_aabb(normalized_variants.get(fallback_key)):
+                effective_key = fallback_key
+                effective_aabb = normalized_variants.get(fallback_key)
+                selection_reason = f"fallback_{fallback_key}_after_invalid_selection"
+                break
+
+    effective_status = classify_anomaly(
+        max_dim=None if not is_valid_aabb(effective_aabb) else float(effective_aabb["max_dim"]),
+        volume=None if not is_valid_aabb(effective_aabb) else float(effective_aabb["volume"]),
+        args=args,
+    )
+    effective_status["valid"] = bool(is_valid_aabb(effective_aabb))
+    if not effective_status["valid"]:
+        effective_status["reasons"] = list(effective_status.get("reasons") or []) + ["aabb_invalid"]
+
+    correctable = bool(raw_status["hard"] and effective_status["valid"] and not effective_status["hard"] and effective_key != "raw")
+    reasons = list(effective_status.get("reasons") or [])
+    if correctable:
+        reasons.append(f"correctable_raw_hard_via_{effective_key}")
+    elif raw_status["hard"] and effective_status["hard"]:
+        reasons.append("raw_and_effective_hard")
+
+    soft = bool(effective_status["soft"])
+    hard = bool(effective_status["hard"])
+    level = "hard" if hard else ("soft" if soft else ("correctable" if correctable else "normal"))
+
+    result = {
+        "level": level,
+        "soft": bool(soft),
+        "hard": bool(hard),
+        "correctable": bool(correctable),
+        "reasons": reasons,
+        "max_dim": effective_status.get("max_dim"),
+        "aabb_volume": effective_status.get("aabb_volume"),
+        "effective_key": effective_key,
+        "effective_aabb": effective_aabb,
+        "effective_status": effective_status,
+        "variant_status": variant_status,
+        "aabb_variants": {
+            **normalized_variants,
+            "effective": effective_aabb,
+        },
+        "selection_reason": selection_reason,
+    }
+    if isinstance(analysis_meta, dict):
+        result["aabb_analysis_meta"] = analysis_meta
+    return result
+
+
 def run_scene_stats_pass(scene_paths: List[Path], source_root: Path, stats_path: Path, seed: int, args) -> Dict:
     max_dims = []
     volumes = []
+    raw_max_dims = []
+    raw_volumes = []
+    robust_max_dims = []
+    main_component_max_dims = []
     entries = []
     anomaly_soft = []
     anomaly_hard = []
+    anomaly_correctable = []
 
     for scene_path in scene_paths:
         scene_id = scene_id_from_path(scene_path)
@@ -775,25 +1688,78 @@ def run_scene_stats_pass(scene_paths: List[Path], source_root: Path, stats_path:
                 seed=seed,
                 with_sensors=False,
             )
-            aabb = compute_scene_aabb(sim)
-            max_dim = float(aabb["max_dim"])
-            volume = float(aabb["volume"])
-            anomaly = classify_anomaly(max_dim=max_dim, volume=volume, args=args)
+            aabb_raw_world = compute_scene_aabb(sim)
+            aabb_raw_canonical = apply_rotation_to_aabb(
+                aabb=aabb_raw_world,
+                rotation=HABITAT_GLTF_BASIS_CORRECTION_MATRIX,
+            )
+            geometry_analysis_error = None
+            try:
+                geometry_analysis = analyze_gltf_aabb_variants(scene_path=scene_path, args=args)
+            except Exception as geometry_exc:
+                geometry_analysis = {
+                    "raw": aabb_raw_canonical,
+                    "robust": None,
+                    "main_component": None,
+                    "main_component_meta": None,
+                    "vertex_count_total": None,
+                    "quantile_bounds_pct": {
+                        "lower": float(args.robust_aabb_lower_pct),
+                        "upper": float(args.robust_aabb_upper_pct),
+                    },
+                }
+                geometry_analysis_error = str(geometry_exc)
+            aabb_variants = {
+                "raw": aabb_raw_canonical,
+                "robust": geometry_analysis.get("robust"),
+                "main_component": geometry_analysis.get("main_component"),
+            }
+            anomaly = classify_aabb_variants(
+                aabb_variants=aabb_variants,
+                args=args,
+                analysis_meta={
+                    "main_component_meta": geometry_analysis.get("main_component_meta"),
+                    "vertex_count_total": geometry_analysis.get("vertex_count_total"),
+                    "quantile_bounds_pct": geometry_analysis.get("quantile_bounds_pct"),
+                },
+            )
+            effective_aabb = anomaly.get("effective_aabb")
+            max_dim = float(effective_aabb["max_dim"]) if is_valid_aabb(effective_aabb) else None
+            volume = float(effective_aabb["volume"]) if is_valid_aabb(effective_aabb) else None
             row = {
                 "scene_id": scene_id,
                 "scene_path": str(scene_path),
                 "max_dim": max_dim,
                 "aabb_volume": volume,
+                "raw_max_dim": float(aabb_raw_canonical["max_dim"]),
+                "raw_aabb_volume": float(aabb_raw_canonical["volume"]),
+                "robust_max_dim": None if not is_valid_aabb(aabb_variants.get("robust")) else float(aabb_variants["robust"]["max_dim"]),
+                "main_component_max_dim": None if not is_valid_aabb(aabb_variants.get("main_component")) else float(aabb_variants["main_component"]["max_dim"]),
+                "effective_key": anomaly.get("effective_key"),
+                "selection_reason": anomaly.get("selection_reason"),
+                "correctable_anomaly": bool(anomaly.get("correctable")),
                 "anomaly_level": anomaly["level"],
                 "anomaly_reasons": anomaly["reasons"],
+                "aabb_analysis_error": geometry_analysis_error,
+                "anomaly": anomaly,
             }
             entries.append(row)
-            max_dims.append(max_dim)
-            volumes.append(volume)
+            if max_dim is not None:
+                max_dims.append(max_dim)
+            if volume is not None:
+                volumes.append(volume)
+            raw_max_dims.append(float(aabb_raw_canonical["max_dim"]))
+            raw_volumes.append(float(aabb_raw_canonical["volume"]))
+            if is_valid_aabb(aabb_variants.get("robust")):
+                robust_max_dims.append(float(aabb_variants["robust"]["max_dim"]))
+            if is_valid_aabb(aabb_variants.get("main_component")):
+                main_component_max_dims.append(float(aabb_variants["main_component"]["max_dim"]))
             if anomaly["soft"]:
                 anomaly_soft.append(scene_id)
             if anomaly["hard"]:
                 anomaly_hard.append(scene_id)
+            if anomaly.get("correctable"):
+                anomaly_correctable.append(scene_id)
         except Exception as exc:
             entries.append(
                 {
@@ -817,20 +1783,19 @@ def run_scene_stats_pass(scene_paths: List[Path], source_root: Path, stats_path:
             "anomaly_max_dim_soft": float(args.anomaly_max_dim_soft),
             "anomaly_max_dim_hard": float(args.anomaly_max_dim_hard),
             "anomaly_aabb_volume_hard": float(args.anomaly_aabb_volume_hard),
+            "robust_aabb_lower_pct": float(args.robust_aabb_lower_pct),
+            "robust_aabb_upper_pct": float(args.robust_aabb_upper_pct),
         },
-        "max_dim": {
-            "min": float(min(max_dims)) if max_dims else None,
-            "median": float(np.median(max_dims)) if max_dims else None,
-            "p95": percentile(max_dims, 95.0),
-        },
-        "aabb_volume": {
-            "min": float(min(volumes)) if volumes else None,
-            "median": float(np.median(volumes)) if volumes else None,
-            "p95": percentile(volumes, 95.0),
-        },
+        "max_dim": metric_distribution(max_dims),
+        "aabb_volume": metric_distribution(volumes),
+        "raw_max_dim": metric_distribution(raw_max_dims),
+        "raw_aabb_volume": metric_distribution(raw_volumes),
+        "robust_max_dim": metric_distribution(robust_max_dims),
+        "main_component_max_dim": metric_distribution(main_component_max_dims),
         "anomaly_scenes": sorted(set(anomaly_soft)),
         "anomaly_soft_scenes": sorted(set(anomaly_soft)),
         "anomaly_hard_scenes": sorted(set(anomaly_hard)),
+        "anomaly_correctable_scenes": sorted(set(anomaly_correctable)),
         "scenes": entries,
     }
     save_json(stats_path, stats)
@@ -894,6 +1859,15 @@ def synthesize_scene_init_for_quarantine(
         "quarantine": True,
         "quarantine_reason": "hard_anomaly_policy",
         "anomaly": anomaly_info,
+        "aabb_selection": {
+            "effective_key": anomaly_info.get("effective_key"),
+            "selection_reason": anomaly_info.get("selection_reason"),
+        }
+        if isinstance(anomaly_info, dict)
+        else None,
+        "aabb_variants_pre": None if not isinstance(anomaly_info, dict) else anomaly_info.get("aabb_variants"),
+        "aabb_pre_effective": None if not isinstance(anomaly_info, dict) else anomaly_info.get("effective_aabb"),
+        "scene_aabb_effective": None if not isinstance(anomaly_info, dict) else anomaly_info.get("effective_aabb"),
         "scene_stats_json": str(stats_path),
         "source_root": str(args.source_root),
         "scene_init_ok": False,
@@ -1054,12 +2028,24 @@ def run_stage0_scene_worker(
     warnings = []
     pre_sim = None
     post_sim = None
+    navmesh_sim = None
     stage_path = None
     scene_instance_path = None
     transformed_scene_path = None
+    navmesh_scene_source_path = None
+    navmesh_scene_mode = "full_scene"
     aabb_pre = None
+    aabb_pre_canonical = None
+    aabb_pre_effective = None
+    aabb_pre_effective_world = None
+    aabb_variants_pre = None
+    aabb_selection = None
     aabb_post = None
     aabb_post_expected = None
+    aabb_post_expected_effective = None
+    navmesh_input_aabb = None
+    navmesh_input_anomaly = None
+    main_component_proxy_required = False
     transform_plan = None
     pose_pre = None
     pose_post = None
@@ -1073,9 +2059,6 @@ def run_stage0_scene_worker(
 
     allow_navmesh = True
     navmesh_skip_reason = None
-    if anomaly_info.get("soft") and args.skip_navmesh_soft_anomaly:
-        allow_navmesh = False
-        navmesh_skip_reason = "navmesh_skipped_soft_anomaly"
 
     try:
         write_bootstrap(bootstrap_path, scene_id, scene_path, stage="LOAD_SIM_PRE")
@@ -1093,23 +2076,47 @@ def run_stage0_scene_worker(
         aabb_pre = compute_scene_aabb(pre_sim)
         if not np.isfinite(aabb_pre["max_dim"]) or aabb_pre["max_dim"] <= 1e-6:
             fail_fast_reasons.append("AABB_INVALID_SIZE")
+        aabb_pre_canonical = apply_rotation_to_aabb(
+            aabb=aabb_pre,
+            rotation=HABITAT_GLTF_BASIS_CORRECTION_MATRIX,
+        )
+        aabb_selection = resolve_runtime_aabb_variants(
+            raw_aabb_canonical=aabb_pre_canonical,
+            anomaly_info=anomaly_info,
+        )
+        aabb_variants_pre = dict(aabb_selection.get("variants") or {})
+        aabb_pre_effective = aabb_selection.get("effective_aabb")
+        if not is_valid_aabb(aabb_pre_effective):
+            aabb_pre_effective = aabb_pre_canonical
+            aabb_variants_pre["effective"] = aabb_pre_effective
+            aabb_selection["effective_key"] = "raw"
+        if is_valid_aabb(aabb_pre_effective):
+            aabb_pre_effective_world = apply_rotation_to_aabb(
+                aabb=aabb_pre_effective,
+                rotation=HABITAT_GLTF_BASIS_CORRECTION_MATRIX.T,
+            )
 
         write_bootstrap(bootstrap_path, scene_id, scene_path, stage="COMPUTE_TRANSFORM_PLAN")
         transform_plan = compute_transform_plan(
-            aabb=aabb_pre,
+            aabb=aabb_pre_effective if is_valid_aabb(aabb_pre_effective) else aabb_pre_canonical,
             target_min_dim=args.target_min_dim,
             target_max_dim=args.target_max_dim,
             align_floor_to_zero=(not args.disable_floor_align),
         )
         aabb_post_expected = apply_transform_to_aabb(
-            aabb_pre,
+            aabb_pre_canonical,
+            scale=float(transform_plan["scale"]),
+            translation=list(transform_plan["translation"]),
+        )
+        aabb_post_expected_effective = apply_transform_to_aabb(
+            aabb_pre_effective if is_valid_aabb(aabb_pre_effective) else aabb_pre_canonical,
             scale=float(transform_plan["scale"]),
             translation=list(transform_plan["translation"]),
         )
 
         write_bootstrap(bootstrap_path, scene_id, scene_path, stage="RENDER_PRE_DEBUG")
         pose_pre = build_debug_cam_pose(
-            aabb=aabb_pre,
+            aabb=aabb_pre_effective_world if is_valid_aabb(aabb_pre_effective_world) else aabb_pre,
             fov_deg=args.hfov,
             near=args.znear,
             far=args.zfar,
@@ -1173,7 +2180,7 @@ def run_stage0_scene_worker(
 
         write_bootstrap(bootstrap_path, scene_id, scene_path, stage="RENDER_POST_DEBUG")
         pose_post = build_debug_cam_pose(
-            aabb=aabb_post,
+            aabb=aabb_post_expected_effective if is_valid_aabb(aabb_post_expected_effective) else aabb_post,
             fov_deg=args.hfov,
             near=args.znear,
             far=args.zfar,
@@ -1189,15 +2196,97 @@ def run_stage0_scene_worker(
         if depth_meta_post["valid_ratio"] <= 0.0:
             fail_fast_reasons.append("POST_RENDER_DEPTH_EMPTY")
 
-        write_bootstrap(bootstrap_path, scene_id, scene_path, stage="NAVMESH")
-        navmesh = run_navmesh_strategy(
-            sim=post_sim,
-            scene_id=scene_id,
-            cache_dir=navmesh_cache_dir,
-            max_dim=float((aabb_post or aabb_pre)["max_dim"]),
-            allow_navmesh=allow_navmesh,
-            skip_reason=navmesh_skip_reason,
-        )
+        navmesh_scene_source_path = transformed_scene_path or scene_path
+        component_geometry = find_main_component_geometry(scene_path=scene_path, anomaly_info=anomaly_info)
+        if component_geometry is not None and transform_plan is not None:
+            main_component_proxy_required = True
+            navmesh_scene_mode = str(component_geometry.get("source") or "main_component")
+            warnings.append("MAIN_COMPONENT_PROXY_UNSUPPORTED")
+            write_bootstrap(
+                bootstrap_path,
+                scene_id,
+                scene_path,
+                stage="MAIN_COMPONENT_PROXY_UNSUPPORTED",
+                detail="main_component_only",
+                extra=component_geometry.get("meta"),
+            )
+
+        if post_sim is not None:
+            try:
+                post_sim.close()
+            except Exception:
+                pass
+            post_sim = None
+
+        if main_component_proxy_required:
+            navmesh = make_navmesh_skip_result("main_component_proxy_unsupported")
+            navmesh_scene_source_path = None
+        else:
+            write_bootstrap(
+                bootstrap_path,
+                scene_id,
+                scene_path,
+                stage="LOAD_SIM_NAVMESH",
+                detail=navmesh_scene_mode,
+                extra={"scene_source": str(navmesh_scene_source_path)},
+            )
+            navmesh_sim = build_sim(
+                scene_path=navmesh_scene_source_path,
+                width=args.width,
+                height=args.height,
+                hfov=args.hfov,
+                zfar=args.zfar,
+                seed=args.seed,
+                with_sensors=False,
+            )
+
+            write_bootstrap(bootstrap_path, scene_id, scene_path, stage="COMPUTE_AABB_NAVMESH_INPUT")
+            navmesh_input_aabb = compute_scene_aabb(navmesh_sim)
+            navmesh_input_anomaly = classify_anomaly(
+                max_dim=None if not is_valid_aabb(navmesh_input_aabb) else float(navmesh_input_aabb["max_dim"]),
+                volume=None if not is_valid_aabb(navmesh_input_aabb) else float(navmesh_input_aabb["volume"]),
+                args=args,
+            )
+            navmesh_input_anomaly["valid"] = bool(is_valid_aabb(navmesh_input_aabb))
+            if not navmesh_input_anomaly["valid"]:
+                navmesh_input_anomaly["reasons"] = list(navmesh_input_anomaly.get("reasons") or []) + ["aabb_invalid"]
+
+            allow_navmesh = True
+            navmesh_skip_reason = None
+            if args.skip_navmesh_soft_anomaly and navmesh_input_anomaly.get("soft"):
+                allow_navmesh = False
+                navmesh_skip_reason = "navmesh_skipped_soft_anomaly"
+                write_bootstrap(
+                    bootstrap_path,
+                    scene_id,
+                    scene_path,
+                    stage="NAVMESH_SKIP_POLICY",
+                    detail=navmesh_skip_reason,
+                    extra={
+                        "navmesh_scene_mode": navmesh_scene_mode,
+                        "navmesh_input_aabb": navmesh_input_aabb,
+                        "navmesh_input_anomaly": navmesh_input_anomaly,
+                    },
+                )
+
+            write_bootstrap(bootstrap_path, scene_id, scene_path, stage="NAVMESH")
+            navmesh = run_navmesh_strategy(
+                sim=navmesh_sim,
+                scene_id=scene_id,
+                scene_source_path=(navmesh_scene_source_path or transformed_scene_path or scene_path),
+                cache_dir=navmesh_cache_dir,
+                max_dim=float(
+                    (
+                        navmesh_input_aabb
+                        or aabb_post_expected_effective
+                        or aabb_pre_effective
+                        or aabb_post
+                        or aabb_pre
+                    )["max_dim"]
+                ),
+                allow_navmesh=allow_navmesh,
+                skip_reason=navmesh_skip_reason,
+            )
     except Exception as exc:
         fail_fast_reasons.append(f"SCENE_INIT_EXCEPTION:{exc}")
         write_bootstrap(
@@ -1211,6 +2300,11 @@ def run_stage0_scene_worker(
         if pre_sim is not None:
             try:
                 pre_sim.close()
+            except Exception:
+                pass
+        if navmesh_sim is not None:
+            try:
+                navmesh_sim.close()
             except Exception:
                 pass
         if post_sim is not None:
@@ -1235,6 +2329,13 @@ def run_stage0_scene_worker(
 
     run_state = "OK" if scene_init_ok else "FAIL"
     status = "OK" if scene_init_ok else "FAIL"
+    anomaly_payload = dict(anomaly_info or {})
+    if isinstance(anomaly_payload, dict):
+        anomaly_payload["aabb_variants"] = aabb_variants_pre if isinstance(aabb_variants_pre, dict) else anomaly_payload.get("aabb_variants")
+        anomaly_payload["effective_aabb"] = aabb_pre_effective if is_valid_aabb(aabb_pre_effective) else anomaly_payload.get("effective_aabb")
+        if isinstance(aabb_selection, dict):
+            anomaly_payload["effective_key"] = aabb_selection.get("effective_key")
+            anomaly_payload["selection_reason"] = aabb_selection.get("selection_reason")
 
     payload = {
         "scene_id": scene_id,
@@ -1244,7 +2345,7 @@ def run_stage0_scene_worker(
         "status": status,
         "run_state": run_state,
         "quarantine": False,
-        "anomaly": anomaly_info,
+        "anomaly": anomaly_payload,
         "seed": int(args.seed),
         "sensor_config": {
             "width": int(args.width),
@@ -1257,12 +2358,28 @@ def run_stage0_scene_worker(
         "source_root": str(args.source_root),
         "scene_stats_json": str(stats_path),
         "aabb_pre": aabb_pre,
+        "aabb_pre_canonical": aabb_pre_canonical,
+        "aabb_variants_pre": aabb_variants_pre,
+        "aabb_selection": aabb_selection,
+        "aabb_pre_effective": aabb_pre_effective,
         "aabb_post_expected": aabb_post_expected,
+        "aabb_post_expected_effective": aabb_post_expected_effective,
         "aabb_post": aabb_post,
+        "navmesh_input_aabb": navmesh_input_aabb,
+        "navmesh_input_anomaly": navmesh_input_anomaly,
+        "main_component_proxy_required": bool(main_component_proxy_required),
+        "scene_aabb_effective": aabb_post_expected_effective if is_valid_aabb(aabb_post_expected_effective) else aabb_post,
         "transform_plan": transform_plan,
         "transform_verification": transform_verification,
         "transform_apply_mode": None if not isinstance(transform_plan, dict) else transform_plan.get("apply_mode"),
+        "loader_basis_correction": {
+            "applied": True,
+            "rotation_x_deg": float(HABITAT_GLTF_BASIS_CORRECTION_ROTATION_X_DEG),
+            "rotation_quat_xyzw": HABITAT_GLTF_BASIS_CORRECTION_QUAT_XYZW,
+        },
         "post_scene_source": str(post_scene_source_path) if post_scene_source_path else None,
+        "navmesh_scene_source": str(navmesh_scene_source_path) if navmesh_scene_source_path else None,
+        "navmesh_scene_mode": navmesh_scene_mode,
         "stage_post_transform": str(stage_path) if stage_path else None,
         "scene_instance_transform": str(scene_instance_path) if scene_instance_path else None,
         "transformed_scene_glb": str(transformed_scene_path) if transformed_scene_path else None,
@@ -1294,6 +2411,7 @@ def run_stage0_scene_worker(
             "scene_post_transform": str(transformed_scene_path) if transformed_scene_path else None,
             "stage_post_transform": str(stage_path) if stage_path else None,
             "canonical_scene_source": str(post_scene_source_path) if post_scene_source_path else None,
+            "navmesh_scene_source": str(navmesh_scene_source_path) if navmesh_scene_source_path else None,
             "debug_rgb": str(scene_dir / "debug_rgb.png"),
             "debug_depth": str(scene_dir / "debug_depth.png"),
             "debug_depth_clip": str(scene_dir / "debug_depth_clip.png"),
@@ -1308,7 +2426,7 @@ def run_stage0_scene_worker(
     save_json(scene_init_path, payload)
     write_bootstrap(bootstrap_path, scene_id, scene_path, stage="DONE")
 
-    fail_reason = fail_fast_reasons[0] if fail_fast_reasons else None
+    fail_reason = fail_fast_reasons[0] if fail_fast_reasons else navmesh["navmesh_fail_reason"]
     return {
         "status": status,
         "scene_init_ok": bool(scene_init_ok),
@@ -1335,8 +2453,56 @@ def discover_scene_inventory(source_root: Path, single_scene: Optional[Path]) ->
     return [scene_resolved], {str(scene_resolved): 1}, 1
 
 
+def resolve_runtime_aabb_variants(raw_aabb_canonical: Optional[Dict], anomaly_info: Optional[Dict]) -> Dict:
+    variants = {}
+    if isinstance(anomaly_info, dict):
+        for key in ("raw", "robust", "main_component", "effective"):
+            aabb = (anomaly_info.get("aabb_variants") or {}).get(key)
+            if is_valid_aabb(aabb):
+                variants[key] = aabb
+
+    if is_valid_aabb(raw_aabb_canonical):
+        variants["raw"] = raw_aabb_canonical
+
+    preferred_key = "raw"
+    selection_reason = None
+    if isinstance(anomaly_info, dict):
+        preferred_key = str(anomaly_info.get("effective_key") or preferred_key)
+        selection_reason = anomaly_info.get("selection_reason")
+
+    effective = variants.get(preferred_key)
+    if not is_valid_aabb(effective):
+        effective = select_first_valid_aabb(
+            variants.get("robust"),
+            variants.get("main_component"),
+            variants.get("raw"),
+        )
+        if effective is variants.get("robust"):
+            preferred_key = "robust"
+        elif effective is variants.get("main_component"):
+            preferred_key = "main_component"
+        else:
+            preferred_key = "raw"
+        selection_reason = f"fallback_{preferred_key}_after_invalid_selection"
+
+    if is_valid_aabb(effective):
+        variants["effective"] = effective
+    return {
+        "variants": variants,
+        "effective_key": preferred_key,
+        "effective_aabb": variants.get("effective"),
+        "selection_reason": selection_reason,
+    }
+
+
 def parse_anomaly_for_scene(scene_path: Path, scene_stats_index: Dict[str, Dict], args) -> Dict:
     row = scene_stats_index.get(str(scene_path.resolve())) or {}
+    anomaly = row.get("anomaly")
+    if isinstance(anomaly, dict):
+        out = dict(anomaly)
+        out["from_scene_stats"] = True
+        return out
+
     max_dim = row.get("max_dim")
     volume = row.get("aabb_volume")
     max_dim_val = float(max_dim) if isinstance(max_dim, (float, int)) else None
@@ -1382,6 +2548,10 @@ def build_worker_cmd(script_path: Path, scene_path: Path, args) -> List[str]:
         str(args.anomaly_max_dim_hard),
         "--anomaly-aabb-volume-hard",
         str(args.anomaly_aabb_volume_hard),
+        "--robust-aabb-lower-pct",
+        str(args.robust_aabb_lower_pct),
+        "--robust-aabb-upper-pct",
+        str(args.robust_aabb_upper_pct),
         "--skip-stats",
         "--no-resume",
     ]
@@ -1435,12 +2605,15 @@ def run_scene_with_subprocess(
     stdout_text = ""
     stderr_text = ""
 
+    worker_timeout = float(args.worker_timeout_sec)
+    timeout_value = worker_timeout if worker_timeout > 0 else None
+
     try:
         proc = subprocess.run(
             worker_cmd,
             capture_output=True,
             text=True,
-            timeout=float(args.worker_timeout_sec),
+            timeout=timeout_value,
             check=False,
         )
         worker_exit_code = int(proc.returncode)
@@ -1608,7 +2781,7 @@ def main():
 
     parser.add_argument("--subprocess-isolation", dest="subprocess_isolation", action="store_true", default=True)
     parser.add_argument("--no-subprocess-isolation", dest="subprocess_isolation", action="store_false")
-    parser.add_argument("--worker-timeout-sec", type=float, default=240.0)
+    parser.add_argument("--worker-timeout-sec", type=float, default=240.0, help="per-scene worker timeout in seconds; <=0 disables timeout")
 
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--width", type=int, default=640)
@@ -1625,14 +2798,24 @@ def main():
     parser.add_argument("--anomaly-max-dim-soft", type=float, default=200.0)
     parser.add_argument("--anomaly-max-dim-hard", type=float, default=1000.0)
     parser.add_argument("--anomaly-aabb-volume-hard", type=float, default=1.0e10)
+    parser.add_argument("--robust-aabb-lower-pct", type=float, default=0.5)
+    parser.add_argument("--robust-aabb-upper-pct", type=float, default=99.5)
     parser.add_argument("--quarantine-hard-anomaly", dest="quarantine_hard_anomaly", action="store_true", default=True)
     parser.add_argument("--no-quarantine-hard-anomaly", dest="quarantine_hard_anomaly", action="store_false")
-    parser.add_argument("--skip-navmesh-soft-anomaly", dest="skip_navmesh_soft_anomaly", action="store_true", default=True)
+    parser.add_argument("--skip-navmesh-soft-anomaly", dest="skip_navmesh_soft_anomaly", action="store_true", default=False)
     parser.add_argument("--no-skip-navmesh-soft-anomaly", dest="skip_navmesh_soft_anomaly", action="store_false")
 
     parser.add_argument("--worker-scene", type=Path, default=None, help=argparse.SUPPRESS)
 
     args = parser.parse_args()
+
+    args.robust_aabb_lower_pct = float(np.clip(args.robust_aabb_lower_pct, 0.0, 100.0))
+    args.robust_aabb_upper_pct = float(np.clip(args.robust_aabb_upper_pct, 0.0, 100.0))
+    if args.robust_aabb_upper_pct < args.robust_aabb_lower_pct:
+        args.robust_aabb_lower_pct, args.robust_aabb_upper_pct = (
+            args.robust_aabb_upper_pct,
+            args.robust_aabb_lower_pct,
+        )
 
     if args.worker_scene is not None:
         run_worker_entry(args)
